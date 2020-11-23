@@ -13,7 +13,7 @@ module mips_cpu_bus(
     output logic[31:0] writedata,
     output logic[3:0] byteenable,
     output logic[31:0] readdata
-  );
+    );
     /* Instruction formats:
     R-type: opcode (6) rs (5) rt (5) rd (5) shift (5) function (5)
     I-tyoe: opcode (6) rs (5) rt (5) imm (16)
@@ -50,3 +50,16 @@ module mips_cpu_bus(
         BLTZ = 5'b00000, //if(rs < 0) then pc <= pc + imm>>2
         BLTZAL = 5'b10000, //$ra <= pc + 8, if(rs < 0) then pc <= pc + imm>>2
     } REGIMM_t
+
+
+    logic[31:0] pc;
+    logic[31:0] intr;
+    logic ir_write;
+
+    logic[4:0] rs, rt, rd;
+    logic[31:0] reg_writedata, reg_readdata1, reg_readdata2;
+    logic reg_write_en;
+
+    mips_cpu_reg_file reg(clk, reset, rs, rt, rd, reg_writedata, reg_write_en, reg_readdata1, reg_readdata2);
+
+endmodule
