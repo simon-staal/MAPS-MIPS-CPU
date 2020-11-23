@@ -15,18 +15,29 @@ module mips_cpu_bus(
     output logic[31:0] readdata
   );
     /* Instruction formats:
-    R-type: opcode (6) source1 (5) source2 (5) dest (5) shift (5) function (5)
-    I-tyoe: opcode (6) source (5) dest (5) imm (16)
+    R-type: opcode (6) rs (5) rt (5) rd (5) shift (5) function (5)
+    I-tyoe: opcode (6) rs (5) rt (5) imm (16)
     J-type: opcode (6) mem (26)
+
+    Delay slots:
+    Jump and branch instructions all have a "delay slot", meaning that the instruction
+    after the branch or jump is executed before the branch or jump is executed. The
+    processor should therefore execute the branch instruction and the delay slot instruction
+    as an indivisible unit if an exception occurs as a result of executing the delay
+    slot instruction, the branch or jump is not executed. This means that you when 
+    branching or jumping you should first increment the pc to the next instruction
+    before performing a jump or branch.
     */
     typedef enum logic[5:0] {
         OPCODE_R = 6'b00000, // Register type instructions
-        OPCODE_ADDIU = 6'b001001,
-        OPCODE_ANDI = 6'b001100,
+        OPCODE_ADDIU = 6'b001001, //rt = rs + imm
+        OPCODE_ANDI = 6'b001100, //rt = rs & imm (note: & represents bitwise and)
+        OPCODE_BEQ = 6'b000100, //if(rs == rt) then pc <= pc + imm>>2
+        OPCODE_BGEZ = 6'b00001, //if(rs >= 0) then pc <= pc + imm>>2 (note: rt == 00001)
 
     } opcode_t;
 
     typedef enum logic[5:0] {
-        FUNCTION_ADDU = 6'b100001, //$s1 = $s2 + $s3
-        FUNCTION_AND = 6'b100100,
+        FUNCTION_ADDU = 6'b100001, //rd = rs + rt (shift = 0)
+        FUNCTION_AND = 6'b100100, //rd = rs & rt (shift = 0)
     } function_t;
