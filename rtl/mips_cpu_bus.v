@@ -12,7 +12,7 @@ module mips_cpu_bus(
     input logic waitrequest,
     output logic[31:0] writedata,
     output logic[3:0] byteenable,
-    output logic[31:0] readdata
+    input logic[31:0] readdata
     );
     /* Instruction formats:
     R-type: opcode (6) rs (5) rt (5) rd (5) shift (5) function (5)
@@ -51,12 +51,32 @@ module mips_cpu_bus(
         BLTZAL = 5'b10000, //$ra <= pc + 8, if(rs < 0) then pc <= pc + imm>>2
     } REGIMM_t
 
+    //TODO: discuss logic for FSM and implement
+    typedef enum logic[] {
+        FETCH = 2'b00,
+    } state_t;
 
     logic[31:0] pc;
-    logic[31:0] intr;
+    logic[31:0] ir;
     logic ir_write;
 
-    logic[4:0] rs, rt, rd;
+    //Divide intruction into seperate signals
+    logic[31:0] instr;
+    opcode_t intr_opcode;
+    function_t instr_function;
+    logic[4:0] rs, rt, rd, shift;
+    logic[15:0] instr_imm;
+    logic[25:0] instr_index;
+
+    assign instr = (state==FETCH) ? readdata : ir;
+    assign intr_opcode = instr[31:26];
+    assign rs = instr[25:21];
+    assign rt = instr[20:16];
+    assign rd = instr[15:11];
+    assign instr_function = instr[5:0];
+    assign instr_imm = instr[15:0];
+    assign instr_index = intr[25:0];
+
     logic[31:0] reg_writedata, reg_readdata1, reg_readdata2;
     logic reg_write_en;
 
