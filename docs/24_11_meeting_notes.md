@@ -2,16 +2,16 @@
 
 ## 23/11
 
-Start on instruction test benches now as they are irrespective of CPU implementation.
+- Start on instruction test benches now as they are irrespective of CPU implementation.
 
-OPCODE is 6 bits.
+- OPCODE is 6 bits.
 
 Split opcode instruction so that each person does 9 instructions:
-Simon: ANDI - BNE (inclusive)
-PV: DIV - LH
-Salman: LHU - MULTU
-Myriam: OR - SLTIU
-Adam: SLTU - XORI
+- Simon: ANDI to BNE (inclusive)
+- PV: DIV to LH
+- Salman: LHU to MULTU
+- Myriam: OR to SLTIU
+- Adam: SLTU to XORI
 
 Tasks for 25/11:
 - OPCODE's finished and commented.
