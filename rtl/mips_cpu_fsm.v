@@ -25,7 +25,7 @@ module mips_cpu_fsm(
             s <= (waitrequest) ? FETCH : EXEC;
         end
         else if(s == EXEC) begin
-            s <= () ? MEM_ACCESS : WRITE_BACK; //Add condition if instruction requires mem access
+            s <= () ? MEM_ACCESS : () : FETCH : WRITE_BACK; //Add condition if instruction requires mem access / if instruction requires writing back to a register
         end
         else if(s == MEM_ACCESS) begin
             s <= (waitrequest) ? MEM_ACCESS : () FETCH : WRITE_BACK; //Instructions that write to memory can go back to fetch instead of write_back
