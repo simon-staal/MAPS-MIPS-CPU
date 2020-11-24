@@ -26,11 +26,11 @@ module mips_cpu_reg_file(
     */
     logic [32][31:0] regs;
 
-    always_comb begin
-      readdata1 = regs[a1];
-      readdata2 = regs[a2];
+    always_ff @(posedge clk) begin
+      readdata1 <= regs[a1];
+      readdata2 <= regs[a2];
       if(write_en) begin
-        regs[a3] = writedata;
+        regs[a3] <= writedata;
       end
     end
 
