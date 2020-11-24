@@ -35,7 +35,7 @@ module mips_cpu_bus(
         OPCODE_REGIMM = 6'b00001,  //Behaviour depends on the rt field (see below)
         OPCODE_BGTZ = 6'b000111, //if(rs > 0) then pc <= pc + imm>>2 (rt == 00000)
         OPCODE_BLEZ = 6'b000110, //if(rs <= 0) then pc <= pc + imm>>2 (rt == 00000)
-        OPCODE_BNE = 6'b000101 //if(rs != rt) then pc <= pc + imm>>2
+        OPCODE_BNE = 6'b000101, //if(rs != rt) then pc <= pc + imm>>2
         FUNCTION_SLTU = 6'b101011, // $rd := $rs < $rt. Unsigned less-than comparison.
       	FUNCTION_SRA = 6'b000011, // $rd := rt >> c. Arithmetic shift right by c bits.
       	FUNCTION_SRAV = 6'b000111, // $rd := $rt >> $rs. Variable Arithmetic shift right, i.e. by a register variable.
@@ -57,12 +57,16 @@ module mips_cpu_bus(
         BGEZ = 5'b00001, //if(rs >= 0) then pc <= pc + imm>>2
         BGEZAL = 5'b10001, //$ra <= pc + 8, if(rs >= 0) then pc <= pc + imm>>2 (places return address in $ra)
         BLTZ = 5'b00000, //if(rs < 0) then pc <= pc + imm>>2
-        BLTZAL = 5'b10000, //$ra <= pc + 8, if(rs < 0) then pc <= pc + imm>>2
+        BLTZAL = 5'b10000 //$ra <= pc + 8, if(rs < 0) then pc <= pc + imm>>2
     } REGIMM_t
 
     //TODO: discuss logic for FSM and implement
-    typedef enum logic[] {
-        FETCH = 2'b00,
+    typedef enum logic[3:0] {
+        FETCH = 3'b000,
+        EXEC = 3'b001,
+        MEM_ACCESS = 3'b010,
+        WRITE_BACK = 3'b011,
+        HALTED = 3'b111
     } state_t;
 
     logic[31:0] pc;
@@ -89,6 +93,12 @@ module mips_cpu_bus(
     logic[31:0] reg_writedata, reg_readdata1, reg_readdata2;
     logic reg_write_en;
 
+    logic [32][31:0] regs;
     mips_cpu_reg_file reg(clk, reset, rs, rt, rd, reg_writedata, reg_write_en, reg_readdata1, reg_readdata2);
 
+
+    initial begin
+        state = HALTED;
+        active = 0;
+    end
 endmodule
