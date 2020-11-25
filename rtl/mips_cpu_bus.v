@@ -36,6 +36,11 @@ module mips_cpu_bus(
         OPCODE_BGTZ = 6'b000111, //if(rs > 0) then pc <= pc + imm>>2 (rt == 00000)
         OPCODE_BLEZ = 6'b000110, //if(rs <= 0) then pc <= pc + imm>>2 (rt == 00000)
         OPCODE_BNE = 6'b000101, //if(rs != rt) then pc <= pc + imm>>2
+        OPCODE_ORI=6'b001101,// does a bitwise logical or with constant rd<--rs or immediate
+    		OPCODE_SB=6'b101000,//stores a byte to memory memory(base+offset)=rt?
+    		OPCODE_SH=6'b101001,//store a halfword to memory memory(base+offset)=rt?
+    		OPCODE_SLTI=6'b001010 // to record the result of a less than comparison with a conse rt=(rs<immediate)
+        OPCODE_SLTIU=6'b001011 //to record the result of an unsigned less than comparison with a conse rt=(rs<immediate)
         OPCODE_SW = 6'b101011, // memory[base+offset] := $rt. Stores register rt in memory with an offset.
       	OPCODE_XORI = 6'b001110 // $rt := $rs XORI c. Logical XOR between $rs and constant c.
     } opcode_t;
@@ -43,6 +48,10 @@ module mips_cpu_bus(
     typedef enum logic[5:0] {
         FUNCTION_ADDU = 6'b100001, //rd = rs + rt (shift = 0)
         FUNCTION_AND = 6'b100100, //rd = rs & rt (shift = 0)
+        FUNCTION_OR= 6'b100101, // does bitwise logical OR rd<--rs OR rt
+        FUNCTION_SLL=6'b000000, // to left shift a word by a fixed number of bits rd=rt<<sa (shift amt)
+        FUNCTION_SLLV=6'b000100,// to left shift by a variable nb of bits rd=rt<<rs
+        FUNCTION_SLT=6'b101010,// to record the result of a less than comparison rd=(rs<rt)
         FUNCTION_SLTU = 6'b101011, // $rd := $rs < $rt. Unsigned less-than comparison.
       	FUNCTION_SRA = 6'b000011, // $rd := rt >> c. Arithmetic shift right by c bits.
       	FUNCTION_SRAV = 6'b000111, // $rd := $rt >> $rs. Variable Arithmetic shift right, i.e. by a register variable.
