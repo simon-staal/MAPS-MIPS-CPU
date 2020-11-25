@@ -1,3 +1,5 @@
+`include "mips_cpu_definitons.v"
+
 module mips_cpu_fsm(
     input logic clk,
     input logic reset,
@@ -5,14 +7,6 @@ module mips_cpu_fsm(
     input logic[5:0] opcode,
     output logic[3:0] state
     );
-
-    typedef enum logic[3:0] {
-        FETCH = 3'b000,
-        EXEC = 3'b001,
-        MEM_ACCESS = 3'b010,
-        WRITE_BACK = 3'b011,
-        HALTED = 3'b111
-    } state_t;
 
     state_t s;
     assign state = s
