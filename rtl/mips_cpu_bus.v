@@ -1,4 +1,4 @@
-`include "mips_cpu_definitons.v"
+`include "mips_cpu_definitions.v"
 
 module mips_cpu_bus(
     /* Standard signals */
@@ -17,6 +17,7 @@ module mips_cpu_bus(
     input logic[31:0] readdata
     );
 
+    //Creates basic registers
     logic[31:0] pc;
     logic[31:0] ir;
     logic ir_write;
@@ -38,12 +39,15 @@ module mips_cpu_bus(
     assign instr_imm = instr[15:0];
     assign instr_index = intr[25:0];
 
+    //Register file
     logic[31:0] reg_writedata, reg_readdata1, reg_readdata2;
     logic reg_write_en;
 
-    logic [32][31:0] regs;
     mips_cpu_reg_file reg(clk, reset, rs, rt, rd, reg_writedata, reg_write_en, reg_readdata1, reg_readdata2);
 
+    //Stores values for branch / jmp instructions
+    logic[31:0] pc_jmp;
+    logic delay;
 
     initial begin
         state = HALTED;
