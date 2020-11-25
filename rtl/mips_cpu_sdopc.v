@@ -4,19 +4,16 @@ I-tyoe: opcode (6) source (5) dest (5) imm (16)
 J-type: opcode (6) mem (26)
 */
 typedef enum logic[5:0] {
-    OPCODE_LHU = 6'b100101,
-    OPCODE_LUI = 6'b001111,
-    OPCODE_LW = 6'b100011,
-    OPCODE_LWL = 6'b100010,
-    OPCODE_LWL = 6'b100010,
-    OPCODE_LWR = 6'b100110,
-
+    OPCODE_LHU = 6'b100101, // $rt = mem[base+imm] ; dest=rt, source=base
+    OPCODE_LUI = 6'b001111, // $rt = imm||0000000000000000
+    OPCODE_LW = 6'b100011, // $rt = mem[base+imm] (note this is signed fullword)
+    OPCODE_LWL = 6'b100010, // $rt = rt MERGE mem[base+imm] loads MSB
+    OPCODE_LWR = 6'b100110, // $rt = rt MERGE mem[base+imm] loads LSB
 } opcode_t;
 
 typedef enum logic[5:0] {
-    FUNCTION_MTHI = 6'b010001,
-    FUNCTION_MTLO = 6'b100100,
-    FUNCTION_MULT = 6'b011000,
-    FUNCTION_MULTU = 6'b011001,
-
+    FUNCTION_MTHI = 6'b010001, // $HI = $rs
+    FUNCTION_MTLO = 6'b100100, // $LO = $rs
+    FUNCTION_MULT = 6'b011000, // $(LO,HI) = $rs * $rt
+    FUNCTION_MULTU = 6'b011001, // $(LO,HI) = $rs * $rt
 } function_t;
