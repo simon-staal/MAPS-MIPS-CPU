@@ -1,3 +1,5 @@
+`include "mips_cpu_definitions.v"
+
 module mips_cpu_reg_file(
     input logic clk,
     input logic reset,
@@ -6,6 +8,7 @@ module mips_cpu_reg_file(
     input logic[4:0] a3,
     input logic [31:0] writedata,
     input logic write_en,
+    input opcode_t opcode,
     output logic[31:0] readdata1,
     output logic[31:0] readdata2,
     );
@@ -33,7 +36,15 @@ module mips_cpu_reg_file(
 
     always_ff @(posedge clk) begin
       if(write_en) begin
-        regs[a3] <= writedata;
+        if(opcode == OPCODE_R) begin
+          regs[a3] <= writedata;
+        end
+        else if(opcode == OPCODE_REGIMM) begin
+          regs[31] <= writedata;
+        end
+        else begin
+          regs[a2] <= writedata;
+        end
       end
     end
 
