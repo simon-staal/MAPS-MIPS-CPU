@@ -22,6 +22,10 @@ module mips_cpu_bus(
     logic[31:0] ir;
     logic ir_write;
 
+    //Create non GPR HI and LO registers
+    logic[31:0] HI;
+    logic[31:0] LO;
+
     //Divide intruction into seperate signals
     logic[31:0] instr;
     opcode_t intr_opcode;
