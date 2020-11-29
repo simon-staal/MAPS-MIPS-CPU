@@ -8,11 +8,14 @@ ADDIU
 -----
 I-type instruction, rt := rs + instr_imm
 Can be implemented directly using register file:
+
 FETCH:
 - Fetch instruction
+
 EXEC:
 - Calculate rs + instr_imm
 - pc <= pc + 4
+
 WRITE_BACK:
 - rt <= result
 
