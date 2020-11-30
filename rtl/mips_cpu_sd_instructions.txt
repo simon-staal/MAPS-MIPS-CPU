@@ -1,0 +1,74 @@
+Load instructions transfer information from the memory to the GPRs in the CPU
+Address of halfword or word is the smallest byte of the object
+Big-endian encoding use so it will be the MSB byte adress
+Address not an even multiple of the object size read -> Address Error exception
+
+I-type: opcode[5:0],rs[4:0],rt[4:0],offset[15:0]
+
+
+LHU: I-type, $rt <- memory[$rs+imm]
+FETCH instruction
+EXEC 1: read content of GPR $rs
+EXEC 2: add $rs with 16 bit immediate and read that mem address = word[31:0]
+        PC=PC+4
+WRITE_BACK: Sign extend hw with 0's and store in $rt<-{0x0000,word[31:16]}
+
+
+LUI: I-type, $rt <- {imm,0x0000}
+FETCH instructions
+EXEC 1: ASSERT $rs == 0
+        append 16 0-bits to the immediate -> {imm,0x0000}
+        PC=PC+4
+WRITE_BACK: $rt <- {imm,0x0000}
+
+
+LW: I-type, $rt <- memory[$rs+imm]
+FETCH instruction
+EXEC 1: Read content of GPR $rs
+EXEC 2: Add $rs with 16 bit immediate and read that mem address = word[31:0]
+        PC=PC+4
+WRITE_BACK: Store in $rt<-{word[31:0]}
+
+
+LWL: I-type, $rt <- {mem[rs+imm][31:16],rt[15:0]}
+FETCH instruction
+EXEC 1: Read content of GPRs $rt and $rs
+EXEC 2: Add $rs with 16 bit immediate and read that mem address = word[31:0]
+        Select the 16LSBs from $rt to be used next cycle
+        PC=PC+4
+WRITE_BACK: Select the 16 LSBs of already read $rt and append mem output
+
+LWR: I-type, $rt <- {rt[31:16], mem[rs+imm][15:0]}
+EXEC 1: Read content of GPRs $rt and $rs
+EXEC 2: Add $rs with 16 bit immediate and read that mem address = word[31:0]
+        Select the 16MSBs from $rt to be used next cycle
+        PC=PC+4
+WRITE_BACK: Select the 16 LSBs of already read $rt and append mem output
+
+MTHI: R-type, $HI <- $rs
+FETCH instructions
+EXEC 1: Read content of $rs
+EXEC 2: ASSERT $rd, $rt and shift == 0
+        $HI <- $rs
+        PC = PC+4
+
+MTLO: R-type, $LO <- $rs
+FETCH instructions
+EXEC 1: Read content of $rs
+EXEC 2: ASSERT $rd, $rt and shift == 0
+        $LO <- $rs
+        PC = PC+4
+
+MULT: R-type, $HI,$LO = $rs*$rt
+FETCH instruction
+EXEC 1: ASSERT $rd,shift == 0
+        Read content of $rs and $rt
+EXEC 2: Input $rs and $rt into multiplier and take results to $HI and $LO
+        PC=PC+4
+
+MULTU: R-type, $HI,$LO = $rs*$rt
+FETCH instruction
+EXEC 1: ASSERT $rd,shift == 0
+        Read content of $rs and $rt
+EXEC 2: Input $rs and $rt into multiplier and take results to $HI and $LO
+        PC=PC+4
