@@ -40,3 +40,20 @@ Register file
 - 1 write port
 - write enable input
 - clk
+
+## Multi-cycle Processor
+
+### Control Path
+
+- Can compute PC + 4 during fetch of instruction to utilise unused ALU. 
+
+- After fetch, next step is to decode (1 cycle). 
+
+- Decode:
+	- Reg file always reads 2 sources specified by rs and rt. 
+	- Opcode is examined. No control signals necessary. 
+	- Next state depends on opcode.
+	
+- If lw or sw:
+	- Computes address & stores in ALU Out register.
+	- 
