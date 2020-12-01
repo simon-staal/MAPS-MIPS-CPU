@@ -3,8 +3,9 @@ Address of halfword or word is the smallest byte of the object
 Big-endian encoding use so it will be the MSB byte adress
 Address not an even multiple of the object size read -> Address Error exception
 
-I-type: opcode[5:0],rs[4:0],rt[4:0],offset[15:0]
-
+I-type: opcode[31:26],rs[25:21],rt[20:16],offset[15:0]
+R-type: opcode[31:26],rs[25:21],rt[20:16], rd[15:11], shift[10:6],function[5:0]
+        note that opcode for r-type is always == 0, instr encoded in function^
 
 LHU: I-type, $rt <- memory[$rs+imm]
 FETCH instruction
@@ -63,12 +64,16 @@ MULT: R-type, $HI,$LO = $rs*$rt
 FETCH instruction
 EXEC 1: ASSERT $rd,shift == 0
         Read content of $rs and $rt
-EXEC 2: Input $rs and $rt into multiplier and take results to $HI and $LO
+EXEC 2: Split $rs and $rt into halfwords
+        Multiply left-words store product -> $HI
+        Multiply right-words store product -> $LO
         PC=PC+4
 
 MULTU: R-type, $HI,$LO = $rs*$rt
 FETCH instruction
 EXEC 1: ASSERT $rd,shift == 0
         Read content of $rs and $rt
-EXEC 2: Input $rs and $rt into multiplier and take results to $HI and $LO
+EXEC 2: Split $rs and $rt into halfwords
+        Multiply left-words store product -> $HI
+        Multiply right-words store product -> $LO
         PC=PC+4
