@@ -18,13 +18,14 @@ module mips_cpu_bus(
     );
 
     //Creates basic registers
-    logic[31:0] pc;
+    logic[31:0] pc, pc_increment;
+    assign pc_increment = pc + 4;
     logic[31:0] ir;
     logic ir_write;
 
     //Divide intruction into seperate signals
     logic[31:0] instr;
-    opcode_t intr_opcode;
+    opcode_t instr_opcode;
     function_t instr_function;
     logic[4:0] rs, rt, rd, shift;
     logic[15:0] instr_imm;
@@ -35,6 +36,7 @@ module mips_cpu_bus(
     assign rs = instr[25:21];
     assign rt = instr[20:16];
     assign rd = instr[15:11];
+    assign shift = instr[10:6];
     assign instr_function = instr[5:0];
     assign instr_imm = instr[15:0];
     assign instr_index = intr[25:0];
@@ -48,6 +50,9 @@ module mips_cpu_bus(
     //Stores values for branch / jmp instructions
     logic[31:0] pc_jmp;
     logic delay;
+
+    //Used for 2 cycle memory access instructions (stores) for waitrequest logic in controlling pc
+    logic mem_access;
 
     initial begin
         state = HALTED;
