@@ -31,6 +31,7 @@ module mips_cpu_bus(
     logic[31:0] instr;
     opcode_t instr_opcode;
     function_t instr_function;
+    state_t state;
     logic[4:0] rs, rt, rd, shift;
     logic[15:0] instr_imm;
     logic[25:0] instr_index;
