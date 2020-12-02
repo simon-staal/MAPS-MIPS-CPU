@@ -89,6 +89,25 @@ module mips_cpu_bus(
                   FUNCTION_AND: begin
                     assert(shift == 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %b", instr, pc);
                     regs[rd] <= regs[rs] & regs[rt];
+                  end
+                  FUNCTION_MTHI:begin
+                    assert(({rd,rt,shift}==15'h0000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %b", instr, pc);
+                    HI <= regs[rs];
+                  end
+                  FUNCTION_MTLO:begin
+                    assert(({rd,rt,shift}==15'h0000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %b", instr, pc);
+                    LO <= regs[rs];
+                  end
+                  FUNCTION_MULT:begin
+                    assert(({rd,shift}==10'h0000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %b", instr, pc);
+                    LO <= regs[rs][15:0]*regs[rt][15:0];
+                    HI <= regs[rs][31:16]*regs[rt][31:16];
+                  end
+                  FUNCTION_MULTU:begin
+                    assert(({rd,shift}==10'h0000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %b", instr, pc);
+                    LO <= regs[rs][15:0]*regs[rt][15:0];
+                    HI <= regs[rs][31:16]*regs[rt][31:16];
+                  end
               end
               OPCODE_ADDIU: begin
                 regs[rt] <= regs[rs] + instr_imm;
@@ -113,7 +132,6 @@ module mips_cpu_bus(
               OPCODE_LW: address = regs[rs] + instr_imm;
               OPCODE_LWL: address = regs[rt] + instr_imm;
               OPCODE_LWR: address = regs[rt] + instr_imm;
-
 
               OPCODE_REGIMM: begin
                 assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %b", instr, pc);
@@ -170,6 +188,8 @@ module mips_cpu_bus(
               OPCODE_LH: regs[rt] <= {16[readdata[15]],readdata[15:0]};
               OPCODE_LHU: regs[rt] <= {16'h0000, readdata[15:0]};
               OPCODE_LW: regs[rt] <= readdata;
+              OPCODE_LWL:regs[rt] <= {readdata[31:16],regs[rt][15:0]};
+              OPCODE_LWR: regs[rt] <= {regs[rt][31:16], readdata[15:0]};
 
             endcase
         end
