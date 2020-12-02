@@ -103,6 +103,18 @@ module mips_cpu_bus(
                   delay <= 1;
                 end
               end
+              //SD instructions
+              OPCODE_LH: address = regs[rs]+instr_imm;
+              OPCODE_LHU: address = regs[rs]+instr_imm;
+              OPCODE_LUI: begin
+                assert(rs==5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %b", instr, pc );
+                regs[rt] <= {instr_imm, 16'h0000};
+              end
+              OPCODE_LW: address = regs[rs] + instr_imm;
+              OPCODE_LWL: address = regs[rt] + instr_imm;
+              OPCODE_LWR: address = regs[rt] + instr_imm;
+
+
               OPCODE_REGIMM: begin
                 assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %b", instr, pc);
                 case(rt)
@@ -154,6 +166,12 @@ module mips_cpu_bus(
         end
         else if(state == MEM_ACCESS) begin
             state <= (waitrequest) ? MEM_ACCESS : FETCH
+            case (instr_opcode)
+              OPCODE_LH: regs[rt] <= {16[readdata[15]],readdata[15:0]};
+              OPCODE_LHU: regs[rt] <= {16'h0000, readdata[15:0]};
+              OPCODE_LW: regs[rt] <= readdata;
+
+            endcase
         end
         else if(state == HALTED) begin
             //Do nothing
