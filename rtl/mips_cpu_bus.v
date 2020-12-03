@@ -108,6 +108,32 @@ module mips_cpu_bus(
                     LO <= regs[rs][15:0]*regs[rt][15:0];
                     HI <= regs[rs][31:16]*regs[rt][31:16];
                   end
+				  // Adam instructions: XOR, SRL, SRA, SRLV, SRAV, SLTU, SUBU
+				  FUNCTION_XOR: begin
+					regs[rd] <= regs[rs] ^ regs[rt];
+				  end
+				  FUNCTION_SRL: begin
+					regs[rd] <= regs[rt] >> shift; 
+				  end
+				  FUNCTION_SRA: begin
+					regs[rd] <= regs[rt] >>> shift;
+				  end
+				  FUNCTION_SRLV: begin
+				  regs[rd] <= regs[rt] >> regs[rs];
+				  end
+				  FUNCTION_SRAV: begin
+				  regs[rd] <= regs[rt] >>> regs[rs];
+				  end
+				  FUNCTION_SLTU: begin
+					if (regs[rs] < regs[rt]) begin
+						regs[rd] <= 1;
+					end
+					else begin
+						regs[rd] <= 0;
+				  end
+				  FUNCTION_SUBU: begin
+				  regs[rd] <= regs[rs] - regs[rt];
+				  end
               end
               OPCODE_ADDIU: begin
                 regs[rt] <= regs[rs] + instr_imm;
@@ -122,6 +148,13 @@ module mips_cpu_bus(
                   delay <= 1;
                 end
               end
+			  	//Adam instructions: XORI, SW
+				OPCODE_XORI: begin
+				regs[rs] <= regs[rt] ^ instr_imm;
+				end
+				OPCODE_SW: begin
+				address = regs[rs] + instr_imm; //SW is done in RAM module? i.e. memory[address] <= regs[rt]
+				end
               //SD instructions
               OPCODE_LH: address = regs[rs]+instr_imm;
               OPCODE_LHU: address = regs[rs]+instr_imm;
