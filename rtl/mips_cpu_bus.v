@@ -78,6 +78,7 @@ module mips_cpu_bus(
     always_comb begin
         if(state == FETCH) end
             byteenable = 4'b1111;
+            address = pc;
         end
     end
 
