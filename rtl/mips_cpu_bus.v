@@ -45,7 +45,20 @@ module mips_cpu_bus(
     assign instr_imm = instr[15:0];
     assign instr_index = intr[25:0];
 
-    //Register file
+    /* Defines an array of 32 registers used by MIPS whit the following purposes:
+    $zero (0): constant 0
+    $at (1): assembler temporary
+    $v0-$v1 (2-3): values for function returns and expression evaluation
+    $a0-$a3 (4-7): function arguments
+    $t0-$t7 (8-15): temporaries
+    $s0-$s7 (16-23): saved temporaries
+    $t8-$t9 (24-25): temporaries
+    $k0-$k1 (26-27): reserved for OS kernel
+    $gp (28): global pointer
+    $sp (29): stack pointer
+    $fp (30): frame pointer
+    $ra (31): return address
+    */
     logic[31:0] regs[31:0];
     assign regs[0] = 32'h00000000;
 
