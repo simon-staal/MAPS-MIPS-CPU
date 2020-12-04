@@ -75,6 +75,12 @@ module mips_cpu_bus(
         active = 0;
     end
 
+    always_comb begin
+        if(state == FETCH) end
+            byteenable = 4'b1111;
+        end
+    end
+
     always_ff @ (posedge clk) begin
         if(reset) begin
             state <= FETCH;
