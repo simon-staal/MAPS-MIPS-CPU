@@ -62,6 +62,7 @@ module mips_cpu_bus(
     */
     logic[31:0] regs[31:0];
     assign regs[0] = 32'h00000000;
+    assign register_v0 = regs[2];
 
     //Stores values for branch / jmp instructions
     logic[31:0] pc_jmp;
@@ -78,7 +79,8 @@ module mips_cpu_bus(
     always_comb begin
         if(state == FETCH) end
             byteenable = 4'b1111;
-            write = 1;
+            read = 1;
+            write = 0;
             address = pc;
         end
     end
