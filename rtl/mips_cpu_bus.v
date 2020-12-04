@@ -108,6 +108,9 @@ module mips_cpu_bus(
                     LO <= regs[rs][15:0]*regs[rt][15:0];
                     HI <= regs[rs][31:16]*regs[rt][31:16];
                   end
+                  //T0-DO: add MFHI and MFLO
+                  FUNCTION_MFHI:
+                  FUNCTION_MFLO:
               end
               OPCODE_ADDIU: begin
                 regs[rt] <= regs[rs] + instr_imm;
@@ -190,7 +193,6 @@ module mips_cpu_bus(
               OPCODE_LW: regs[rt] <= readdata;
               OPCODE_LWL:regs[rt] <= {readdata[31:16],regs[rt][15:0]};
               OPCODE_LWR: regs[rt] <= {regs[rt][31:16], readdata[15:0]};
-
             endcase
         end
         else if(state == HALTED) begin
