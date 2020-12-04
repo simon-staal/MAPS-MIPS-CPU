@@ -76,14 +76,19 @@ module mips_cpu_bus(
         active = 0;
     end
 
+    /* MOVED TO FF LOOP FOR EASIER MANAGEMENT
     always_comb begin
-        if(state == FETCH) end
+        if(state == FETCH) begin
             byteenable = 4'b1111;
             read = 1;
             write = 0;
             address = pc;
         end
+        if(state == EXEC) begin
+            //ADD LOGIC FOR LOAD / STORE INSTRUCTIONS
+        end
     end
+    */
 
     always_ff @ (posedge clk) begin
         if(reset) begin
@@ -97,6 +102,10 @@ module mips_cpu_bus(
         end
         else if(state == FETCH) begin
             state <= (waitrequest) ? FETCH : EXEC;
+            address <= pc;
+            write <= 0;
+            read <= 1;
+            byteenable <= 4'b1111;
         end
         else if(state == EXEC) begin
             state <= (waitrequest && mem_access) ? EXEC : () ? MEM_ACCESS : FETCH; //Add condition if instruction requires mem access / if instruction requires writing back to a register
