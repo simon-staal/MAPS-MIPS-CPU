@@ -31,6 +31,7 @@ module mips_cpu_bus(
     logic[31:0] instr;
     opcode_t instr_opcode;
     function_t instr_function;
+    state_t state;
     logic[4:0] rs, rt, rd, shift;
     logic[15:0] instr_imm;
     logic[25:0] instr_index;
@@ -101,6 +102,7 @@ module mips_cpu_bus(
                   FUNCTION_AND: begin
                     assert(shift == 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %b", instr, pc);
                     regs[rd] <= regs[rs] & regs[rt];
+                  end
               end
               OPCODE_ADDIU: begin
                 regs[rt] <= regs[rs] + instr_imm;
