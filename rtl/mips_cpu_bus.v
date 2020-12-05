@@ -76,14 +76,23 @@ module mips_cpu_bus(
         active = 0;
     end
 
+
     always_comb begin
-        if(state == FETCH) end
+        if(state == FETCH) begin
             byteenable = 4'b1111;
             read = 1;
             write = 0;
             address = pc;
         end
+        if(state == EXEC) begin
+            //ADD LOGIC FOR LOAD / STORE INSTRUCTIONS
+            if(instr_opcode == )
+
+            else if(instr_opcode == )
+
+        end
     end
+
 
     always_ff @ (posedge clk) begin
         if(reset) begin
