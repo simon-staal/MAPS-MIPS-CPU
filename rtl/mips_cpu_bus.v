@@ -140,9 +140,14 @@ module mips_cpu_bus(
                     LO <= regs[rs][15:0]*regs[rt][15:0];
                     HI <= regs[rs][31:16]*regs[rt][31:16];
                   end
-                  //T0-DO: add MFHI and MFLO
-                  FUNCTION_MFHI:
-                  FUNCTION_MFLO:
+                  FUNCTION_MFHI:begin
+                    assert(({rs,rt,shift}==15'h0000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %b", instr, pc);
+                    regs[rd] <= HI;
+                  end
+                  FUNCTION_MFLO:begin
+                    assert(({rs,rt,shift}==15'h0000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %b", instr, pc);
+                    regs[rd] <= LO;
+                  end
               end
               OPCODE_ADDIU: begin
                 regs[rt] <= regs[rs] + instr_imm;
