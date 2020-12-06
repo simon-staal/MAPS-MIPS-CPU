@@ -61,6 +61,24 @@ module mips_cpu_bus(
         state = HALTED;
         active = 0;
     end
+	
+	    always_comb begin
+        if(state == FETCH) begin
+            byteenable = 4'b1111;
+            read = 1;
+            write = 0;
+            address = pc;
+        end
+        if(state == EXEC) begin
+			case(instr_opcode)
+				OPCODE_SW: begin 
+				write = 1;
+				byteenable = 4'b1111;
+				address = regs[rs] + instr_imm;
+				end
+            endcase
+        end
+    end
 
     always_ff @ (posedge clk) begin
         if(reset) begin
@@ -148,12 +166,11 @@ module mips_cpu_bus(
                   delay <= 1;
                 end
               end
-			  	//Adam instructions: XORI, SW
+			  	//Adam instructions: XORI, SW (SW done combinatorially). 
 				OPCODE_XORI: begin
 				regs[rs] <= regs[rt] ^ instr_imm;
 				end
-				OPCODE_SW: begin
-				address = regs[rs] + instr_imm; //SW is done in RAM module? i.e. memory[address] <= regs[rt]
+				OPCODE_SW: begin	
 				end
               //SD instructions
               OPCODE_LH: address = regs[rs]+instr_imm;
