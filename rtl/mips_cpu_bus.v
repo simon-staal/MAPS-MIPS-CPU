@@ -86,6 +86,7 @@ module mips_cpu_bus(
         end
         if(state == EXEC) begin
             //ADD LOGIC FOR LOAD / STORE INSTRUCTIONS
+<<<<<<< HEAD
             //if(instr_opcode == )
 
             //else if(instr_opcode == )
@@ -101,6 +102,11 @@ module mips_cpu_bus(
             address = reg_readdata1 + instr_imm;
             end
 
+=======
+            case (instr_opcode)
+               
+            endcase
+>>>>>>> 38bdf9c9110f05acaedfea22b6c387d1ae1cedaa
         end
     end
 
