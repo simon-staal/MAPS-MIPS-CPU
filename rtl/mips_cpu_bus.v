@@ -31,6 +31,7 @@ module mips_cpu_bus(
     logic[31:0] instr;
     opcode_t instr_opcode;
     function_t instr_function;
+    state_t state;
     logic[4:0] rs, rt, rd, shift;
     logic[15:0] instr_imm;
     logic[25:0] instr_index;
@@ -45,9 +46,23 @@ module mips_cpu_bus(
     assign instr_imm = instr[15:0];
     assign instr_index = intr[25:0];
 
-    //Register file
+    /* Defines an array of 32 registers used by MIPS whit the following purposes:
+    $zero (0): constant 0
+    $at (1): assembler temporary
+    $v0-$v1 (2-3): values for function returns and expression evaluation
+    $a0-$a3 (4-7): function arguments
+    $t0-$t7 (8-15): temporaries
+    $s0-$s7 (16-23): saved temporaries
+    $t8-$t9 (24-25): temporaries
+    $k0-$k1 (26-27): reserved for OS kernel
+    $gp (28): global pointer
+    $sp (29): stack pointer
+    $fp (30): frame pointer
+    $ra (31): return address
+    */
     logic[31:0] regs[31:0];
     assign regs[0] = 32'h00000000;
+    assign register_v0 = regs[2];
 
     //Stores values for branch / jmp instructions
     logic[31:0] pc_jmp;
@@ -60,6 +75,24 @@ module mips_cpu_bus(
         state = HALTED;
         active = 0;
     end
+
+
+    always_comb begin
+        if(state == FETCH) begin
+            byteenable = 4'b1111;
+            read = 1;
+            write = 0;
+            address = pc;
+        end
+        if(state == EXEC) begin
+            //ADD LOGIC FOR LOAD / STORE INSTRUCTIONS
+            if(instr_opcode == )
+
+            else if(instr_opcode == )
+
+        end
+    end
+
 
     always_ff @ (posedge clk) begin
         if(reset) begin
@@ -88,6 +121,7 @@ module mips_cpu_bus(
                   FUNCTION_AND: begin
                     assert(shift == 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %b", instr, pc);
                     regs[rd] <= regs[rs] & regs[rt];
+                  end
               end
               OPCODE_ADDIU: begin
                 regs[rt] <= regs[rs] + instr_imm;
