@@ -135,12 +135,12 @@ module mips_cpu_bus(
                     LO <= regs[rs];
                   end
                   FUNCTION_MULT:begin
-                    assert(({rd,shift}==10'h0000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %b", instr, pc);
+                    assert(({rd,shift}==10'h000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %b", instr, pc);
                     LO <= regs[rs][15:0]*regs[rt][15:0];
                     HI <= regs[rs][31:16]*regs[rt][31:16];
                   end
                   FUNCTION_MULTU:begin
-                    assert(({rd,shift}==10'h0000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %b", instr, pc);
+                    assert(({rd,shift}==10'h000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %b", instr, pc);
                     LO <= regs[rs][15:0]*regs[rt][15:0];
                     HI <= regs[rs][31:16]*regs[rt][31:16];
                   end
