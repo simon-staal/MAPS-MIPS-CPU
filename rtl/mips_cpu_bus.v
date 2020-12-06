@@ -86,9 +86,20 @@ module mips_cpu_bus(
         end
         if(state == EXEC) begin
             //ADD LOGIC FOR LOAD / STORE INSTRUCTIONS
-            if(instr_opcode == )
+            //if(instr_opcode == )
 
-            else if(instr_opcode == )
+            //else if(instr_opcode == )
+            if(instr_opcode == OPCODE_SB)begin
+            byteenable=4'b0001;
+            write=1;
+            address = reg_readdata1 + instr_imm;
+            end
+
+            else if(instr_opcode ==OPCODE_SH )begin
+            byteenable=4'b0011;
+            write=1;
+            address = reg_readdata1 + instr_imm;
+            end
 
         end
     end
@@ -184,6 +195,33 @@ module mips_cpu_bus(
                   delay <= 1;
                 end
               end
+              FUNCTION_OR: begin
+                assert(shift == 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %b", instr, pc);
+                regs[rd] <= regs[rs] || regs[rt];
+              end
+              FUNCTION_SLT: begin
+                assert(shift == 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %b", instr, pc);
+                regs[rd] <= (regs[rs] -regs[rt])>>32;
+          end
+          OPCODE_ORI: begin
+            regs[rt] <= regs[rs] || instr_imm;
+          end
+          OPCODE_SLTI: begin
+            if (instr_imm[15]==1)begin
+            regs[rt] <= (regs[rs] - {16'h0001,instr_imm})>>32;
+           end
+            else if (instr_imm[15]==O)begin
+            regs[rt] <= (regs[rs] - { 16'h0000,instr_imm})>>32;
+           end
+            
+           
+          end
+          FUNCTION_SLLV: begin
+            regs[rd] <= regs[rs] << regs[rt];
+          end
+          OPCODE_SLTIU: begin
+            regs[rt] <= (regs[rs] - { 16'h0000,instr_imm})>>32;
+          end
         end
         else if(state == MEM_ACCESS) begin
             state <= (waitrequest) ? MEM_ACCESS : FETCH
