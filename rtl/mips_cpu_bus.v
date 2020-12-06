@@ -87,7 +87,12 @@ module mips_cpu_bus(
         if(state == EXEC) begin
             //ADD LOGIC FOR LOAD / STORE INSTRUCTIONS
             case (instr_opcode)
-               
+              OPCODE_LW: address = regs[rs] + instr_imm;
+              OPCODE_LWL: address = regs[rt] + instr_imm;
+              OPCODE_LWR: address = regs[rt] + instr_imm;
+              OPCODE_LH: address = regs[rs]+instr_imm;
+              OPCODE_LHU: address = regs[rs]+instr_imm;
+
             endcase
         end
     end
@@ -162,16 +167,10 @@ module mips_cpu_bus(
                 end
               end
               //SD instructions
-              OPCODE_LH: address = regs[rs]+instr_imm;
-              OPCODE_LHU: address = regs[rs]+instr_imm;
               OPCODE_LUI: begin
                 assert(rs==5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %b", instr, pc );
                 regs[rt] <= {instr_imm, 16'h0000};
               end
-              OPCODE_LW: address = regs[rs] + instr_imm;
-              OPCODE_LWL: address = regs[rt] + instr_imm;
-              OPCODE_LWR: address = regs[rt] + instr_imm;
-
               OPCODE_REGIMM: begin
                 assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %b", instr, pc);
                 case(rt)
