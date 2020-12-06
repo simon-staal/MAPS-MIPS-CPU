@@ -203,6 +203,10 @@ module mips_cpu_bus(
                 assert(shift == 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %b", instr, pc);
                 regs[rd] <= (regs[rs] -regs[rt])>>32;
           end
+          FUNCTION_SLL: begin
+                assert(shift != 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %b", instr, pc);
+                regs[rd] <= regs[rs] << shift;
+          end
           OPCODE_ORI: begin
             regs[rt] <= regs[rs] || instr_imm;
           end
