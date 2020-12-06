@@ -86,10 +86,9 @@ module mips_cpu_bus(
         end
         if(state == EXEC) begin
             //ADD LOGIC FOR LOAD / STORE INSTRUCTIONS
-            if(instr_opcode == )
-
-            else if(instr_opcode == )
-
+            case (instr_opcode)
+               
+            endcase
         end
     end
 
