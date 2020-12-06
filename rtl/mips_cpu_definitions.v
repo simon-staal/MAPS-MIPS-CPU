@@ -43,6 +43,8 @@ typedef enum logic[5:0] {
     FUNCTION_AND = 6'b100100, //rd = rs & rt (shift == 0)
     FUNCTION_MTHI = 6'b010001, // $HI = $rs (rt, rd, shift == 0)
     FUNCTION_MTLO = 6'b100100, // $LO = $rs (rt, rd, shift == 0)
+    FUNCTION_MFHI = 6'b010000, // $rd = $HI
+    FUNCTION_MFLO = 6'b010010, // $rd = $LO 
     FUNCTION_MULT = 6'b011000, // $(LO,HI) = $rs * $rt (rd, shift == 0)
     FUNCTION_MULTU = 6'b011001, // $(LO,HI) = $rs * $rt (rd, shift == 0)
     FUNCTION_OR = 6'b100101, // does bitwise logical OR rd<--rs OR rt (shift == 0)
