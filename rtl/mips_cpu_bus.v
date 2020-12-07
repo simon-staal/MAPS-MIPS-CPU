@@ -86,6 +86,13 @@ module mips_cpu_bus(
         end
         if(state == EXEC) begin
             //ADD LOGIC FOR LOAD / STORE INSTRUCTIONS
+			if(instr_opcode == OPCODE_SW) begin 
+				write = 1;
+				read = 0;
+				byteenable = 4'b1111;
+				address = regs[rs] + instr_imm;
+				writedata = regs[rt];
+			end
             if(instr_opcode==OPCODE_SB) begin
               byteenable = 4'b0001;
               write = 1;
@@ -250,6 +257,32 @@ module mips_cpu_bus(
                   FUNCTION_SLLV: begin
                     regs[rd] <= regs[rs] << regs[rt];
                   end
+				  FUNCTION_XOR: begin
+						regs[rd] <= regs[rs] ^ regs[rt];
+				  end
+					  FUNCTION_SRL: begin
+						regs[rd] <= regs[rt] >> shift; 
+				  end
+					  FUNCTION_SRA: begin
+						regs[rd] <= regs[rt] >>> shift;
+				  end
+					  FUNCTION_SRLV: begin
+					  regs[rd] <= regs[rt] >> regs[rs];
+				  end
+					  FUNCTION_SRAV: begin
+					  regs[rd] <= regs[rt] >>> regs[rs];
+				  end
+					  FUNCTION_SLTU: begin
+						if (regs[rs] < regs[rt]) begin
+							regs[rd] <= 1;
+						end
+						else begin
+							regs[rd] <= 0;
+						end
+				  end
+					  FUNCTION_SUBU: begin
+					  regs[rd] <= regs[rs] - regs[rt];
+				  end
                 endcase
               end
               OPCODE_ADDIU: begin
@@ -349,6 +382,12 @@ module mips_cpu_bus(
               OPCODE_SLTIU: begin
                 regs[rt] <= (regs[rs] - { 16'h0000,instr_imm})>>32;
               end
+			  OPCODE_XORI: begin
+					regs[rs] <= regs[rt] ^ instr_imm;
+			  end
+			  OPCODE_SW: begin
+			    mem_access <= 1;
+			  end
           endcase
         end
         else if(state == MEM_ACCESS) begin

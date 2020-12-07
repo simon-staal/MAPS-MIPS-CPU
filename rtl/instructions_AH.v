@@ -11,6 +11,7 @@
 				write = 1;
 				byteenable = 4'b1111;
 				address = regs[rs] + instr_imm;
+				writedata = regs[rt];
 				end
             endcase
         end
@@ -59,10 +60,11 @@
 						else begin
 							regs[rd] <= 0;
 						end
-						end
+					  end
 					  FUNCTION_SUBU: begin
 					  regs[rd] <= regs[rs] - regs[rt];
 					  end
+				end
 					//Adam instructions: XORI, SW (SW done combinatorially). 
 					OPCODE_XORI: begin
 					regs[rs] <= regs[rt] ^ instr_imm;
@@ -82,5 +84,5 @@
 			end
 			end
 			end
-			end
+			
 					
