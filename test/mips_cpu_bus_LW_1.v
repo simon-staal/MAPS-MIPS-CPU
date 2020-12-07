@@ -48,19 +48,19 @@ module mips_cpu_bus_LW_1;
       assert(write==0) else $fatal(104, "%s %s Fail CPU has write set incorrectly." TESTCASE_ID, INSTRUCTION);
       assert(byteenable==4'b1111) else $fatal(105, "%s %s Fail CPU incorrectly set byteenable %b." TESTCASE_ID, INSTRUCTION, byteenable);
 
-      @(posedge clk);
-      readdata <= 32'h3C021234;
-      waitrequest <= 0;
+      @(posedge clk); //exec
+      readdata <= 32'h8C030045;
 
       @(negedge clk);
-      assert(register_v0==32'h12340000) else $fatal(106, "%s %s Fail Incorrect value %d stored in v0." TESTCASE_ID, INSTRUCTION, register_v0);
+      assert(address==32'h00000045) else $fatal(102, "%s %s Fail CPU accessing incorrect address %h", TESTCASE_ID, INSTRUCTION, address);
+      //cba checking other variables
 
       @(posedge clk);
-      readdata <= 32'h3C0206C2;
-      waitrequest <= 0;
+      readdata <= 32'hEC6521AE;
+
 
       @(negedge clk);
-      assert(register_v0==32'h06C20000) else $fatal(106, "%s %s Fail Incorrect value %d stored in v0." TESTCASE_ID, INSTRUCTION, register_v0);
+      assert(register_v0==32'hEC6521AE) else $fatal(106, "%s %s Fail Incorrect value %d stored in v0." TESTCASE_ID, INSTRUCTION, register_v0);
 
       $display("Passed test!")
   end
