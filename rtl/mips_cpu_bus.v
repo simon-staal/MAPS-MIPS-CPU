@@ -88,14 +88,18 @@ module mips_cpu_bus(
             //ADD LOGIC FOR LOAD / STORE INSTRUCTIONS
           case(instr_opcode)
             OPCODE_SB: begin
-              byteenable=4'b0001;
-              write=1;
-              address = reg_readdata1 + instr_imm;
+              byteenable = 4'b0001;
+              write = 1;
+              read = 0;
+              address = regs[rs] + instr_imm;
+              writedata = (regs[rt])[7:0];
             end
             OPCODE_SH: begin
-              byteenable=4'b0011;
-              write=1;
-              address = reg_readdata1 + instr_imm;
+              byteenable = 4'b0011;
+              write = 1;
+              read = 0;
+              address = regs[rs] + instr_imm;
+              writedata = (regs[rt])[15:0];
             end
           endcase
         end
@@ -136,7 +140,7 @@ module mips_cpu_bus(
                   end
                   FUNCTION_SLT: begin
                     assert(shift == 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %b", instr, pc);
-                    regs[rd] <= (regs[rs] -regs[rt])>>32;
+                    regs[rd] <= (regs[rs] - regs[rt])>>32;
                   end
                   FUNCTION_SLL: begin
                     assert(shift != 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %b", instr, pc);
