@@ -60,6 +60,16 @@ EXEC 2: ASSERT $rd, $rt and shift == 0
         $LO <- $rs
         PC = PC+4
 
+MFHI: R-type, $rd = $HI
+FETCH instr
+EXEC 1: ASSERT rs,rt,shift == 0
+        $rd <- $HI
+
+MFHI: R-type, $rd = $LO
+FETCH instr
+EXEC 1: ASSERT rs,rt,shift == 0
+        $rd <- $LO
+        
 MULT: R-type, $HI,$LO = $rs*$rt
 FETCH instruction
 EXEC 1: ASSERT $rd,shift == 0

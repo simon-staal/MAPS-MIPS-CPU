@@ -86,22 +86,61 @@ module mips_cpu_bus(
         end
         if(state == EXEC) begin
             //ADD LOGIC FOR LOAD / STORE INSTRUCTIONS
-          case(instr_opcode)
-            OPCODE_SB: begin
+            if(instr_opcode==OPCODE_SB) begin
               byteenable = 4'b0001;
               write = 1;
               read = 0;
               address = regs[rs] + instr_imm;
               writedata = (regs[rt])[7:0];
             end
-            OPCODE_SH: begin
+            else if(instr_opcode==OPCODE_SH) begin
               byteenable = 4'b0011;
               write = 1;
               read = 0;
               address = regs[rs] + instr_imm;
               writedata = (regs[rt])[15:0];
             end
-          endcase
+            else if(instr_opcode==OPCODE_LH) begin
+              read = 1;
+              write = 0;
+              byteenable = 4'b1100;
+              //TO-DO: add signal exception for address error (address[0]==0)
+              address = regs[rs]+instr_imm;
+            end
+            else if(instr_opcode==OPCODE_LHU) begin
+              read = 1;
+              write = 0;
+              byteenable = 4'b1100;
+              //TO-DO: add signal exception for address error (address[0]==0)
+              address = regs[rs]+instr_imm;
+            end
+            else if(instr_opcode==OPCODE_LW) begin
+              read = 1;
+              write = 0;
+              byteenable = 4'b1111;
+              //TO-DO: add signal exception for address error (address[0]==0)
+              address = regs[rs]+instr_imm;
+            end
+            else if(instr_opcode==OPCODE_LWL) begin
+              read = 1;
+              write = 0;
+              byteenable = 4'b1100;
+              //TO-DO: add signal exception for address error (address[0]==0)
+              address = regs[rs]+instr_imm;
+            end
+            else if(instr_opcode==OPCODE_LWR) begin
+              read = 1;
+              write = 0;
+              byteenable = 4'b0011;
+              //TO-DO: add signal exception for address error (address[0]==0)
+              address = regs[rs]+instr_imm;
+            end
+            else being
+              read = 0;
+              write = 0;
+              byteenable = 0;
+              address = pc;
+            end
         end
     end
 
@@ -134,6 +173,32 @@ module mips_cpu_bus(
                     assert(shift == 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %b", instr, pc);
                     regs[rd] <= regs[rs] & regs[rt];
                   end
+                  FUNCTION_MTHI:begin
+                    assert(({rd,rt,shift}==15'h0000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %b", instr, pc);
+                    HI <= regs[rs];
+                  end
+                  FUNCTION_MTLO:begin
+                    assert(({rd,rt,shift}==15'h0000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %b", instr, pc);
+                    LO <= regs[rs];
+                  end
+                  FUNCTION_MULT:begin
+                    assert(({rd,shift}==10'h000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %b", instr, pc);
+                    LO <= regs[rs][15:0]*regs[rt][15:0];
+                    HI <= regs[rs][31:16]*regs[rt][31:16];
+                  end
+                  FUNCTION_MULTU:begin
+                    assert(({rd,shift}==10'h000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %b", instr, pc);
+                    LO <= regs[rs][15:0]*regs[rt][15:0];
+                    HI <= regs[rs][31:16]*regs[rt][31:16];
+                  end
+                  FUNCTION_MFHI:begin
+                    assert(({rs,rt,shift}==15'h0000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %b", instr, pc);
+                    regs[rd] <= HI;
+                  end
+                  FUNCTION_MFLO:begin
+                    assert(({rs,rt,shift}==15'h0000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %b", instr, pc);
+                    regs[rd] <= LO;
+                  end
                   FUNCTION_OR: begin
                     assert(shift == 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %b", instr, pc);
                     regs[rd] <= regs[rs] || regs[rt];
@@ -163,6 +228,11 @@ module mips_cpu_bus(
                   pc_jmp <= pc_increment + instr_imm << 2;
                   delay <= 1;
                 end
+              end
+              //SD instructions
+              OPCODE_LUI: begin
+                assert(rs==5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %b", instr, pc );
+                regs[rt] <= {instr_imm, 16'h0000};
               end
               OPCODE_REGIMM: begin
                 assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %b", instr, pc);
@@ -236,6 +306,30 @@ module mips_cpu_bus(
         end
         else if(state == MEM_ACCESS) begin
             state <= (waitrequest) ? MEM_ACCESS : FETCH
+            case (instr_opcode)
+              OPCODE_LH: begin
+                if((regs[rs]+instr_imm)[1:0]==0'b00) begin
+                  regs[rt] <= {16[readdata[15]],readdata[15:0]};
+                end
+                else if((regs[rs]+instr_imm)[1:0]==0'b10) begin
+                  regs[rt] <= {16[readdata[31]],readdata[31:16]};
+                end
+                else begin
+                  //TO-DO: accessing invalid memory? assert nonetheless?
+                end
+              end
+              OPCODE_LHU:begin
+                if((regs[rs]+instr_imm)[1:0]==0'b00) begin
+                  regs[rt] <= {16'h0000,readdata[15:0]};
+                end
+                else if((regs[rs]+instr_imm)[1:0]==0'b10) begin
+                  regs[rt] <= {16'h0000,readdata[31:16]};
+                end
+              end
+              OPCODE_LW: regs[rt] <= readdata;
+              OPCODE_LWL:regs[rt] <= {readdata[31:16],regs[rt][15:0]};
+              OPCODE_LWR:regs[rt] <= {regs[rt][31:16], readdata[15:0]};
+            endcase
         end
         else if(state == HALTED) begin
             //Do nothing
