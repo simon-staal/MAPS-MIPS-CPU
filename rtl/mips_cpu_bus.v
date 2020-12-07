@@ -188,27 +188,27 @@ module mips_cpu_bus(
                     regs[rd] <= regs[rs] & regs[rt];
                   end
                   FUNCTION_DIV: begin
-								    //not sure whether an assert is required here
-										regs[LO] <= regs[rs]/regs[rt];
-										regs[HI] <= regs[rs]%regs[rt];
-								    //does verilog automatically sign extend?
-									end
-									FUNCTION_DIVU: begin
-								    //not sure whether an assert is required here
-										regs[LO] <= regs[rs]/regs[rt];
-										regs[HI] <= regs[rs]%regs[rt];
-									end
+		    //not sure whether an assert is required here
+		    regs[LO] <= regs[rs]/regs[rt];
+		    regs[HI] <= regs[rs]%regs[rt];
+		    //does verilog automatically sign extend?
+		  end
+		  FUNCTION_DIVU: begin
+		    //not sure whether an assert is required here
+		    regs[LO] <= regs[rs]/regs[rt];
+		    regs[HI] <= regs[rs]%regs[rt];
+		  end
                   FUNCTION_JALR: begin
-										assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %b", instr, pc);
-										regs[rd] <= pc + 8;
-										pc_jmp <= regs[rs];
-										delay <= 1;
-									end
-									FUNCTION_JR: begin
-										assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %b", instr, pc);
-										pc_jmp <= regs[rs];
-								    delay <= 1;
-									end
+		    assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %b", instr, pc);
+		    regs[rd] <= pc + 8;
+		    pc_jmp <= regs[rs];
+		    delay <= 1;
+		  end
+		  FUNCTION_JR: begin
+		    assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %b", instr, pc);
+		    pc_jmp <= regs[rs];
+		    delay <= 1;
+		  end
                   FUNCTION_MTHI:begin
                     assert(({rd,rt,shift}==15'h0000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %b", instr, pc);
                     HI <= regs[rs];
@@ -319,16 +319,16 @@ module mips_cpu_bus(
                 end
               end
               OPCODE_J: begin
-								assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %b", instr, pc);
-								pc_jmp <= instr_imm;
-								delay <= 1;
-							end
-							OPCODE_JAL: begin
-								assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %b", instr, pc);
-								regs[31] <= pc + 8;
-								pc_jmp <= instr_imm;
-								delay <= 1;
-							end
+		assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %b", instr, pc);
+		pc_jmp <= instr_imm;
+		delay <= 1;
+	      end
+	      OPCODE_JAL: begin
+		assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %b", instr, pc);
+		regs[31] <= pc + 8;
+		pc_jmp <= instr_imm;
+		delay <= 1;
+	      end
               OPCODE_ORI: begin
                 regs[rt] <= regs[rs] || instr_imm;
               end
