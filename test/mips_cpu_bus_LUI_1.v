@@ -61,7 +61,32 @@ module mips_cpu_bus_LUI_1;
 
       @(negedge clk);
       assert(register_v0==32'h06C20000) else $fatal(106, "%s %s Fail Incorrect value %d stored in v0." TESTCASE_ID, INSTRUCTION, register_v0);
+    
+      @(posedge clk); //fetch
 
-      $display("Passed test!")
+      @(negedge clk);
+        assert(address==32'hBFC00004) else $fatal(102, "%s %s Fail CPU accessing incorrect address %h", TESTCASE_ID, INSTRUCTION, address);
+
+      @(posedge clk); //exec
+        readdata <= 32'h00000008 // jr zero
+
+      @(posedge clk); //fetch
+
+      @(negedge clk);
+      assert(address==32'hBFC00008) else $fatal(102, "%s %s Fail CPU accessing incorrect address %h", TESTCASE_ID, INSTRUCTION, address);
+
+      @(posedge clk); //exec
+      readdata <= 32'h24430000; //addiu v1 v0 0x0
+
+      @(negedge clk);
+      assert(register_v0==32'd192) else $fatal(106, "%s %s Fail Incorrect value %d stored in v0." TESTCASE_ID, INSTRUCTION, register_v0);
+
+      @(posedge clk); //pc == 0 => cpu should halt
+
+      @(negedge clk);
+      assert(active==0) else $fatal(101, "%s %s Fail CPU incorrectly set active." TESTCASE_ID, INSTRUCTION);
+
+      $display("%s %s Passed test!", TESTCASE_ID, INSTRUCTION);
+      $finish;
   end
 endmodule //
