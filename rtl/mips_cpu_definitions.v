@@ -46,9 +46,9 @@ typedef enum logic[5:0] {
     FUNCTION_ADDU = 6'b100001, //rd = rs + rt (shift == 0)
     FUNCTION_AND = 6'b100100, //rd = rs & rt (shift == 0)
     FUNCTION_DIV=6'b011010, //divides two 32bit signed integers, rs, rt. quotient to LO, Remainder to HI
-		FUNCTION_DIVU=6'b011011, //same thing, for unsigned integers.
+    FUNCTION_DIVU=6'b011011, //same thing, for unsigned integers.
     FUNCTION_JALR = 6'b001001, //Jumps to RS, return adress stored in RD.
-		FUNCTION_JR = 6'b001000, //branch to an Instruction address in rs, presumably after FUNCTION_JALR
+    FUNCTION_JR = 6'b001000, //branch to an Instruction address in rs, presumably after FUNCTION_JALR
     FUNCTION_MTHI = 6'b010001, // $HI = $rs (rt, rd, shift == 0)
     FUNCTION_MTLO = 6'b100100, // $LO = $rs (rt, rd, shift == 0)
     FUNCTION_MFHI = 6'b010000, // $rd = $HI
