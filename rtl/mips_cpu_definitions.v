@@ -5,7 +5,6 @@
 R-type: opcode (6) rs (5) rt (5) rd (5) shift (5) function (5)
 I-tyoe: opcode (6) rs (5) rt (5) imm (16)
 J-type: opcode (6) mem (26)
-
 Delay slots:
 Jump and branch instructions all have a "delay slot", meaning that the instruction
 after the branch or jump is executed before the branch or jump is executed. The
@@ -24,6 +23,11 @@ typedef enum logic[5:0] {
     OPCODE_BGTZ = 6'b000111, //if(rs > 0) then pc <= pc + imm>>2 (rt == 00000)
     OPCODE_BLEZ = 6'b000110, //if(rs <= 0) then pc <= pc + imm>>2 (rt == 00000)
     OPCODE_BNE = 6'b000101, //if(rs != rt) then pc <= pc + imm>>2
+    OPCODE_J = 6'b000010, //jumps to specified target instr_index.
+    OPCODE_JAL = 6'b000011, //stores next instruction address in GPR (during procedure call,) executes subroutine.
+    OPCODE_LB = 6'b100000, //load a byte from memory to rt as a signed value
+    OPCODE_LBU = 6'100100, //same thing but as an unsigned value
+    OPCODE_LH = 6'b100001, //load a halfword as a signed value (to rt)
     OPCODE_LHU = 6'b100101, // $rt = mem[rs+imm] ; dest=rt, source=base
     OPCODE_LUI = 6'b001111, // $rt = imm||0000000000000000 (rs == 00000)
     OPCODE_LW = 6'b100011, // $rt = mem[rs+imm] (note this is signed fullword)
@@ -41,10 +45,14 @@ typedef enum logic[5:0] {
 typedef enum logic[5:0] {
     FUNCTION_ADDU = 6'b100001, //rd = rs + rt (shift == 0)
     FUNCTION_AND = 6'b100100, //rd = rs & rt (shift == 0)
+    FUNCTION_DIV=6'b011010, //divides two 32bit signed integers, rs, rt. quotient to LO, Remainder to HI
+    FUNCTION_DIVU=6'b011011, //same thing, for unsigned integers.
+    FUNCTION_JALR = 6'b001001, //Jumps to RS, return adress stored in RD.
+    FUNCTION_JR = 6'b001000, //branch to an Instruction address in rs, presumably after FUNCTION_JALR
     FUNCTION_MTHI = 6'b010001, // $HI = $rs (rt, rd, shift == 0)
     FUNCTION_MTLO = 6'b100100, // $LO = $rs (rt, rd, shift == 0)
     FUNCTION_MFHI = 6'b010000, // $rd = $HI
-    FUNCTION_MFLO = 6'b010010, // $rd = $LO 
+    FUNCTION_MFLO = 6'b010010, // $rd = $LO
     FUNCTION_MULT = 6'b011000, // $(LO,HI) = $rs * $rt (rd, shift == 0)
     FUNCTION_MULTU = 6'b011001, // $(LO,HI) = $rs * $rt (rd, shift == 0)
     FUNCTION_OR = 6'b100101, // does bitwise logical OR rd<--rs OR rt (shift == 0)
