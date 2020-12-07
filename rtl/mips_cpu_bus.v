@@ -87,11 +87,11 @@ module mips_cpu_bus(
         if(state == EXEC) begin
             //ADD LOGIC FOR LOAD / STORE INSTRUCTIONS
             case (instr_opcode)
+              OPCODE_LH: address = regs[rs]+instr_imm;
+              OPCODE_LHU: address = regs[rs]+instr_imm;
               OPCODE_LW: address = regs[rs] + instr_imm;
               OPCODE_LWL: address = regs[rt] + instr_imm;
               OPCODE_LWR: address = regs[rt] + instr_imm;
-              OPCODE_LH: address = regs[rs]+instr_imm;
-              OPCODE_LHU: address = regs[rs]+instr_imm;
 
             endcase
         end
