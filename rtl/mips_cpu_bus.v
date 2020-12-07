@@ -92,7 +92,6 @@ module mips_cpu_bus(
               OPCODE_LW: address = regs[rs] + instr_imm;
               OPCODE_LWL: address = regs[rt] + instr_imm;
               OPCODE_LWR: address = regs[rt] + instr_imm;
-
             endcase
         end
     end
