@@ -100,6 +100,20 @@ module mips_cpu_bus(
               address = regs[rs] + instr_imm;
               writedata = (regs[rt])[15:0];
             end
+            else if(instr_opcode==OPCODE_LB) begin
+              read = 1;
+              write = 0;
+              byteenable = 4'b0001;
+              //TO-DO: add signal exception for address error (address[0]==0)
+              address = regs[rs]+instr_imm;
+            end
+            else if(instr_opcode==OPCODE_LBU) begin
+              read = 1;
+              write = 0;
+              byteenable = 4'b0001;
+              //TO-DO: add signal exception for address error (address[0]==0)
+              address = regs[rs]+instr_imm;
+            end
             else if(instr_opcode==OPCODE_LH) begin
               read = 1;
               write = 0;
@@ -173,6 +187,28 @@ module mips_cpu_bus(
                     assert(shift == 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %b", instr, pc);
                     regs[rd] <= regs[rs] & regs[rt];
                   end
+                  FUNCTION_DIV: begin
+								    //not sure whether an assert is required here
+										regs[LO] <= regs[rs]/regs[rt];
+										regs[HI] <= regs[rs]%regs[rt];
+								    //does verilog automatically sign extend?
+									end
+									FUNCTION_DIVU: begin
+								    //not sure whether an assert is required here
+										regs[LO] <= regs[rs]/regs[rt];
+										regs[HI] <= regs[rs]%regs[rt];
+									end
+                  FUNCTION_JALR: begin
+										assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %b", instr, pc);
+										regs[rd] <= pc + 8;
+										pc_jmp <= regs[rs];
+										delay <= 1;
+									end
+									FUNCTION_JR: begin
+										assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %b", instr, pc);
+										pc_jmp <= regs[rs];
+								    delay <= 1;
+									end
                   FUNCTION_MTHI:begin
                     assert(({rd,rt,shift}==15'h0000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %b", instr, pc);
                     HI <= regs[rs];
@@ -282,6 +318,17 @@ module mips_cpu_bus(
                   delay <= 1;
                 end
               end
+              OPCODE_J: begin
+								assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %b", instr, pc);
+								pc_jmp <= instr_imm;
+								delay <= 1;
+							end
+							OPCODE_JAL: begin
+								assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %b", instr, pc);
+								regs[31] <= pc + 8;
+								pc_jmp <= instr_imm;
+								delay <= 1;
+							end
               OPCODE_ORI: begin
                 regs[rt] <= regs[rs] || instr_imm;
               end
@@ -307,6 +354,34 @@ module mips_cpu_bus(
         else if(state == MEM_ACCESS) begin
             state <= (waitrequest) ? MEM_ACCESS : FETCH
             case (instr_opcode)
+            OPCODE_LB: begin
+              if ((regs[rs]+instr_imm)[1:0]==0'b00) begin
+                regs[rt] <= {24[readdata[7]],readdata[7:0]};
+              end
+              else if ((regs[rs]+instr_imm)[1:0]==0'b01) begin
+                regs[rt] <= {16[readdata[15]],readdata[15:8],8'h00};
+              end
+              else if ((regs[rs]+instr_imm)[1:0]==0'b10) begin
+                regs[rt] <= {8[readdata[23]],readdata[23:16],16'h0000};
+              end
+              else if ((regs[rs]+instr_imm)[1:0]==0'b10) begin
+                regs[rt] <= {readdata[31:24],24'h000000};
+              end
+            end
+            OPCODE_LBU: begin
+              if ((regs[rs]+instr_imm)[1:0]==0'b00) begin
+                regs[rt] <= {24'h000000,readdata[7:0]};
+              end
+              else if ((regs[rs]+instr_imm)[1:0]==0'b01) begin
+                regs[rt] <= {16'h0000,readdata[15:8],8'h00};
+              end
+              else if ((regs[rs]+instr_imm)[1:0]==0'b10) begin
+                regs[rt] <= {8'h00,readdata[23:16],16'h0000};
+              end
+              else if ((regs[rs]+instr_imm)[1:0]==0'b10) begin
+                regs[rt] <= {readdata[31:24],24'h000000};
+              end
+            end
               OPCODE_LH: begin
                 if((regs[rs]+instr_imm)[1:0]==0'b00) begin
                   regs[rt] <= {16[readdata[15]],readdata[15:0]};
