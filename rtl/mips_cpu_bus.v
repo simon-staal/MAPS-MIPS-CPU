@@ -37,7 +37,7 @@ module mips_cpu_bus(
     logic[25:0] instr_index;
 
     assign instr = (state==FETCH) ? readdata : ir;
-    assign intr_opcode = instr[31:26];
+    assign instr_opcode = instr[31:26];
     assign rs = instr[25:21];
     assign rt = instr[20:16];
     assign rd = instr[15:11];
