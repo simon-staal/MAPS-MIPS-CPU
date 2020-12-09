@@ -1,9 +1,9 @@
 /*
-Assembly code:
-lw v1 0x1(zero) (loads value at address==1 into v1)
-lw v2 0x2(zero) (loads value at address==2 into v2)
-jr zero (jumps to address==0)
-xor v0 v1 v2 (delay slot: v0 = v1 XOR v2) // 32'h012A4026
+Assembly code // Hex code:
+lw v1 0x1(zero) (loads value at address==1 into v1) // 32'h8C030001
+lw v2 0x2(zero) (loads value at address==2 into v2) // 32'h8C030002
+jr zero (jumps to address==0) // 32'h00000008
+sltu v0 v1 v2 (delay slot: v0 = v1 SLTU v2) // 32'h012A402B
 */
 
 //This is a generic test_case format that uses the RAM memory block, and only checks the final output of register v0
@@ -11,9 +11,9 @@ module mips_cpu_bus_tb;
     timeunit 1ns / 10ps;
 
     parameter TIMEOUT_CYCLES = 10000;
-    parameter TESTCASE_ID = "XOR_1";
-    parameter INSTRUCTION = "xor"
-    parameter RAM_INIT_FILE = "XOR.hex.txt"
+    parameter TESTCASE_ID = "SLTU_1";
+    parameter INSTRUCTION = "sltu"
+    parameter RAM_INIT_FILE = "SLTU.hex.txt"
 
 
     logic clk;
