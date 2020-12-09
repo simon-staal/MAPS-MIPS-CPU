@@ -22,6 +22,8 @@ module mips_cpu_bus_tb;
     mips_cpu_bus cpuInst(clk, reset, active, register_v0, address, write, read, waitrequest, writedata, byteenable, readdata);
 
     initial begin
+    $dumpfile("mips_cpu_bus_tb.vcd");
+    $dumpvars(0, mips_cpu_bus_tb);
         clk=0;
 
         repeat (TIMEOUT_CYCLES) begin
