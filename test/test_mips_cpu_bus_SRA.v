@@ -67,7 +67,7 @@ module mips_cpu_bus_tb;
         end
         assert(register_v0==/*insert value*/) else $fatal(106, "%s %s Fail Incorrect value %d stored in v0." TESTCASE_ID, INSTRUCTION, register_v0);
 
-        $display("%s %s Pass #Add 0", TESTCASE_ID, INSTRUCTION);
+        $display("%s %s Pass #SRA 0", TESTCASE_ID, INSTRUCTION);
         $finish;
     end
 

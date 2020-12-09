@@ -1,6 +1,6 @@
 module mips_cpu_bus_tb;
 	timeunits 1ns/10ps;
-	
+
 parameter TIMEOUT_CYCLES = 10000;
     parameter TESTCASE_ID = "ORI_1";
     parameter INSTRUCTION = "ORI"
@@ -20,7 +20,7 @@ parameter TIMEOUT_CYCLES = 10000;
     logic[31:0] readdata;
 
     mips_cpu_bus cpuInst(clk, reset, active, register_v0, address, write, read, waitrequest, writedata, byteenable, readdata);
-    
+
     initial begin
         clk=0;
 
@@ -38,8 +38,8 @@ parameter TIMEOUT_CYCLES = 10000;
     Assembly code:
     lw v1 0x1(zero) (loades value at address==1 into v1) ?
     jr zero (jumps to address==0)
-    ori  v0 v1 0x00 
-    
+    ori  v0 v1 0x00
+
     */
 	initial begin
         clk=0;
@@ -98,15 +98,15 @@ parameter TIMEOUT_CYCLES = 10000;
 
         @(negedge clk);
         assert(register_v0==32'd192) assert(write==0) else $fatal(106, "%s %s Fail Incorrect value %d stored in v0." TESTCASE_ID, INSTRUCTION, register_v0);
-        
-       
+
+
 
         @(posedge clk); //pc == 0 => cpu should halt
 
         @(negedge clk);
         assert(active==0) else $fatal(101, "%s %s Fail CPU incorrectly set active." TESTCASE_ID, INSTRUCTION);
 
-        $display("%s %s Pass #ORI 0");
+        $display("%s %s Pass #ORI 0", TESTCASE_ID, INSTRUCTION);
         $finish;
     end
 

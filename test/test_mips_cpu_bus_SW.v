@@ -1,18 +1,11 @@
-/*
-Assembly code:
-lw v1 0x1(zero) (loads value at address==1 into v1)
-jr zero (jumps to address==0)
-srl v0 v1 0x00 (delay slot: v0 = v1 srl 0x00) // 32'h00094002
-*/
-
 //This is a generic test_case format that uses the RAM memory block, and only checks the final output of register v0
 module mips_cpu_bus_tb;
     timeunit 1ns / 10ps;
 
     parameter TIMEOUT_CYCLES = 10000;
-    parameter TESTCASE_ID = "SRL_1";
-    parameter INSTRUCTION = "srl"
-    parameter RAM_INIT_FILE = "SRL.hex.txt"
+    parameter TESTCASE_ID = "SW_1";
+    parameter INSTRUCTION = "sw"
+    parameter RAM_INIT_FILE = "SW.hex.txt"
 
 
     logic clk;
@@ -44,8 +37,11 @@ module mips_cpu_bus_tb;
 
         $fatal(100, "%s %s Fail Simulation did not finish within %d cycles.", TESTCASE_ID, INSTRUCTION, TIMEOUT_CYCLES);
     end
-
-
+    /* Assembly code
+    lw v1 0x1(zero) (loades value at address==1 into v1)
+    jr zero (jumps to address==0)
+    sw  v1 v1 v0
+    */
     initial begin
         reset <= 0;
 
@@ -65,9 +61,9 @@ module mips_cpu_bus_tb;
         while (active) begin
           @(posedge clk);
         end
-        assert(register_v0==/*insert value*/) else $fatal(106, "%s %s Fail Incorrect value %d stored in v0." TESTCASE_ID, INSTRUCTION, register_v0);
+        assert(register_v0==32'h0221000) else $fatal(106, "%s %s Fail Incorrect value %d stored in v0." TESTCASE_ID, INSTRUCTION, register_v0);
 
-        $display("%s %s Pass #SRL 0", TESTCASE_ID, INSTRUCTION);
+        $display("%s %s Pass #", TESTCASE_ID, INSTRUCTION);
         $finish;
     end
 
