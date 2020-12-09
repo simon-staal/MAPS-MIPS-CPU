@@ -10,12 +10,12 @@ module RAM_32x4096(
 );
     parameter RAM_INIT_FILE = "";
 
-    reg [31:0] memory [4095:0];
+    reg [31:0] memory [65535:0];
 
     initial begin
         integer i;
         /* Initialise to zero by default */
-        for (i=0; i<4096; i++) begin
+        for (i=0; i<65535; i++) begin
             memory[i]=0;
         end
         /* Load contents from file if specified */

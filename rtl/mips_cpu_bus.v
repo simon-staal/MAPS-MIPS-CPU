@@ -60,8 +60,7 @@ module mips_cpu_bus(
     $fp (30): frame pointer
     $ra (31): return address
     */
-    logic[31:0] regs[31:0];
-    assign regs[0] = 32'h00000000;
+    reg [31:0] regs [31:0];
     assign register_v0 = regs[2];
 
     //Stores values for branch / jmp instructions
@@ -77,9 +76,13 @@ module mips_cpu_bus(
     //address = {adress_calc[31:2], 2'b00};
     //byteenable[alignment] = 1
 
+    integer i;
     initial begin
         state = HALTED;
         active = 0;
+        for(i = 0; i < 32; i++) begin
+          regs[i] = 0;
+        end
     end
 
 
@@ -96,7 +99,7 @@ module mips_cpu_bus(
       				write = 1;
       				read = 0;
       				byteenable = 4'b1111;
-              assert(regs[rs] + instr_imm ==)
+              //assert(alignment == 2'b00) else $fatal(5, "CPU : ERROR : Unlagined memory access");
       				address = regs[rs] + instr_imm;
       				writedata = regs[rt];
       			end
