@@ -26,7 +26,7 @@ typedef enum logic[5:0] {
     OPCODE_J = 6'b000010, //jumps to specified target instr_index.
     OPCODE_JAL = 6'b000011, //stores next instruction address in GPR (during procedure call,) executes subroutine.
     OPCODE_LB = 6'b100000, //load a byte from memory to rt as a signed value
-    OPCODE_LBU = 6'100100, //same thing but as an unsigned value
+    OPCODE_LBU = 6'b100100, //same thing but as an unsigned value
     OPCODE_LH = 6'b100001, //load a halfword as a signed value (to rt)
     OPCODE_LHU = 6'b100101, // $rt = mem[rs+imm] ; dest=rt, source=base
     OPCODE_LUI = 6'b001111, // $rt = imm||0000000000000000 (rs == 00000)
@@ -74,7 +74,7 @@ typedef enum logic[4:0] {
     BGEZAL = 5'b10001, //$ra <= pc + 8, if(rs >= 0) then pc <= pc + imm>>2 (places return address in $ra)
     BLTZ = 5'b00000, //if(rs < 0) then pc <= pc + imm>>2
     BLTZAL = 5'b10000 //$ra <= pc + 8, if(rs < 0) then pc <= pc + imm>>2
-} REGIMM_t
+} REGIMM_t;
 
 //TODO: discuss logic for FSM and implement
 typedef enum logic[3:0] {
