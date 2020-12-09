@@ -1,3 +1,5 @@
+`include "mips_cpu_definitions.vh"
+
 module mips_cpu_bus(
     /* Standard signals */
     input logic clk,
@@ -107,7 +109,7 @@ module mips_cpu_bus(
     logic[25:0] instr_index;
 
     assign instr = (state==FETCH) ? readdata : ir;
-    assign intr_opcode = instr[31:26];
+    assign instr_opcode = instr[31:26];
     assign rs = instr[25:21];
     assign rt = instr[20:16];
     assign rd = instr[15:11];
@@ -156,13 +158,13 @@ module mips_cpu_bus(
         end
         if(state == EXEC) begin
             //ADD LOGIC FOR LOAD / STORE INSTRUCTIONS
-			if(instr_opcode == OPCODE_SW) begin
-				write = 1;
-				read = 0;
-				byteenable = 4'b1111;
-				address = regs[rs] + instr_imm;
-				writedata = regs[rt];
-			end
+      			if(instr_opcode == OPCODE_SW) begin
+      				write = 1;
+      				read = 0;
+      				byteenable = 4'b1111;
+      				address = regs[rs] + instr_imm;
+      				writedata = regs[rt];
+      			end
             if(instr_opcode==OPCODE_SB) begin
               byteenable = 4'b0001;
               write = 1;
@@ -226,7 +228,7 @@ module mips_cpu_bus(
               //TO-DO: add signal exception for address error (address[0]==0)
               address = regs[rs]+instr_imm;
             end
-            else being
+            else begin
               read = 0;
               write = 0;
               byteenable = 0;
