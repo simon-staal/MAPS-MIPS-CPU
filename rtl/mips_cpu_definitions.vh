@@ -1,4 +1,4 @@
-`ifdef mips_cpu_definitions_v
+`ifndef mips_cpu_definitions_v
 `define mips_cpu_definitions_v
 
 /* Instruction formats:
