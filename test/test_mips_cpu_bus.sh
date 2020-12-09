@@ -13,32 +13,29 @@ TESTCASE="$1"
 # Using ${VARIANT} substitutes in the value of the variable VARIANT
 >&2 echo "Using test-case ${TESTCASE}"
 
->&2 echo "  1 - Assembling input file"
-bin/assembler <test/0-assembly/${TESTCASE}.asm.txt >test/1-binary/${TESTCASE}.hex.txt
-
->&2 echo " 2 - Compiling test-bench"
-# Compile a specific simulator for this variant and testbench.
+>&2 echo " 1 - Compiling test-bench"
+# Compile a specific simulator for this testbench.
 # -s specifies exactly which testbench should be top-level
 # The -P command is used to modify the RAM_INIT_FILE parameter on the test-bench at compile-time
 iverilog -g 2012 \
-   src/CPU_MU0_${VARIANT}.v src/CPU_MU0_${VARIANT}_tb.v src/RAM_*.v \
-   -s CPU_MU0_${VARIANT}_tb \
-   -PCPU_MU0_${VARIANT}_tb.RAM_INIT_FILE=\"test/1-binary/${TESTCASE}.hex.txt\" \
-   -o test/2-simulator/CPU_MU0_${VARIANT}_tb_${TESTCASE}
+   rtl/mips_cpu_bus.v test/test_mips_cpu_bus_${TESTCASE}.v rtl/mips_cpu_ram.v \
+   -s test_mips_cpu_bus_${TESTCASE} \
+   -P test_mips_cpu_bus_${TESTCASE}.RAM_INIT_FILE=\"test/hex/${TESTCASE}.hex.txt\" \
+   -o test/simulator/mips_cpu_bus_${TESTCASE}
 
->&2 echo "  3 - Running test-bench"
+>&2 echo "  2 - Running test-bench"
 # Run the simulator, and capture all output to a file
 # Use +e to disable automatic script failure if the command fails, as
 # it is possible the simulation might go wrong.
 set +e
-test/2-simulator/CPU_MU0_${VARIANT}_tb_${TESTCASE} > test/3-output/CPU_MU0_${VARIANT}_tb_${TESTCASE}.stdout
+test/2-simulator/mips_cpu_bus_${TESTCASE} > test/3-output/mips_cpu_bus_${TESTCASE}.stdout
 # Capture the exit code of the simulator in a variable
 RESULT=$?
 set -e
 
 # Check whether the simulator returned a failure code, and immediately quit
 if [[ "${RESULT}" -ne 0 ]] ; then
-   echo "  ${VARIANT}, ${TESTCASE}, FAIL"
+   echo " ${TESTCASE}, FAIL"
    exit
 fi
 
@@ -48,27 +45,27 @@ PATTERN="CPU : OUT   :"
 NOTHING=""
 # Use "grep" to look only for lines containing PATTERN
 set +e
-grep "${PATTERN}" test/3-output/CPU_MU0_${VARIANT}_tb_${TESTCASE}.stdout > test/3-output/CPU_MU0_${VARIANT}_tb_${TESTCASE}.out-lines
+grep "${PATTERN}" test/3-output/mips_cpu_bus_${TESTCASE}.stdout > test/3-output/mips_cpu_bus_${TESTCASE}.out-lines
 set -e
 # Use "sed" to replace "CPU : OUT   :" with nothing
-sed -e "s/${PATTERN}/${NOTHING}/g" test/3-output/CPU_MU0_${VARIANT}_tb_${TESTCASE}.out-lines > test/3-output/CPU_MU0_${VARIANT}_tb_${TESTCASE}.out
+sed -e "s/${PATTERN}/${NOTHING}/g" test/3-output/mips_cpu_bus_${TESTCASE}.out-lines > test/3-output/mips_cpu_bus_${TESTCASE}.out
 
 >&2 echo "  4 - Running reference simulator"
 # This is the
 set +e
-bin/simulator < test/1-binary/${TESTCASE}.hex.txt > test/4-reference/${TESTCASE}.out
+bin/simulator < test/1-hex/${TESTCASE}.hex.txt > test/4-reference/${TESTCASE}.out
 set -e
 
 >&2 echo "  b - Comparing output"
 # Note the -w to ignore whitespace
 set +e
-diff -w test/4-reference/${TESTCASE}.out test/3-output/CPU_MU0_${VARIANT}_tb_${TESTCASE}.out
+diff -w test/4-reference/${TESTCASE}.out test/3-output/mips_cpu_bus_${TESTCASE}.out
 RESULT=$?
 set -e
 
 # Based on whether differences were found, either pass or fail
 if [[ "${RESULT}" -ne 0 ]] ; then
-   echo "  ${VARIANT}, ${TESTCASE}, FAIL"
+   echo "  ${TESTCASE}, FAIL"
 else
-   echo "  ${VARIANT}, ${TESTCASE}, pass"
+   echo "  ${TESTCASE}, pass"
 fi
