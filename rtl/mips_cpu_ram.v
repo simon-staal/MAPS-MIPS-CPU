@@ -38,7 +38,7 @@ module RAM_32x4096(
 
     //Uses byteenable to select words from input
     logic[31:0] r_data;
-    assign r_data = (address == 0) ? 32'd0 : memory[address_relative];
+    assign r_data = (address == 0) ? 32'd0 : memory[address];
     logic[7:0] r_data3, r_data2, r_data1, r_data0;
     assign r_data3 = r_data[31:24] & {8{b_enable[3]}};
     assign r_data2 = r_data[23:16] & {8{b_enable[2]}};
@@ -52,7 +52,7 @@ module RAM_32x4096(
     assign w_data0 = (b_enable[0]) ? writedata[7:0] : r_data[7:0]
 
     /* Synchronous write path */
-    always @(posedge clk) begin
+    always_ff @(posedge clk) begin
         //$display("RAM : INFO : read=%h, addr = %h, mem=%h", read, address, memory[address]);
         if(address == 0) begin
           //do nothing, halt position
