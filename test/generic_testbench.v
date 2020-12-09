@@ -4,8 +4,8 @@ module mips_cpu_bus_tb;
 
     parameter TIMEOUT_CYCLES = 10000;
     parameter TESTCASE_ID = "ADDIU_1";
-    parameter INSTRUCTION = "addiu"
-    parameter RAM_INIT_FILE = "testcase.hex.txt"
+    parameter INSTRUCTION = "addiu";
+    parameter RAM_INIT_FILE = "testcase.hex.txt";
 
 
     logic clk;
@@ -49,16 +49,16 @@ module mips_cpu_bus_tb;
         reset <= 0;
 
         @(negedge clk);
-        assert(active==1) else $fatal(101, "%s %s Fail CPU incorrectly set active." TESTCASE_ID, INSTRUCTION);
+        assert(active==1) else $fatal(101, "%s %s Fail CPU incorrectly set active.", TESTCASE_ID, INSTRUCTION);
         assert(address==32'hBFC00000) else $fatal(102, "%s %s Fail CPU accessing incorrect address %h", TESTCASE_ID, INSTRUCTION, address);
-        assert(read==1) else $fatal(103, "%s %s Fail CPU has read set incorrectly." TESTCASE_ID, INSTRUCTION);
-        assert(write==0) else $fatal(104, "%s %s Fail CPU has write set incorrectly." TESTCASE_ID, INSTRUCTION);
-        assert(byteenable==4'b1111) else $fatal(105, "%s %s Fail CPU incorrectly set byteenable %b." TESTCASE_ID, INSTRUCTION, byteenable);
+        assert(read==1) else $fatal(103, "%s %s Fail CPU has read set incorrectly.", TESTCASE_ID, INSTRUCTION);
+        assert(write==0) else $fatal(104, "%s %s Fail CPU has write set incorrectly.", TESTCASE_ID, INSTRUCTION);
+        assert(byteenable==4'b1111) else $fatal(105, "%s %s Fail CPU incorrectly set byteenable %b.", TESTCASE_ID, INSTRUCTION, byteenable);
 
         while (active) begin
           @(posedge clk);
         end
-        assert(register_v0==/*insert value*/) else $fatal(106, "%s %s Fail Incorrect value %d stored in v0." TESTCASE_ID, INSTRUCTION, register_v0);
+        assert(register_v0==/*insert value*/) else $fatal(106, "%s %s Fail Incorrect value %d stored in v0.", TESTCASE_ID, INSTRUCTION, register_v0);
 
         $display("%s %s Pass #Add 0", TESTCASE_ID, INSTRUCTION);
         $finish;

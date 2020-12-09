@@ -1,5 +1,5 @@
-`ifndef mips_cpu_definitions_v
-`define mips_cpu_definitions_v
+`ifndef mips_cpu_definitions_vh
+`define mips_cpu_definitions_vh
 
 /* Instruction formats:
 R-type: opcode (6) rs (5) rt (5) rd (5) shift (5) function (5)
@@ -50,7 +50,7 @@ typedef enum logic[5:0] {
     FUNCTION_JALR = 6'b001001, //Jumps to RS, return adress stored in RD.
     FUNCTION_JR = 6'b001000, //branch to an Instruction address in rs, presumably after FUNCTION_JALR
     FUNCTION_MTHI = 6'b010001, // $HI = $rs (rt, rd, shift == 0)
-    FUNCTION_MTLO = 6'b100100, // $LO = $rs (rt, rd, shift == 0)
+    FUNCTION_MTLO = 6'b010011, // $LO = $rs (rt, rd, shift == 0)
     FUNCTION_MFHI = 6'b010000, // $rd = $HI
     FUNCTION_MFLO = 6'b010010, // $rd = $LO
     FUNCTION_MULT = 6'b011000, // $(LO,HI) = $rs * $rt (rd, shift == 0)
@@ -77,7 +77,7 @@ typedef enum logic[4:0] {
 } REGIMM_t;
 
 //TODO: discuss logic for FSM and implement
-typedef enum logic[3:0] {
+typedef enum logic[2:0] {
     FETCH = 3'b000,
     EXEC = 3'b001,
     MEM_ACCESS = 3'b010,

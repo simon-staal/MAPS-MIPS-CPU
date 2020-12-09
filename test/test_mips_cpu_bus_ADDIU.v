@@ -3,7 +3,7 @@ module mips_cpu_bus_tb;
 
     parameter TIMEOUT_CYCLES = 10000;
     parameter TESTCASE_ID = "ADDIU_1";
-    parameter INSTRUCTION = "addiu"
+    parameter INSTRUCTION = "addiu";
 
 
     logic clk;
@@ -51,11 +51,11 @@ module mips_cpu_bus_tb;
         reset <= 0;
 
         @(negedge clk);
-        assert(active==1) else $fatal(101, "%s %s Fail CPU incorrectly set active." TESTCASE_ID, INSTRUCTION);
+        assert(active==1) else $fatal(101, "%s %s Fail CPU incorrectly set active.", TESTCASE_ID, INSTRUCTION);
         assert(address==32'hBFC00000) else $fatal(102, "%s %s Fail CPU accessing incorrect address %h", TESTCASE_ID, INSTRUCTION, address);
-        assert(read==1) else $fatal(103, "%s %s Fail CPU has read set incorrectly." TESTCASE_ID, INSTRUCTION);
-        assert(write==0) else $fatal(104, "%s %s Fail CPU has write set incorrectly." TESTCASE_ID, INSTRUCTION);
-        assert(byteenable==4'b1111) else $fatal(105, "%s %s Fail CPU incorrectly set byteenable %b." TESTCASE_ID, INSTRUCTION, byteenable);
+        assert(read==1) else $fatal(103, "%s %s Fail CPU has read set incorrectly.", TESTCASE_ID, INSTRUCTION);
+        assert(write==0) else $fatal(104, "%s %s Fail CPU has write set incorrectly.", TESTCASE_ID, INSTRUCTION);
+        assert(byteenable==4'b1111) else $fatal(105, "%s %s Fail CPU incorrectly set byteenable %b.", TESTCASE_ID, INSTRUCTION, byteenable);
 
         @(posedge clk); //exec
         readdata <= 32'h8C030001; //lw v1 0x1(zero) (loads value at address == 1)
@@ -75,7 +75,7 @@ module mips_cpu_bus_tb;
         assert(address==32'hBFC00004) else $fatal(102, "%s %s Fail CPU accessing incorrect address %h", TESTCASE_ID, INSTRUCTION, address);
 
         @(posedge clk); //exec
-        readdata <= 32'h00000008 // jr zero
+        readdata <= 32'h00000008; // jr zero
 
         @(posedge clk); //fetch
 
@@ -86,12 +86,12 @@ module mips_cpu_bus_tb;
         readdata <= 32'h24430000; //addiu v1 v0 0x0
 
         @(negedge clk);
-        assert(register_v0==32'd192) else $fatal(106, "%s %s Fail Incorrect value %d stored in v0." TESTCASE_ID, INSTRUCTION, register_v0);
+        assert(register_v0==32'd192) else $fatal(106, "%s %s Fail Incorrect value %d stored in v0.", TESTCASE_ID, INSTRUCTION, register_v0);
 
         @(posedge clk); //pc == 0 => cpu should halt
 
         @(negedge clk);
-        assert(active==0) else $fatal(101, "%s %s Fail CPU incorrectly set active." TESTCASE_ID, INSTRUCTION);
+        assert(active==0) else $fatal(101, "%s %s Fail CPU incorrectly set active.", TESTCASE_ID, INSTRUCTION);
 
         $display("%s %s Pass #Add 0", TESTCASE_ID, INSTRUCTION);
         $finish;

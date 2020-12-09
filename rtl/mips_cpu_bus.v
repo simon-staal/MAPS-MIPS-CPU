@@ -17,78 +17,6 @@ module mips_cpu_bus(
     input logic[31:0] readdata
     );
 
-    //Defining constants
-    typedef enum logic[5:0] {
-        OPCODE_R = 6'b00000, // Register type instructions
-        OPCODE_ADDIU = 6'b001001, //rt = rs + imm
-        OPCODE_ANDI = 6'b001100, //rt = rs & imm (note: & represents bitwise and)
-        OPCODE_BEQ = 6'b000100, //if(rs == rt) then pc <= pc + imm>>2
-        OPCODE_REGIMM = 6'b00001,  //Behaviour depends on the rt field (see below)
-        OPCODE_BGTZ = 6'b000111, //if(rs > 0) then pc <= pc + imm>>2 (rt == 00000)
-        OPCODE_BLEZ = 6'b000110, //if(rs <= 0) then pc <= pc + imm>>2 (rt == 00000)
-        OPCODE_BNE = 6'b000101, //if(rs != rt) then pc <= pc + imm>>2
-        OPCODE_J = 6'b000010, //jumps to specified target instr_index.
-        OPCODE_JAL = 6'b000011, //stores next instruction address in GPR (during procedure call,) executes subroutine.
-        OPCODE_LB = 6'b100000, //load a byte from memory to rt as a signed value
-        OPCODE_LBU = 6'100100, //same thing but as an unsigned value
-        OPCODE_LH = 6'b100001, //load a halfword as a signed value (to rt)
-        OPCODE_LHU = 6'b100101, // $rt = mem[rs+imm] ; dest=rt, source=base
-        OPCODE_LUI = 6'b001111, // $rt = imm||0000000000000000 (rs == 00000)
-        OPCODE_LW = 6'b100011, // $rt = mem[rs+imm] (note this is signed fullword)
-        OPCODE_LWL = 6'b100010, // $rt = rt MERGE mem[base+imm] loads MSB (replaces 16 MSB of rt with the 16MSB of mem[base+imm])
-        OPCODE_LWR = 6'b100110, // $rt = rt MERGE mem[base+imm] loads LSB (same as above but LSB)
-        OPCODE_ORI = 6'b001101, // does a bitwise logical or with constant rt<--rs | immediate
-        OPCODE_SB = 6'b101000,//stores a byte to memory memory(base+offset) = rt?
-        OPCODE_SH = 6'b101001, //store a halfword to memory memory(base+offset)=rt?
-        OPCODE_SLTI = 6'b001010, // to record the result of a less than comparison with a const rt=(rs<immediate)
-        OPCODE_SLTIU = 6'b001011, //to record the result of an unsigned less than comparison with a conse rt=(rs<immediate)
-        OPCODE_SW = 6'b101011, // memory[base+offset] := $rt. Stores register rt in memory with an offset.
-        OPCODE_XORI = 6'b001110 // $rt := $rs XORI c. Logical XOR between $rs and constant c.
-    } opcode_t;
-
-    typedef enum logic[5:0] {
-        FUNCTION_ADDU = 6'b100001, //rd = rs + rt (shift == 0)
-        FUNCTION_AND = 6'b100100, //rd = rs & rt (shift == 0)
-        FUNCTION_DIV=6'b011010, //divides two 32bit signed integers, rs, rt. quotient to LO, Remainder to HI
-        FUNCTION_DIVU=6'b011011, //same thing, for unsigned integers.
-        FUNCTION_JALR = 6'b001001, //Jumps to RS, return adress stored in RD.
-        FUNCTION_JR = 6'b001000, //branch to an Instruction address in rs, presumably after FUNCTION_JALR
-        FUNCTION_MTHI = 6'b010001, // $HI = $rs (rt, rd, shift == 0)
-        FUNCTION_MTLO = 6'b100100, // $LO = $rs (rt, rd, shift == 0)
-        FUNCTION_MFHI = 6'b010000, // $rd = $HI
-        FUNCTION_MFLO = 6'b010010, // $rd = $LO
-        FUNCTION_MULT = 6'b011000, // $(LO,HI) = $rs * $rt (rd, shift == 0)
-        FUNCTION_MULTU = 6'b011001, // $(LO,HI) = $rs * $rt (rd, shift == 0)
-        FUNCTION_OR = 6'b100101, // does bitwise logical OR rd<--rs OR rt (shift == 0)
-        FUNCTION_SLL = 6'b000000, // to left shift a word by a fixed number of bits rd=rt<<sa (shift amt) (rs == 0)
-        FUNCTION_SLLV = 6'b000100, // to left shift by the 5 LSB of rs rd=rt<<rs[4:0] (shift == 0)
-        FUNCTION_SLT = 6'b101010, // to record the result of a less than comparison rd=(rs<rt) (shift == 0)
-        FUNCTION_SLTU = 6'b101011, // $rd := $rs < $rt. Unsigned less-than comparison.
-        FUNCTION_SRA = 6'b000011, // $rd := rt >> shift. Arithmetic shift right by shift bits. (rs == 00000)
-        FUNCTION_SRAV = 6'b000111, // $rd := $rt >> $rs[4:0]. Variable Arithmetic shift right, i.e. by a register variable. (shift == 00000)
-        FUNCTION_SRL = 6'b000010, // $rd := $rt >> shift. Logical shift right by constant shift bits. (rs == 00000)
-        FUNCTION_SRLV = 6'b000110, // $rd := $rt >> $rs[4:0]. Variable logical shift right, i.e. by a register variable (shift == 00000)
-        FUNCTION_SUBU = 6'b100011, // $rd := $rs - $rt. Subtract 2 registers. (shift == 0)
-        FUNCTION_XOR = 6'b100110 // $rd := $rs XOR $rt. Logical XOR between $rs and $rt.
-    } function_t;
-
-    //This logic is used for the rt field of instructions with the REGIMM opcode
-    typedef enum logic[4:0] {
-        BGEZ = 5'b00001, //if(rs >= 0) then pc <= pc + imm>>2
-        BGEZAL = 5'b10001, //$ra <= pc + 8, if(rs >= 0) then pc <= pc + imm>>2 (places return address in $ra)
-        BLTZ = 5'b00000, //if(rs < 0) then pc <= pc + imm>>2
-        BLTZAL = 5'b10000 //$ra <= pc + 8, if(rs < 0) then pc <= pc + imm>>2
-    } REGIMM_t
-
-    //States in FSM
-    typedef enum logic[3:0] {
-        FETCH = 3'b000,
-        EXEC = 3'b001,
-        MEM_ACCESS = 3'b010,
-        HALTED = 3'b111
-    } state_t;
-
-
     //Creates basic registers
     logic[31:0] pc, pc_increment;
     assign pc_increment = pc + 4;
@@ -116,7 +44,7 @@ module mips_cpu_bus(
     assign shift = instr[10:6];
     assign instr_function = instr[5:0];
     assign instr_imm = instr[15:0];
-    assign instr_index = intr[25:0];
+    assign instr_index = instr[25:0];
 
     /* Defines an array of 32 registers used by MIPS whit the following purposes:
     $zero (0): constant 0
@@ -143,6 +71,12 @@ module mips_cpu_bus(
     //Used for 2 cycle memory access instructions (stores) for waitrequest logic in controlling pc
     logic mem_access;
 
+    //Intermediary logic for aligning addresses
+    logic [31:0] address_calc = regs[rs] + instr_imm;
+    logic [1:0] alignment = address_calc[1:0];
+    //address = {adress_calc[31:2], 2'b00};
+    //byteenable[alignment] = 1
+
     initial begin
         state = HALTED;
         active = 0;
@@ -162,9 +96,12 @@ module mips_cpu_bus(
       				write = 1;
       				read = 0;
       				byteenable = 4'b1111;
+              assert(regs[rs] + instr_imm ==)
       				address = regs[rs] + instr_imm;
       				writedata = regs[rt];
       			end
+            //TODO: FIX
+            /*
             if(instr_opcode==OPCODE_SB) begin
               byteenable = 4'b0001;
               write = 1;
@@ -179,6 +116,7 @@ module mips_cpu_bus(
               address = regs[rs] + instr_imm;
               writedata = (regs[rt])[15:0];
             end
+            */
             else if(instr_opcode==OPCODE_LB) begin
               read = 1;
               write = 0;
@@ -238,7 +176,7 @@ module mips_cpu_bus(
     end
 
 
-    always_ff @ (posedge clk) begin
+    always @ (posedge clk) begin
         if(reset) begin
             state <= FETCH;
             active <= 1;
@@ -252,7 +190,7 @@ module mips_cpu_bus(
             state <= (waitrequest) ? FETCH : EXEC;
         end
         else if(state == EXEC) begin
-            state <= (waitrequest && mem_access) ? EXEC : () ? MEM_ACCESS : FETCH; //Add condition if instruction requires mem access / if instruction requires writing back to a register
+            state <= (waitrequest && mem_access) ? EXEC : (instr_opcode==OPCODE_LW) ? MEM_ACCESS : FETCH; //Add condition if instruction requires mem access / if instruction requires writing back to a register
             pc <= (waitrequest) ? pc : (delay) ? pc_jmp : pc_increment;
             delay <= 0; //Resets the value of delay
             case(instr_opcode)
@@ -267,27 +205,27 @@ module mips_cpu_bus(
                     regs[rd] <= regs[rs] & regs[rt];
                   end
                   FUNCTION_DIV: begin
-		    //not sure whether an assert is required here
-		    regs[LO] <= regs[rs]/regs[rt];
-		    regs[HI] <= regs[rs]%regs[rt];
-		    //does verilog automatically sign extend?
-		  end
-		  FUNCTION_DIVU: begin
-		    //not sure whether an assert is required here
-		    regs[LO] <= regs[rs]/regs[rt];
-		    regs[HI] <= regs[rs]%regs[rt];
-		  end
+            		    //not sure whether an assert is required here
+            		    regs[LO] <= regs[rs]/regs[rt];
+            		    regs[HI] <= regs[rs]%regs[rt];
+            		    //does verilog automatically sign extend?
+            		  end
+            		  FUNCTION_DIVU: begin
+            		    //not sure whether an assert is required here
+            		    regs[LO] <= regs[rs]/regs[rt];
+            		    regs[HI] <= regs[rs]%regs[rt];
+            		  end
                   FUNCTION_JALR: begin
-		    assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %b", instr, pc);
-		    regs[rd] <= pc + 8;
-		    pc_jmp <= regs[rs];
-		    delay <= 1;
-		  end
-		  FUNCTION_JR: begin
-		    assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %b", instr, pc);
-		    pc_jmp <= regs[rs];
-		    delay <= 1;
-		  end
+            		    assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %b", instr, pc);
+            		    regs[rd] <= pc + 8;
+            		    pc_jmp <= regs[rs];
+            		    delay <= 1;
+            		  end
+            		  FUNCTION_JR: begin
+            		    assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %b", instr, pc);
+            		    pc_jmp <= regs[rs];
+            		    delay <= 1;
+            		  end
                   FUNCTION_MTHI:begin
                     assert(({rd,rt,shift}==15'h0000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %b", instr, pc);
                     HI <= regs[rs];
@@ -329,32 +267,32 @@ module mips_cpu_bus(
                   FUNCTION_SLLV: begin
                     regs[rd] <= regs[rs] << regs[rt];
                   end
-				  FUNCTION_XOR: begin
-						regs[rd] <= regs[rs] ^ regs[rt];
-				  end
-					  FUNCTION_SRL: begin
-						regs[rd] <= regs[rt] >> shift;
-				  end
-					  FUNCTION_SRA: begin
-						regs[rd] <= regs[rt] >>> shift;
-				  end
-					  FUNCTION_SRLV: begin
-					  regs[rd] <= regs[rt] >> regs[rs];
-				  end
-					  FUNCTION_SRAV: begin
-					  regs[rd] <= regs[rt] >>> regs[rs];
-				  end
-					  FUNCTION_SLTU: begin
-						if (regs[rs] < regs[rt]) begin
-							regs[rd] <= 1;
-						end
-						else begin
-							regs[rd] <= 0;
-						end
-				  end
-					  FUNCTION_SUBU: begin
-					  regs[rd] <= regs[rs] - regs[rt];
-				  end
+        				  FUNCTION_XOR: begin
+        						regs[rd] <= regs[rs] ^ regs[rt];
+        				  end
+        					  FUNCTION_SRL: begin
+        						regs[rd] <= regs[rt] >> shift;
+        				  end
+        					  FUNCTION_SRA: begin
+        						regs[rd] <= regs[rt] >>> shift;
+        				  end
+        					  FUNCTION_SRLV: begin
+        					  regs[rd] <= regs[rt] >> regs[rs];
+        				  end
+        					  FUNCTION_SRAV: begin
+        					  regs[rd] <= regs[rt] >>> regs[rs];
+        				  end
+        					  FUNCTION_SLTU: begin
+        						if (regs[rs] < regs[rt]) begin
+        							regs[rd] <= 1;
+        						end
+        						else begin
+        							regs[rd] <= 0;
+        						end
+        				  end
+        					  FUNCTION_SUBU: begin
+        					  regs[rd] <= regs[rs] - regs[rt];
+        				  end
                 endcase
               end
               OPCODE_ADDIU: begin
@@ -404,6 +342,7 @@ module mips_cpu_bus(
                       regs[31] <= pc_increment + 4;
                     end
                   end
+                endcase
               end
               OPCODE_BGTZ: begin
                 if(regs[rs] > 0) begin
@@ -424,16 +363,16 @@ module mips_cpu_bus(
                 end
               end
               OPCODE_J: begin
-		assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %b", instr, pc);
-		pc_jmp <= instr_imm;
-		delay <= 1;
-	      end
-	      OPCODE_JAL: begin
-		assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %b", instr, pc);
-		regs[31] <= pc + 8;
-		pc_jmp <= instr_imm;
-		delay <= 1;
-	      end
+            		assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %b", instr, pc);
+            		pc_jmp <= instr_imm;
+            		delay <= 1;
+      	      end
+      	      OPCODE_JAL: begin
+            		assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %b", instr, pc);
+            		regs[31] <= pc + 8;
+            		pc_jmp <= instr_imm;
+            		delay <= 1;
+            	end
               OPCODE_ORI: begin
                 regs[rt] <= regs[rs] || instr_imm;
               end
@@ -447,52 +386,55 @@ module mips_cpu_bus(
                 if (instr_imm[15]==1)begin
                   regs[rt] <= (regs[rs] - {16'h0001,instr_imm})>>32;
                 end
-                else if (instr_imm[15]==O)begin
+                else if (instr_imm[15]==0)begin
                   regs[rt] <= (regs[rs] - { 16'h0000,instr_imm})>>32;
                 end
               end
               OPCODE_SLTIU: begin
                 regs[rt] <= (regs[rs] - { 16'h0000,instr_imm})>>32;
               end
-			  OPCODE_XORI: begin
-					regs[rs] <= regs[rt] ^ instr_imm;
-			  end
-			  OPCODE_SW: begin
-			    mem_access <= 1;
-			  end
+      			  OPCODE_XORI: begin
+      					regs[rs] <= regs[rt] ^ instr_imm;
+      			  end
+      			  OPCODE_SW: begin
+      			    mem_access <= 1;
+      			  end
           endcase
         end
         else if(state == MEM_ACCESS) begin
-            state <= (waitrequest) ? MEM_ACCESS : FETCH
-            case (instr_opcode)
-            OPCODE_LB: begin
-              if ((regs[rs]+instr_imm)[1:0]==0'b00) begin
-                regs[rt] <= {24[readdata[7]],readdata[7:0]};
+            state <= (waitrequest) ? MEM_ACCESS : FETCH;
+            case(instr_opcode)
+            //TODO: FIX THIS
+            /*
+              OPCODE_LB: begin
+                if ((regs[rs]+instr_imm)[1:0]==0'b00) begin
+                  regs[rt] <= {{24{readdata[7]}},readdata[7:0]};
+                end
+                else if ((regs[rs]+instr_imm)[1:0]==0'b01) begin
+                  regs[rt] <= {{16{readdata[15]}},readdata[15:8],8'h00};
+                end
+                else if ((regs[rs]+instr_imm)[1:0]==0'b10) begin
+                  regs[rt] <= {{8{readdata[23]}},readdata[23:16],16'h0000};
+                end
+                else if ((regs[rs]+instr_imm)[1:0]==0'b11) begin
+                  regs[rt] <= {readdata[31:24],24'h000000};
+                end
               end
-              else if ((regs[rs]+instr_imm)[1:0]==0'b01) begin
-                regs[rt] <= {16[readdata[15]],readdata[15:8],8'h00};
+              OPCODE_LBU: begin
+                if ((regs[rs]+instr_imm)[1:0]==0'b00) begin
+                  regs[rt] <= {24'h000000,readdata[7:0]};
+                end
+                else if ((regs[rs]+instr_imm)[1:0]==0'b01) begin
+                  regs[rt] <= {16'h0000,readdata[15:8],8'h00};
+                end
+                else if ((regs[rs]+instr_imm)[1:0]==0'b10) begin
+                  regs[rt] <= {8'h00,readdata[23:16],16'h0000};
+                end
+                else if ((regs[rs]+instr_imm)[1:0]==0'b10) begin
+                  regs[rt] <= {readdata[31:24],24'h000000};
+                end
               end
-              else if ((regs[rs]+instr_imm)[1:0]==0'b10) begin
-                regs[rt] <= {8[readdata[23]],readdata[23:16],16'h0000};
-              end
-              else if ((regs[rs]+instr_imm)[1:0]==0'b10) begin
-                regs[rt] <= {readdata[31:24],24'h000000};
-              end
-            end
-            OPCODE_LBU: begin
-              if ((regs[rs]+instr_imm)[1:0]==0'b00) begin
-                regs[rt] <= {24'h000000,readdata[7:0]};
-              end
-              else if ((regs[rs]+instr_imm)[1:0]==0'b01) begin
-                regs[rt] <= {16'h0000,readdata[15:8],8'h00};
-              end
-              else if ((regs[rs]+instr_imm)[1:0]==0'b10) begin
-                regs[rt] <= {8'h00,readdata[23:16],16'h0000};
-              end
-              else if ((regs[rs]+instr_imm)[1:0]==0'b10) begin
-                regs[rt] <= {readdata[31:24],24'h000000};
-              end
-            end
+
               OPCODE_LH: begin
                 if((regs[rs]+instr_imm)[1:0]==0'b00) begin
                   regs[rt] <= {16[readdata[15]],readdata[15:0]};
@@ -512,6 +454,7 @@ module mips_cpu_bus(
                   regs[rt] <= {16'h0000,readdata[31:16]};
                 end
               end
+              */
               OPCODE_LW: regs[rt] <= readdata;
               OPCODE_LWL:regs[rt] <= {readdata[31:16],regs[rt][15:0]};
               OPCODE_LWR:regs[rt] <= {regs[rt][31:16], readdata[15:0]};
