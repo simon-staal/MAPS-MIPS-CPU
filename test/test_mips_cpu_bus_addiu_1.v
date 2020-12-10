@@ -42,7 +42,7 @@ module mips_cpu_bus_tb;
             clk = !clk;
         end
 
-        $fatal(100, "%s %s Fail Simulation did not finish within %d cycles.", TESTCASE_ID, INSTRUCTION, TIMEOUT_CYCLES);
+        $fatal(2, "%s %s Fail Simulation did not finish within %d cycles.", TESTCASE_ID, INSTRUCTION, TIMEOUT_CYCLES);
     end
 
 
@@ -59,7 +59,7 @@ module mips_cpu_bus_tb;
           @(posedge clk);
         end
 
-        assert(register_v0==32'h00000000) else $fatal(106, "%s %s Fail Incorrect value %d stored in v0.", TESTCASE_ID, INSTRUCTION, register_v0);
+        assert(register_v0==32'h000000C0) else $fatal(1, "%s %s Fail Incorrect value %d stored in v0.", TESTCASE_ID, INSTRUCTION, register_v0);
 
         $display("%s %s Pass #Add 0", TESTCASE_ID, INSTRUCTION);
         $finish;
