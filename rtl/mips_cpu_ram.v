@@ -20,7 +20,7 @@ module RAM_32x4096(
         end
         /* Load contents from file if specified */
         if (RAM_INIT_FILE != "") begin
-            $display("RAM : INIT : Loading RAM contents from %s", RAM_INIT_FILE);
+            //$display("RAM : INIT : Loading RAM contents from %s", RAM_INIT_FILE);
             $readmemh(RAM_INIT_FILE, memory);
         end
     end

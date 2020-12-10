@@ -25,8 +25,9 @@ for TESTCASE in ${TESTCASES}; do
   iverilog -g 2012 \
      ${SOURCE}/mips_cpu_*.v ${SOURCE}/mips_cpu_definitions.vh ${TESTCASE}  \
      -s  mips_cpu_bus_tb \
+     -P mips_cpu_bus_tb.RAM_INIT_FILE=\"${TEST_DIRECTORY}/1-hex/${TESTNAME}.hex.txt\" \
      -o ${TEST_DIRECTORY}/2-simulator/${TESTNAME}
-     # -P mips_cpu_bus_tb.RAM_INIT_FILE=\"${TEST_DIRECTORY}/1-hex/${TESTNAME}.hex.txt\" \
+
 
 
   >&2 echo "  2 - Running test-bench"
