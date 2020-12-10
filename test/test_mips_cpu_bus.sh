@@ -21,11 +21,13 @@ for TESTCASE in ${TESTCASES}; do
   # Compile a specific simulator for this testbench.
   # -s specifies exactly which testbench should be top-level
   # The -P command is used to modify the RAM_INIT_FILE parameter on the test-bench at compile-time
+  # Note currently must be compiled inside source folder for include to work
   iverilog -g 2012 \
      ${SOURCE}/mips_cpu_*.v ${SOURCE}/mips_cpu_definitions.vh ${TESTCASE}  \
      -s  mips_cpu_bus_tb \
-     -P mips_cpu_bus_tb.RAM_INIT_FILE=\"${TEST_DIRECTORY}/1-hex/${TESTNAME}.hex.txt\" \
      -o ${TEST_DIRECTORY}/2-simulator/${TESTNAME}
+     # -P mips_cpu_bus_tb.RAM_INIT_FILE=\"${TEST_DIRECTORY}/1-hex/${TESTNAME}.hex.txt\" \
+
 
   >&2 echo "  2 - Running test-bench"
   # Run the simulator, simulator should output appropriate message
