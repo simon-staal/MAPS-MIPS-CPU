@@ -123,14 +123,14 @@ module mips_cpu_bus(
             else if(instr_opcode==OPCODE_LB) begin
               read = 1;
               write = 0;
-              byteenable = 4'b0001;
+              byteenable = 4'b0000;
               //TO-DO: add signal exception for address error (address[0]==0)
               address = regs[rs]+instr_imm;
             end
             else if(instr_opcode==OPCODE_LBU) begin
               read = 1;
               write = 0;
-              byteenable = 4'b0001;
+              byteenable = 4'b0000;
               //TO-DO: add signal exception for address error (address[0]==0)
               address = regs[rs]+instr_imm;
             end
