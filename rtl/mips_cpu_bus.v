@@ -123,14 +123,14 @@ module mips_cpu_bus(
             else if(instr_opcode==OPCODE_LB) begin
               read = 1;
               write = 0;
-              byteenable = 4'b0001;
+              byteenable = 4'b0000;
               //TO-DO: add signal exception for address error (address[0]==0)
               address = regs[rs]+instr_imm;
             end
             else if(instr_opcode==OPCODE_LBU) begin
               read = 1;
               write = 0;
-              byteenable = 4'b0001;
+              byteenable = 4'b0000;
               //TO-DO: add signal exception for address error (address[0]==0)
               address = regs[rs]+instr_imm;
             end
@@ -409,7 +409,7 @@ module mips_cpu_bus(
             state <= (waitrequest) ? MEM_ACCESS : FETCH;
             case(instr_opcode)
             //TODO: FIX THIS
-            /*
+            
               OPCODE_LB: begin
                 if ((regs[rs]+instr_imm)[1:0]==0'b00) begin
                   regs[rt] <= {{24{readdata[7]}},readdata[7:0]};
@@ -434,7 +434,7 @@ module mips_cpu_bus(
                 else if ((regs[rs]+instr_imm)[1:0]==0'b10) begin
                   regs[rt] <= {8'h00,readdata[23:16],16'h0000};
                 end
-                else if ((regs[rs]+instr_imm)[1:0]==0'b10) begin
+                  else if ((regs[rs]+instr_imm)[1:0]==0'b11) begin //error was here, compiles now, still ensure of the implementation of byte enable
                   regs[rt] <= {readdata[31:24],24'h000000};
                 end
               end
