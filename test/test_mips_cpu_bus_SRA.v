@@ -4,6 +4,8 @@ lui v1 0xbfc0
 lw t1 0x28(v1)
 jr zero (jumps to address==0) // 32'h00000008
 sra v0 t1 0x05 (delay slot: v0 = v1 SRA 0x05) // 0x00091143
+
+v0 = 0xC0 >> 0x05 = 0x06
 */
 
 //This is a generic test_case format that uses the RAM memory block, and only checks the final output of register v0
@@ -66,7 +68,7 @@ module mips_cpu_bus_tb;
         while (active) begin
           @(posedge clk);
         end
-        assert(register_v0==/*insert value*/) else $fatal(106, "%s %s Fail Incorrect value %d stored in v0." TESTCASE_ID, INSTRUCTION, register_v0);
+        assert(register_v0==32'h00000006) else $fatal(106, "%s %s Fail Incorrect value %d stored in v0." TESTCASE_ID, INSTRUCTION, register_v0);
 
         $display("%s %s Pass #SRA 0", TESTCASE_ID, INSTRUCTION);
         $finish;

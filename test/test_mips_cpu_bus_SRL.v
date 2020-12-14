@@ -3,7 +3,9 @@ Assembly code:
 lui v1 0xbfc0
 lw t1 0x28(v1)
 jr zero (jumps to address==0)
-srl v0 t1 0x05 (delay slot: v0 = v1 srl 0x00) // 0x00091142
+srl v0 t1 0x05 (delay slot: v0 = v1 srl 0x05) // 0x00091142
+
+v0 = t1 >> 0x05 = 6
 */
 
 //This is a generic test_case format that uses the RAM memory block, and only checks the final output of register v0
@@ -66,7 +68,7 @@ module mips_cpu_bus_tb;
         while (active) begin
           @(posedge clk);
         end
-        assert(register_v0==/*insert value*/) else $fatal(106, "%s %s Fail Incorrect value %d stored in v0." TESTCASE_ID, INSTRUCTION, register_v0);
+        assert(register_v0==32'h00000006) else $fatal(106, "%s %s Fail Incorrect value %d stored in v0." TESTCASE_ID, INSTRUCTION, register_v0);
 
         $display("%s %s Pass #SRL 0", TESTCASE_ID, INSTRUCTION);
         $finish;

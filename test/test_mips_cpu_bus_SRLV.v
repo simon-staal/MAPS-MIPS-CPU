@@ -5,6 +5,8 @@ lw t1 0x28(v1)
 lw t2 0x2C(v1)
 jr zero (jumps to address==0)
 srlv  v0 t1 t2 // 0x01491006
+
+v0 = t1 >> t2 = 0xC0 >> 0x05 = 6
 */
 
 //This is a generic test_case format that uses the RAM memory block, and only checks the final output of register v0
