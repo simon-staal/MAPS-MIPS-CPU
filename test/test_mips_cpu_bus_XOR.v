@@ -1,8 +1,8 @@
 /*
 Assembly code:
 lui v1 0xbfc0
-lw t1 0x4(v1)
-lw t2 0x8(v1)
+lw t1 0x28(v1)
+lw t2 0x2C(v1)
 jr zero (jumps to address==0)
 xor  v0 t1 t2 // 0x012A1026
 */

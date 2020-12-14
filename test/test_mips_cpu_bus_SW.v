@@ -1,7 +1,7 @@
 /* Assembly code
 lui v1 0xbfc0
-lw t1 0x4(v1)
-lw t2 0x8(v1)
+lw t1 0x28(v1)
+lw t2 0x2C(v1)
 sw t1 0x00(t2) // 0xAD490000
 
 //This is a generic test_case format that uses the RAM memory block, and only checks the final output of register v0

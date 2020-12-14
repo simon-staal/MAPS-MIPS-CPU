@@ -1,7 +1,7 @@
 /*
 Assembly code:
 lui v1 0xbfc0
-lw t1 0x4(v1)
+lw t1 0x28(v1)
 jr zero (jumps to address==0) // 32'h00000008
 sra v0 t1 0x05 (delay slot: v0 = v1 SRA 0x05) // 0x00091143
 */
