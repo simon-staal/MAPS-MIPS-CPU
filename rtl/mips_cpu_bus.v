@@ -103,23 +103,25 @@ module mips_cpu_bus(
       				address = regs[rs] + instr_imm;
       				writedata = regs[rt];
       			end
-            //TODO: FIX
+            //TODO: check?
+
             /*
             if(instr_opcode==OPCODE_SB) begin
-              byteenable = 4'b0001;
+              byteenable = 4'b1110;
               write = 1;
               read = 0;
               address = regs[rs] + instr_imm;
-              writedata = (regs[rt])[7:0];
+              writedata = regs[rt];
             end
             else if(instr_opcode==OPCODE_SH) begin
-              byteenable = 4'b0011;
+              byteenable = 4'b1100;
               write = 1;
               read = 0;
               address = regs[rs] + instr_imm;
-              writedata = (regs[rt])[15:0];
+              writedata =regs[rt];
             end
             */
+
             else if(instr_opcode==OPCODE_LB) begin
               read = 1;
               write = 0;
@@ -409,7 +411,7 @@ module mips_cpu_bus(
             state <= (waitrequest) ? MEM_ACCESS : FETCH;
             case(instr_opcode)
             //TODO: FIX THIS
-            
+
               OPCODE_LB: begin
                 if ((regs[rs]+instr_imm)[1:0]==0'b00) begin
                   regs[rt] <= {{24{readdata[7]}},readdata[7:0]};
