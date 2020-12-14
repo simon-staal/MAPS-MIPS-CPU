@@ -3,16 +3,14 @@ module mips_cpu_bus_tb;
     timeunit 1ns / 10ps;
 
     parameter TIMEOUT_CYCLES = 10000;
-    parameter TESTCASE_ID = "addiu_2";
+    parameter TESTCASE_ID = "addiu_3";
     parameter INSTRUCTION = "addiu";
-    parameter RAM_INIT_FILE = "../test/1-hex/test_mips_cpu_bus_addiu_2.hex.txt";
+    parameter RAM_INIT_FILE = "../test/1-hex/test_mips_cpu_bus_addiu_3.hex.txt";
     //Use https://www.eg.bucknell.edu/~csci320/mips_web/ to convert assembly to hex
     /*
     Assembly:
-    lui v1 0xbfc0
-    lw t1 0x28(v1)
     jr zero
-    addiu t1 v0 0x145
+    addiu zero v0 0xF43D5
     */
 
     logic clk;
@@ -59,7 +57,7 @@ module mips_cpu_bus_tb;
           @(posedge clk);
         end
 
-        assert(register_v0==32'h00000205) else $fatal(1, "%s %s Fail Incorrect value %d stored in v0.", TESTCASE_ID, INSTRUCTION, register_v0);
+        assert(register_v0==32'h000F43D5) else $fatal(1, "%s %s Fail Incorrect value %d stored in v0.", TESTCASE_ID, INSTRUCTION, register_v0);
 
         $display("%s %s Pass #Add 0", TESTCASE_ID, INSTRUCTION);
         $finish;
