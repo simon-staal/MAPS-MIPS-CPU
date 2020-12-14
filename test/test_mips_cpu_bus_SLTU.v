@@ -1,9 +1,10 @@
 /*
 Assembly code // Hex code:
-lw v1 0x1(zero) (loads value at address==1 into v1) // 32'h8C030001
-lw v2 0x2(zero) (loads value at address==2 into v2) // 32'h8C030002
+lui v1 0xbfc0
+lw t1 0x4(v1)
+lw t2 0x8(v1)
 jr zero (jumps to address==0) // 32'h00000008
-sltu v0 v1 v2 (delay slot: v0 = v1 SLTU v2) // 32'h012A402B
+sltu v0 t1 t2 (delay slot: v0 = v1 SLTU v2) // 0x012A102B
 */
 
 //This is a generic test_case format that uses the RAM memory block, and only checks the final output of register v0

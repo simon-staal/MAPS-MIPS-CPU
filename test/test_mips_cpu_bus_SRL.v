@@ -1,8 +1,9 @@
 /*
 Assembly code:
-lw v1 0x1(zero) (loads value at address==1 into v1)
+lui v1 0xbfc0
+lw t1 0x4(v1)
 jr zero (jumps to address==0)
-srl v0 v1 0x00 (delay slot: v0 = v1 srl 0x00) // 32'h00094002
+srl v0 t1 0x05 (delay slot: v0 = v1 srl 0x00) // 0x00091142
 */
 
 //This is a generic test_case format that uses the RAM memory block, and only checks the final output of register v0
