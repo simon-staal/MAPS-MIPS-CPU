@@ -3,9 +3,9 @@ module mips_cpu_bus_tb;
     timeunit 1ns / 10ps;
 
     parameter TIMEOUT_CYCLES = 10000;
-    parameter TESTCASE_ID = "j_0";
-    parameter INSTRUCTION = "j";
-    parameter RAM_INIT_FILE = "J0.hex.txt";
+    parameter TESTCASE_ID = "J_0";
+    parameter INSTRUCTION = "J";
+    parameter RAM_INIT_FILE = "test_mips_J_0.hex.txt";
 
 
     logic clk;
