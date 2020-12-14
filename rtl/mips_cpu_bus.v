@@ -186,6 +186,9 @@ module mips_cpu_bus(
             state <= FETCH;
             active <= 1;
             pc <= 32'hBFC00000;
+            for(i = 0; i < 32; i++) begin
+              regs[i] = 0;
+            end
         end
         else if(pc == 32'h00000000) begin
             state <= HALTED;
@@ -413,54 +416,54 @@ module mips_cpu_bus(
             //TODO: FIX THIS
 
               OPCODE_LB: begin
-                if ((regs[rs]+instr_imm)[1:0]==0'b00) begin
+                if (alignment==2'b00) begin
                   regs[rt] <= {{24{readdata[7]}},readdata[7:0]};
                 end
-                else if ((regs[rs]+instr_imm)[1:0]==0'b01) begin
+                else if (alignment==2'b01) begin
                   regs[rt] <= {{16{readdata[15]}},readdata[15:8],8'h00};
                 end
-                else if ((regs[rs]+instr_imm)[1:0]==0'b10) begin
+                else if (alignment==2'b10) begin
                   regs[rt] <= {{8{readdata[23]}},readdata[23:16],16'h0000};
                 end
-                else if ((regs[rs]+instr_imm)[1:0]==0'b11) begin
+                else if (alignment==2'b11) begin
                   regs[rt] <= {readdata[31:24],24'h000000};
                 end
               end
               OPCODE_LBU: begin
-                if ((regs[rs]+instr_imm)[1:0]==0'b00) begin
+                if (alignment==2'b00) begin
                   regs[rt] <= {24'h000000,readdata[7:0]};
                 end
-                else if ((regs[rs]+instr_imm)[1:0]==0'b01) begin
+                else if (alignment==2'b01) begin
                   regs[rt] <= {16'h0000,readdata[15:8],8'h00};
                 end
-                else if ((regs[rs]+instr_imm)[1:0]==0'b10) begin
+                else if (alignment==2'b10) begin
                   regs[rt] <= {8'h00,readdata[23:16],16'h0000};
                 end
-                  else if ((regs[rs]+instr_imm)[1:0]==0'b11) begin //error was here, compiles now, still ensure of the implementation of byte enable
+                  else if (alignment==2'b11) begin //error was here, compiles now, still ensure of the implementation of byte enable
                   regs[rt] <= {readdata[31:24],24'h000000};
                 end
               end
 
               OPCODE_LH: begin
-                if((regs[rs]+instr_imm)[1:0]==0'b00) begin
-                  regs[rt] <= {16[readdata[15]],readdata[15:0]};
+                if(alignment==2'b00) begin
+                  regs[rt] <= {{16{readdata[15]}},readdata[15:0]};
                 end
-                else if((regs[rs]+instr_imm)[1:0]==0'b10) begin
-                  regs[rt] <= {16[readdata[31]],readdata[31:16]};
+                else if(alignment==2'b10) begin
+                  regs[rt] <= {{16{readdata[31]}},readdata[31:16]};
                 end
                 else begin
                   //TO-DO: accessing invalid memory? assert nonetheless?
                 end
               end
               OPCODE_LHU:begin
-                if((regs[rs]+instr_imm)[1:0]==0'b00) begin
+                if(alignment==2'b00) begin
                   regs[rt] <= {16'h0000,readdata[15:0]};
                 end
-                else if((regs[rs]+instr_imm)[1:0]==0'b10) begin
+                else if(alignment==2'b10) begin
                   regs[rt] <= {16'h0000,readdata[31:16]};
                 end
               end
-              */
+
               OPCODE_LW: regs[rt] <= readdata;
               OPCODE_LWL:regs[rt] <= {readdata[31:16],regs[rt][15:0]};
               OPCODE_LWR:regs[rt] <= {regs[rt][31:16], readdata[15:0]};
