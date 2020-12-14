@@ -3,9 +3,9 @@ module mips_cpu_bus_tb;
     timeunit 1ns / 10ps;
 
     parameter TIMEOUT_CYCLES = 10000;
-    parameter TESTCASE_ID = "DIV_0";
-    parameter INSTRUCTION = "DIV";
-    parameter RAM_INIT_FILE = "test_mips_cpu_bus_DIV_0.hex.txt";
+    parameter TESTCASE_ID = "DIVU_0";
+    parameter INSTRUCTION = "DIVU";
+    parameter RAM_INIT_FILE = "test_mips_cpu_bus_DIVU_0.hex.txt";
 
 
     logic clk;
