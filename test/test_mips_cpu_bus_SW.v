@@ -1,3 +1,9 @@
+/* Assembly code
+lui v1 0xbfc0
+lw t1 0x4(v1)
+lw t2 0x8(v1)
+sw t1 0x00(t2) // 0xAD490000
+
 //This is a generic test_case format that uses the RAM memory block, and only checks the final output of register v0
 module mips_cpu_bus_tb;
     timeunit 1ns / 10ps;
@@ -37,11 +43,7 @@ module mips_cpu_bus_tb;
 
         $fatal(100, "%s %s Fail Simulation did not finish within %d cycles.", TESTCASE_ID, INSTRUCTION, TIMEOUT_CYCLES);
     end
-    /* Assembly code
-    lw v1 0x1(zero) (loades value at address==1 into v1)
-    jr zero (jumps to address==0)
-    sw  v1 v1 v0
-    */
+
     initial begin
         reset <= 0;
 

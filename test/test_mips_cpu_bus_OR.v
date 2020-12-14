@@ -35,9 +35,11 @@ parameter TIMEOUT_CYCLES = 10000;
         end
         /*
     Assembly code:
-    lw v1 0x1(zero) (loades value at address==1 into v1) ?
+		lui v1 0xbfc0
+    lw t1 0x4(v1)
+		lw t2 0x8(v1)
     jr zero (jumps to address==0)
-    ori  v1 v1 v0
+    or  v0 t1 t2
 
     */
          initial begin

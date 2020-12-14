@@ -1,1 +1,4 @@
-//Cant find syntax for SW MIPS converter?
+3C03BFC0
+8C690004
+8C6A0008
+AD490000
