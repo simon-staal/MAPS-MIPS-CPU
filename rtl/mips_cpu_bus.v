@@ -393,13 +393,13 @@ module mips_cpu_bus(
               end
               OPCODE_J: begin
             		assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %b", instr, pc);
-            		pc_jmp <= instr_imm;
+                  pc_jmp <={[31:28]pc_increment, instr_imm, 2'b00};
             		delay <= 1;
       	      end
       	      OPCODE_JAL: begin
             		assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %b", instr, pc);
             		regs[31] <= pc + 8;
-            		pc_jmp <= instr_imm;
+            		pc_jmp <= {[31:28]pc_increment, instr_imm, 2'b00};
             		delay <= 1;
             	end
               OPCODE_ORI: begin
