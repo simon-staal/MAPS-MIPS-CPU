@@ -33,6 +33,8 @@ module mips_cpu_bus_tb;
     RAM_32x4096 #(RAM_INIT_FILE) ramInst(clk, address, write, read, waitrequest, writedata, byteenable, readdata);
 
     initial begin
+        $dumpfile("mips_cpu_bus_tb.vcd");
+        $dumpvars(0, mips_cpu_bus_tb);
         clk=0;
 
         repeat (TIMEOUT_CYCLES) begin
@@ -52,9 +54,9 @@ module mips_cpu_bus_tb;
         @(posedge clk);
         reset <= 1;
 
+        @(posedge clk);
         @(posedge clk); //fetch
         reset <= 0;
-        waitrequest <= 0;
 
         while (active) begin
           @(posedge clk);

@@ -71,8 +71,10 @@ module mips_cpu_bus(
     logic mem_access;
 
     //Intermediary logic for aligning addresses
-    logic [31:0] address_calc = regs[rs] + instr_imm;
-    logic [1:0] alignment = address_calc[1:0];
+    logic [31:0] address_calc;
+    assign address_calc = regs[rs] + instr_imm;
+    logic [1:0] alignment;
+    assign alignment = address_calc[1:0];
     //address = {adress_calc[31:2], 2'b00};
     //byteenable[alignment] = 1
 
@@ -80,6 +82,7 @@ module mips_cpu_bus(
     initial begin
         state = HALTED;
         active = 0;
+        delay = 0;
         for(i = 0; i < 32; i++) begin
           regs[i] = 0;
         end
@@ -138,34 +141,34 @@ module mips_cpu_bus(
               read = 1;
               write = 0;
               //alignment==00 or 01 --> LSHalfword, 10 or 11 MSHalfword
-              if(alignment[1]==1b'0)begin
+              if(alignment==2'b0X) begin
                 byteenable = 4'b0011;
               end
-              else if(alignment[1]==1b'1)begin
+              else if(alignment==2'b1X) begin
                 byteenable = 4'b1100;
               end
               //TO-DO: add signal exception for address error (address[0]==0)
-              address = {{address_calc[31:2]},2'b00};
+              address = address_calc & 2'b00;
             end
             else if(instr_opcode==OPCODE_LHU) begin
               read = 1;
               write = 0;
               //alignment==00 or 01 --> LSHalfword, 10 or 11 MSHalfword
-              if(alignment[1]==1b'0)begin
+              if(alignment==2'b0X) begin
                 byteenable = 4'b0011;
               end
-              else if(alignment[1]==1b'1)begin
+              else if(alignment==2'b1X)begin
                 byteenable = 4'b1100;
               end
               //TO-DO: add signal exception for address error (address[0]==0)
-              address = {{address_calc[31:2]},2'b00};
+              address = address_calc & 32'hFFFFFFFA;
             end
             else if(instr_opcode==OPCODE_LW) begin
               read = 1;
               write = 0;
               byteenable = 4'b1111;
               //TO-DO: add signal exception for address error (address[0]==0)
-              address = {{address_calc[31:2]},2'b00};
+              address = address_calc & 32'hFFFFFFFA;
             end
             else if(instr_opcode==OPCODE_LWL) begin
               read = 1;
@@ -177,7 +180,7 @@ module mips_cpu_bus(
                 2'b11: byteenable = 4'b1111;
               endcase
               //TO-DO: add signal exception for address error (address[0]==0)
-              address = {{address_calc[31:2]},2'b00};
+              address = address_calc & 32'hFFFFFFFA;
             end
             else if(instr_opcode==OPCODE_LWR) begin
               read = 1;
@@ -189,7 +192,7 @@ module mips_cpu_bus(
                 2'b11: byteenable = 4'b1000;
               endcase
               //TO-DO: add signal exception for address error (address[0]==0)
-              address = {{address_calc[31:2]},2'b00};
+              address = address_calc & 32'hFFFFFFFA;
             end
             else begin
               read = 0;
@@ -221,7 +224,7 @@ module mips_cpu_bus(
             ir <= readdata;
             state <= (waitrequest && mem_access) ? EXEC : (instr_opcode==OPCODE_LW) ? MEM_ACCESS : FETCH; //Add condition if instruction requires mem access / if instruction requires writing back to a register
             pc <= (waitrequest) ? pc : (delay) ? pc_jmp : pc_increment;
-            delay <= 0; //Resets the value of delay
+            //delay <= 0; //Resets the value of delay
             case(instr_opcode)
               OPCODE_R: begin
                 case(instr_function)
@@ -393,13 +396,13 @@ module mips_cpu_bus(
               end
               OPCODE_J: begin
             		assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %b", instr, pc);
-                  pc_jmp <={[31:28]pc_increment, instr_imm, 2'b00};
+                  pc_jmp <={{pc_increment[31:28]}, instr_imm, {2'b00}};
             		delay <= 1;
       	      end
       	      OPCODE_JAL: begin
             		assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %b", instr, pc);
             		regs[31] <= pc + 8;
-            		pc_jmp <= {[31:28]pc_increment, instr_imm, 2'b00};
+            		pc_jmp <= {{pc_increment[31:28]}, instr_imm, {2'b00}};
             		delay <= 1;
             	end
               OPCODE_ORI: begin
