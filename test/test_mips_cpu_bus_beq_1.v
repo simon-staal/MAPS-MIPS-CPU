@@ -11,11 +11,14 @@ module mips_cpu_bus_tb;
     Assembly:
     beq v0 v1 0x14
     lui v1 0xbfc0
-    jr zero
     lw v0 0x28(v1)
+    jr zero
+    nop
 
-    0x50: jr zero
-          lw v0 0x2c(v1)
+    0x50: lw v0 0x2c(v1)
+          jr zero
+          nop
+
     */
 
     logic clk;
@@ -36,6 +39,8 @@ module mips_cpu_bus_tb;
     RAM_32x4096 #(RAM_INIT_FILE) ramInst(clk, address, write, read, waitrequest, writedata, byteenable, readdata);
 
     initial begin
+        $dumpfile("mips_cpu_bus_tb.vcd");
+        $dumpvars(0, mips_cpu_bus_tb);
         clk=0;
 
         repeat (TIMEOUT_CYCLES) begin
@@ -55,6 +60,7 @@ module mips_cpu_bus_tb;
         @(posedge clk);
         reset <= 1;
 
+        @(posedge clk);
         @(posedge clk); //fetch
         reset <= 0;
 
@@ -64,7 +70,7 @@ module mips_cpu_bus_tb;
 
         assert(register_v0==32'h1ca759fe) else $fatal(1, "%s %s Fail Incorrect value %d stored in v0.", TESTCASE_ID, INSTRUCTION, register_v0);
 
-        $display("%s %s Pass #Add 0", TESTCASE_ID, INSTRUCTION);
+        $display("%s %s Pass #Both registers = 0", TESTCASE_ID, INSTRUCTION);
         $finish;
     end
 

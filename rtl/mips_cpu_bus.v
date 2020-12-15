@@ -148,7 +148,7 @@ module mips_cpu_bus(
                 byteenable = 4'b1100;
               end
               //TO-DO: add signal exception for address error (address[0]==0)
-              address = address_calc & 2'b00;
+              address = address_calc & 32'hFFFFFFFC;
             end
             else if(instr_opcode==OPCODE_LHU) begin
               read = 1;
@@ -161,14 +161,14 @@ module mips_cpu_bus(
                 byteenable = 4'b1100;
               end
               //TO-DO: add signal exception for address error (address[0]==0)
-              address = address_calc & 32'hFFFFFFFA;
+              address = address_calc & 32'hFFFFFFFC;
             end
             else if(instr_opcode==OPCODE_LW) begin
               read = 1;
               write = 0;
               byteenable = 4'b1111;
               //TO-DO: add signal exception for address error (address[0]==0)
-              address = address_calc & 32'hFFFFFFFA;
+              address = address_calc & 32'hFFFFFFFC;
             end
             else if(instr_opcode==OPCODE_LWL) begin
               read = 1;
@@ -180,7 +180,7 @@ module mips_cpu_bus(
                 2'b11: byteenable = 4'b1111;
               endcase
               //TO-DO: add signal exception for address error (address[0]==0)
-              address = address_calc & 32'hFFFFFFFA;
+              address = address_calc & 32'hFFFFFFFC;
             end
             else if(instr_opcode==OPCODE_LWR) begin
               read = 1;
@@ -192,7 +192,7 @@ module mips_cpu_bus(
                 2'b11: byteenable = 4'b1000;
               endcase
               //TO-DO: add signal exception for address error (address[0]==0)
-              address = address_calc & 32'hFFFFFFFA;
+              address = address_calc & 32'hFFFFFFFC;
             end
             else begin
               read = 0;
@@ -213,7 +213,7 @@ module mips_cpu_bus(
               regs[i] = 0;
             end
         end
-        else if(pc == 32'h00000000) begin
+        else if(address == 32'h00000000) begin
             state <= HALTED;
             active <= 0;
         end
@@ -224,7 +224,7 @@ module mips_cpu_bus(
             ir <= readdata;
             state <= (waitrequest && mem_access) ? EXEC : (instr_opcode==OPCODE_LW) ? MEM_ACCESS : FETCH; //Add condition if instruction requires mem access / if instruction requires writing back to a register
             pc <= (waitrequest) ? pc : (delay) ? pc_jmp : pc_increment;
-            //delay <= 0; //Resets the value of delay
+            delay <= (delay) ? 0 : delay; //Resets the value of delay
             case(instr_opcode)
               OPCODE_R: begin
                 case(instr_function)
@@ -293,7 +293,7 @@ module mips_cpu_bus(
                     regs[rd] <= (regs[rs] - regs[rt])>>32;
                   end
                   FUNCTION_SLL: begin
-                    assert(shift != 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %b", instr, pc);
+                    //assert(shift != 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %b", instr, pc);
                     regs[rd] <= regs[rs] << shift;
                   end
                   FUNCTION_SLLV: begin
@@ -336,7 +336,7 @@ module mips_cpu_bus(
               OPCODE_BEQ: begin
                 assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %b", instr, pc);
                 if(regs[rs] == regs[rt]) begin
-                  pc_jmp <= pc_increment + instr_imm << 2;
+                  pc_jmp <= pc_increment + (instr_imm << 2);
                   delay <= 1;
                 end
               end

@@ -11,7 +11,7 @@ module mips_cpu_bus_tb;
     Assembly:
     lui v1 0xbfc0
     lw t1 0x28(v1)
-    bgez t1 0x14
+    bgez t1 0x12
     nop (sll zero zero 0x0)
     jr zero
     lw v0 0x30(v1)

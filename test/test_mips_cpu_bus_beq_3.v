@@ -12,13 +12,15 @@ module mips_cpu_bus_tb;
     lui v1 0xbfc0
     lw t1 0x28(v1)
     lw t2 0x2c(v1)
-    beq t2 t1 0x14
+    beq t2 t1 0x10
     nop (sll zero zero 0x0)
-    jr zero
     lw v0 0x30(v1)
+    jr zero
+    nop
 
-    0x50: jr zero
-          lw v0 0x34(v1)
+    0x50: lw v0 0x34(v1)
+          jr zero
+
     */
 
     logic clk;
@@ -67,7 +69,7 @@ module mips_cpu_bus_tb;
 
         assert(register_v0==32'h8ab09db9) else $fatal(1, "%s %s Fail Incorrect value %d stored in v0.", TESTCASE_ID, INSTRUCTION, register_v0);
 
-        $display("%s %s Pass #Add 0", TESTCASE_ID, INSTRUCTION);
+        $display("%s %s Pass #Compares 2 random values", TESTCASE_ID, INSTRUCTION);
         $finish;
     end
 

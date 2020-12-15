@@ -12,7 +12,7 @@ module mips_cpu_bus_tb;
     lui v1 0xbfc0
     lw t1 0x28(v1)
     lw t2 0x28(v1)
-    beq t2 t1 0x14
+    beq t2 t1 0x10
     nop (sll zero zero 0x0)
     jr zero
     lw v0 0x30(v1)
@@ -39,6 +39,8 @@ module mips_cpu_bus_tb;
     RAM_32x4096 #(RAM_INIT_FILE) ramInst(clk, address, write, read, waitrequest, writedata, byteenable, readdata);
 
     initial begin
+        $dumpfile("mips_cpu_bus_tb.vcd");
+        $dumpvars(0, mips_cpu_bus_tb);
         clk=0;
 
         repeat (TIMEOUT_CYCLES) begin
@@ -58,6 +60,7 @@ module mips_cpu_bus_tb;
         @(posedge clk);
         reset <= 1;
 
+        @(posedge clk);
         @(posedge clk); //fetch
         reset <= 0;
 
