@@ -3,16 +3,15 @@ module mips_cpu_bus_tb;
     timeunit 1ns / 10ps;
 
     parameter TIMEOUT_CYCLES = 10000;
-    parameter TESTCASE_ID = "beq_4";
-    parameter INSTRUCTION = "beq";
-    parameter RAM_INIT_FILE = "../test/1-hex/test_mips_cpu_bus_beq_4.hex.txt";
+    parameter TESTCASE_ID = "bgez_3";
+    parameter INSTRUCTION = "bgez";
+    parameter RAM_INIT_FILE = "../test/1-hex/test_mips_cpu_bus_bgez_3.hex.txt";
     //Use https://www.eg.bucknell.edu/~csci320/mips_web/ to convert assembly to hex
     /*
     Assembly:
     lui v1 0xbfc0
     lw t1 0x28(v1)
-    lw t2 0x28(v1)
-    beq t2 t1 0x14
+    bgez t1 0x14
     nop (sll zero zero 0x0)
     jr zero
     lw v0 0x30(v1)
@@ -65,7 +64,7 @@ module mips_cpu_bus_tb;
           @(posedge clk);
         end
 
-        assert(register_v0==32'hbe4d927f) else $fatal(1, "%s %s Fail Incorrect value %d stored in v0.", TESTCASE_ID, INSTRUCTION, register_v0);
+        assert(register_v0==32'h57b637d7) else $fatal(1, "%s %s Fail Incorrect value %d stored in v0.", TESTCASE_ID, INSTRUCTION, register_v0);
 
         $display("%s %s Pass #Add 0", TESTCASE_ID, INSTRUCTION);
         $finish;
