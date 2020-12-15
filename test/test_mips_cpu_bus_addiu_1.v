@@ -54,6 +54,7 @@ module mips_cpu_bus_tb;
 
         @(posedge clk); //fetch
         reset <= 0;
+        waitrequest <= 0;
 
         while (active) begin
           @(posedge clk);
