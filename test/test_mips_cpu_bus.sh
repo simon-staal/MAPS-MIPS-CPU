@@ -17,6 +17,10 @@ TEST_DIRECTORY="test"
 for TESTCASE in ${TESTCASES}; do
 
   TESTNAME=$(basename ${TESTCASE} .v)
+  INSTR=$(echo $TESTNAME | cut -d'_' -f 5)
+  NUM=$(echo $TESTNAME | cut -d'_' -f 6)
+  CODE="${INSTR}_${NUM}"
+
   >&2 echo " 1 - Compiling test-bench"
   # Compile a specific simulator for this testbench.
   # -s specifies exactly which testbench should be top-level
@@ -34,7 +38,15 @@ for TESTCASE in ${TESTCASES}; do
   # Run the simulator, simulator should output appropriate message
   # Disable e in case simulation returns with error code
   set +e
-  test/2-simulator/${TESTNAME}
+  test/2-simulator/${TESTNAME} > ${TEST_DIRECTORY}/3-output/${TESTNAME}.stdout
+  RESULT=$?
   set -e
+
+  if [["${RESULT}" -ne 0]] ; then
+    echo "${CODE} ${INSTR} Fail"
+    exit
+  fi
+
+  echo "${CODE} ${INSTR} Pass"
 
 done
