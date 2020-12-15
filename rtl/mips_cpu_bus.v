@@ -137,37 +137,59 @@ module mips_cpu_bus(
             else if(instr_opcode==OPCODE_LH) begin
               read = 1;
               write = 0;
-              byteenable = 4'b1100;
+              //alignment==00 or 01 --> LSHalfword, 10 or 11 MSHalfword
+              if(alignment[1]==1b'0)begin
+                byteenable = 4'b0011;
+              end
+              else if(alignment[1]==1b'1)begin
+                byteenable = 4'b1100;
+              end
               //TO-DO: add signal exception for address error (address[0]==0)
-              address = regs[rs]+instr_imm;
+              address = {{address_calc[31:2]},2'b00};
             end
             else if(instr_opcode==OPCODE_LHU) begin
               read = 1;
               write = 0;
-              byteenable = 4'b1100;
+              //alignment==00 or 01 --> LSHalfword, 10 or 11 MSHalfword
+              if(alignment[1]==1b'0)begin
+                byteenable = 4'b0011;
+              end
+              else if(alignment[1]==1b'1)begin
+                byteenable = 4'b1100;
+              end
               //TO-DO: add signal exception for address error (address[0]==0)
-              address = regs[rs]+instr_imm;
+              address = {{address_calc[31:2]},2'b00};
             end
             else if(instr_opcode==OPCODE_LW) begin
               read = 1;
               write = 0;
               byteenable = 4'b1111;
               //TO-DO: add signal exception for address error (address[0]==0)
-              address = regs[rs]+instr_imm;
+              address = {{address_calc[31:2]},2'b00};
             end
             else if(instr_opcode==OPCODE_LWL) begin
               read = 1;
               write = 0;
-              byteenable = 4'b1100;
+              case(alignment)
+                2'b00: byteenable = 4'b0001;
+                2'b01: byteenable = 4'b0011;
+                2'b10: byteenable = 4'b0111;
+                2'b11: byteenable = 4'b1111;
+              endcase
               //TO-DO: add signal exception for address error (address[0]==0)
-              address = regs[rs]+instr_imm;
+              address = {{address_calc[31:2]},2'b00};
             end
             else if(instr_opcode==OPCODE_LWR) begin
               read = 1;
               write = 0;
-              byteenable = 4'b0011;
+              case(alignment)
+                2'b00: byteenable = 4'b1111;
+                2'b01: byteenable = 4'b1110;
+                2'b10: byteenable = 4'b1100;
+                2'b11: byteenable = 4'b1000;
+              endcase
               //TO-DO: add signal exception for address error (address[0]==0)
-              address = regs[rs]+instr_imm;
+              address = {{address_calc[31:2]},2'b00};
             end
             else begin
               read = 0;
@@ -371,13 +393,13 @@ module mips_cpu_bus(
               end
               OPCODE_J: begin
             		assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %b", instr, pc);
-            		pc_jmp <= instr_imm;
+                  pc_jmp <={[31:28]pc_increment, instr_imm, 2'b00};
             		delay <= 1;
       	      end
       	      OPCODE_JAL: begin
             		assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %b", instr, pc);
             		regs[31] <= pc + 8;
-            		pc_jmp <= instr_imm;
+            		pc_jmp <= {[31:28]pc_increment, instr_imm, 2'b00};
             		delay <= 1;
             	end
               OPCODE_ORI: begin
@@ -443,10 +465,10 @@ module mips_cpu_bus(
               end
 
               OPCODE_LH: begin
-                if(alignment==2'b00) begin
+                if(alignment[1]==1'b0) begin
                   regs[rt] <= {{16{readdata[15]}},readdata[15:0]};
                 end
-                else if(alignment==2'b10) begin
+                else if(alignment[1]==2'b1) begin
                   regs[rt] <= {{16{readdata[31]}},readdata[31:16]};
                 end
                 else begin
@@ -454,17 +476,31 @@ module mips_cpu_bus(
                 end
               end
               OPCODE_LHU:begin
-                if(alignment==2'b00) begin
+                if(alignment[1]==2'b0) begin
                   regs[rt] <= {16'h0000,readdata[15:0]};
                 end
-                else if(alignment==2'b10) begin
+                else if(alignment[1]==2'b1) begin
                   regs[rt] <= {16'h0000,readdata[31:16]};
                 end
               end
 
               OPCODE_LW: regs[rt] <= readdata;
-              OPCODE_LWL:regs[rt] <= {readdata[31:16],regs[rt][15:0]};
-              OPCODE_LWR:regs[rt] <= {regs[rt][31:16], readdata[15:0]};
+              OPCODE_LWL: begin
+                case(alignment)
+                  2'b00: regs[rt] <= {readdata[7:0],regs[rt][23:0]};
+                  2'b01: regs[rt] <= {readdata[15:0],regs[rt][15:0]};
+                  2'b10: regs[rt] <= {readdata[23:0], regs[rt][7:0]};
+                  2'b11: regs[rt] <= readdata;
+                endcase
+              end
+              OPCODE_LWR:begin
+                case(alignment)
+                  2'b00: regs[rt] <= readdata;
+                  2'b01: regs[rt] <= {regs[rt][31:24],readdata[31:8]};
+                  2'b10: regs[rt] <= {regs[rt][31:16], readdata[31:16]};
+                  2'b11: regs[rt] <= {regs[rt][31:8], readdata[31:24]};
+                endcase
+              end
             endcase
         end
         else if(state == HALTED) begin
