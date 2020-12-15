@@ -12,7 +12,7 @@ module mips_cpu_bus_tb;
     lui v1 0xbfc0
     lw t1 0x28(v1)
     jr zero
-    addiu t1 v0 0x145
+    addiu v0 t1 0x145
     */
 
     logic clk;
