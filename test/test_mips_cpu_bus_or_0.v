@@ -9,10 +9,11 @@ module mips_cpu_bus_tb;
     //Use https://www.eg.bucknell.edu/~csci320/mips_web/ to convert assembly to hex
     /*
     Assembly:
-    lw v1 0x4(zero) (loades value at address==4 into v1) ?
-
+    
+	lui v1 0xbfc0
+    lw t1 0x28(v1)
     jr zero (jumps to address==0)
-     or v0 v1 $zero
+     or v0 t1 $zero
     */
 
     logic clk;
