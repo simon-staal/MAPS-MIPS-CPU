@@ -379,10 +379,11 @@ module mips_cpu_bus(
                     end
                   end
                   BLTZAL: begin
+                    assert(rs!=31) else $fatal(3, "CPU : ERROR : Cannot use $ra as rs, instr %b at pc %h", instr, pc );
+                    regs[31] <= (pc_increment + 4);
                     if(regs[rs] < 0) begin
                       pc_jmp <= pc_increment + (instr_imm << 2);
                       delay <= 1;
-                      regs[31] <= pc_increment + 4;
                     end
                   end
                 endcase
