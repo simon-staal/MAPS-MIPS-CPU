@@ -232,7 +232,8 @@ module mips_cpu_bus(
         end
         else if(state == EXEC) begin
             ir <= readdata;
-            state <= (waitrequest && mem_access) ? EXEC : (instr_opcode==OPCODE_LW) ? MEM_ACCESS : FETCH; //Add condition if instruction requires mem access / if instruction requires writing back to a register
+            //Add condition if instruction requires mem access / if instruction requires writing back to a register
+            state <= (waitrequest && mem_access) ? EXEC : ((instr_opcode==OPCODE_LB)||(instr_opcode==OPCODE_LBU)||(instr_opcode==OPCODE_LHU)||(instr_opcode==OPCODE_LH)||(instr_opcode==OPCODE_LW)||(instr_opcode==OPCODE_LWL)||(instr_opcode==OPCODE_LWR)) ? MEM_ACCESS : FETCH;
             pc <= (waitrequest) ? pc : (delay) ? pc_jmp : pc_increment;
             delay <= (delay) ? 0 : delay; //Resets the value of delay
             case(instr_opcode)
