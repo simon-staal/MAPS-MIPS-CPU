@@ -60,7 +60,7 @@ module mips_cpu_bus(
     $fp (30): frame pointer
     $ra (31): return address
     */
-    reg [31:0] regs [31:0];
+    reg signed [31:0] regs [31:0];
     assign register_v0 = regs[2];
 
     //Stores values for branch / jmp instructions
