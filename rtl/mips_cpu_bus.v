@@ -311,7 +311,7 @@ module mips_cpu_bus(
                     regs[rd] <= regs[rs] << regs[rt];
                   end
         				  FUNCTION_XOR: begin
-        						regs[rd] <= regs[rs] ^ regs[rt];
+                    regs[rd] <= (regs[rs] ^ regs[rt]);
         				  end
         					  FUNCTION_SRL: begin
         						regs[rd] <= regs[rt] >> shift;
