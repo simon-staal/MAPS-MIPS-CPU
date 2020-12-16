@@ -27,7 +27,10 @@ module RAM_32x4096(
 
     //Maps input address from cpu to word address of RAM
     logic[31:0] address_relative;
-    assign address_relative = address - 32'hBFC00000;
+    assign address_relative = (address - 32'hBFC00000)/4;
+
+    //Managing waitrequest
+    assign waitrequest = 0;
 
 
     //Uses byteenable to select words from input

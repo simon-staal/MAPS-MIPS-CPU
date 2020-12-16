@@ -60,7 +60,7 @@ module mips_cpu_bus(
     $fp (30): frame pointer
     $ra (31): return address
     */
-    reg [31:0] regs [31:0];
+    reg signed [31:0] regs [31:0];
     assign register_v0 = regs[2];
 
     //Stores values for branch / jmp instructions
@@ -71,8 +71,10 @@ module mips_cpu_bus(
     logic mem_access;
 
     //Intermediary logic for aligning addresses
-    logic [31:0] address_calc = regs[rs] + instr_imm;
-    logic [1:0] alignment = address_calc[1:0];
+    logic [31:0] address_calc;
+    assign address_calc = regs[rs] + instr_imm;
+    logic [1:0] alignment;
+    assign alignment = address_calc[1:0];
     //address = {adress_calc[31:2], 2'b00};
     //byteenable[alignment] = 1
 
@@ -80,6 +82,7 @@ module mips_cpu_bus(
     initial begin
         state = HALTED;
         active = 0;
+        delay = 0;
         for(i = 0; i < 32; i++) begin
           regs[i] = 0;
         end
@@ -125,51 +128,83 @@ module mips_cpu_bus(
             else if(instr_opcode==OPCODE_LB) begin
               read = 1;
               write = 0;
-              byteenable = 4'b0000;
+              case(alignment)
+                2'b00: byteenable = 4'b0001;
+                2'b01: byteenable = 4'b0010;
+                2'b10: byteenable = 4'b0100;
+                2'b11: byteenable = 4'b1000;
+              endcase
               //TO-DO: add signal exception for address error (address[0]==0)
               address = regs[rs]+instr_imm;
             end
             else if(instr_opcode==OPCODE_LBU) begin
               read = 1;
               write = 0;
-              byteenable = 4'b0000;
+              case(alignment)
+                2'b00: byteenable = 4'b0001;
+                2'b01: byteenable = 4'b0010;
+                2'b10: byteenable = 4'b0100;
+                2'b11: byteenable = 4'b1000;
+              endcase
               //TO-DO: add signal exception for address error (address[0]==0)
               address = regs[rs]+instr_imm;
             end
             else if(instr_opcode==OPCODE_LH) begin
               read = 1;
               write = 0;
-              byteenable = 4'b1100;
+              //alignment==00 or 01 --> LSHalfword, 10 or 11 --> MSHalfword
+              if(alignment==2'b0X) begin
+                byteenable = 4'b0011;
+              end
+              else if(alignment==2'b1X) begin
+                byteenable = 4'b1100;
+              end
               //TO-DO: add signal exception for address error (address[0]==0)
-              address = regs[rs]+instr_imm;
+              address = address_calc & 32'hFFFFFFFC;
             end
             else if(instr_opcode==OPCODE_LHU) begin
               read = 1;
               write = 0;
-              byteenable = 4'b1100;
+              //alignment==00 or 01 --> LSHalfword, 10 or 11 MSHalfword
+              if(alignment==2'b0X) begin
+                byteenable = 4'b0011;
+              end
+              else if(alignment==2'b1X)begin
+                byteenable = 4'b1100;
+              end
               //TO-DO: add signal exception for address error (address[0]==0)
-              address = regs[rs]+instr_imm;
+              address = address_calc & 32'hFFFFFFFC;
             end
             else if(instr_opcode==OPCODE_LW) begin
               read = 1;
               write = 0;
               byteenable = 4'b1111;
               //TO-DO: add signal exception for address error (address[0]==0)
-              address = regs[rs]+instr_imm;
+              address = address_calc & 32'hFFFFFFFC;
             end
             else if(instr_opcode==OPCODE_LWL) begin
               read = 1;
               write = 0;
-              byteenable = 4'b1100;
+              case(alignment)
+                2'b00: byteenable = 4'b0001;
+                2'b01: byteenable = 4'b0011;
+                2'b10: byteenable = 4'b0111;
+                2'b11: byteenable = 4'b1111;
+              endcase
               //TO-DO: add signal exception for address error (address[0]==0)
-              address = regs[rs]+instr_imm;
+              address = address_calc & 32'hFFFFFFFC;
             end
             else if(instr_opcode==OPCODE_LWR) begin
               read = 1;
               write = 0;
-              byteenable = 4'b0011;
+              case(alignment)
+                2'b00: byteenable = 4'b1111;
+                2'b01: byteenable = 4'b1110;
+                2'b10: byteenable = 4'b1100;
+                2'b11: byteenable = 4'b1000;
+              endcase
               //TO-DO: add signal exception for address error (address[0]==0)
-              address = regs[rs]+instr_imm;
+              address = address_calc & 32'hFFFFFFFC;
             end
             else begin
               read = 0;
@@ -187,10 +222,10 @@ module mips_cpu_bus(
             active <= 1;
             pc <= 32'hBFC00000;
             for(i = 0; i < 32; i++) begin
-              regs[i] = 0;
+              regs[i] <= 0;
             end
         end
-        else if(pc == 32'h00000000) begin
+        else if(address == 32'h00000000) begin
             state <= HALTED;
             active <= 0;
         end
@@ -201,16 +236,16 @@ module mips_cpu_bus(
             ir <= readdata;
             state <= (waitrequest && mem_access) ? EXEC : (instr_opcode==OPCODE_LW) ? MEM_ACCESS : FETCH; //Add condition if instruction requires mem access / if instruction requires writing back to a register
             pc <= (waitrequest) ? pc : (delay) ? pc_jmp : pc_increment;
-            delay <= 0; //Resets the value of delay
+            delay <= (delay) ? 0 : delay; //Resets the value of delay
             case(instr_opcode)
               OPCODE_R: begin
                 case(instr_function)
                   FUNCTION_ADDU: begin
-                    assert(shift == 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %b", instr, pc);
+                    assert(shift == 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
                     regs[rd] <= regs[rs] + regs[rt];
                   end
                   FUNCTION_AND: begin
-                    assert(shift == 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %b", instr, pc);
+                    assert(shift == 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
                     regs[rd] <= regs[rs] & regs[rt];
                   end
                   FUNCTION_DIV: begin
@@ -225,52 +260,52 @@ module mips_cpu_bus(
             		    regs[HI] <= regs[rs]%regs[rt];
             		  end
                   FUNCTION_JALR: begin
-            		    assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %b", instr, pc);
+            		    assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %h", instr, pc);
             		    regs[rd] <= pc + 8;
             		    pc_jmp <= regs[rs];
             		    delay <= 1;
             		  end
             		  FUNCTION_JR: begin
-            		    assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %b", instr, pc);
+            		    assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %h", instr, pc);
             		    pc_jmp <= regs[rs];
             		    delay <= 1;
             		  end
                   FUNCTION_MTHI:begin
-                    assert(({rd,rt,shift}==15'h0000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %b", instr, pc);
+                    assert(({rd,rt,shift}==15'h0000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %h", instr, pc);
                     HI <= regs[rs];
                   end
                   FUNCTION_MTLO:begin
-                    assert(({rd,rt,shift}==15'h0000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %b", instr, pc);
+                    assert(({rd,rt,shift}==15'h0000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %h", instr, pc);
                     LO <= regs[rs];
                   end
                   FUNCTION_MULT:begin
-                    assert(({rd,shift}==10'h000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %b", instr, pc);
+                    assert(({rd,shift}==10'h000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %h", instr, pc);
                     LO <= regs[rs][15:0]*regs[rt][15:0];
                     HI <= regs[rs][31:16]*regs[rt][31:16];
                   end
                   FUNCTION_MULTU:begin
-                    assert(({rd,shift}==10'h000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %b", instr, pc);
+                    assert(({rd,shift}==10'h000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %h", instr, pc);
                     LO <= regs[rs][15:0]*regs[rt][15:0];
                     HI <= regs[rs][31:16]*regs[rt][31:16];
                   end
                   FUNCTION_MFHI:begin
-                    assert(({rs,rt,shift}==15'h0000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %b", instr, pc);
+                    assert(({rs,rt,shift}==15'h0000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %h", instr, pc);
                     regs[rd] <= HI;
                   end
                   FUNCTION_MFLO:begin
-                    assert(({rs,rt,shift}==15'h0000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %b", instr, pc);
+                    assert(({rs,rt,shift}==15'h0000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %h", instr, pc);
                     regs[rd] <= LO;
                   end
                   FUNCTION_OR: begin
-                    assert(shift == 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %b", instr, pc);
+                    assert(shift == 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
                     regs[rd] <= regs[rs] || regs[rt];
                   end
                   FUNCTION_SLT: begin
-                    assert(shift == 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %b", instr, pc);
+                    assert(shift == 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
                     regs[rd] <= (regs[rs] - regs[rt])>>32;
                   end
                   FUNCTION_SLL: begin
-                    assert(shift != 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %b", instr, pc);
+                    //assert(shift != 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
                     regs[rd] <= regs[rs] << shift;
                   end
                   FUNCTION_SLLV: begin
@@ -311,75 +346,77 @@ module mips_cpu_bus(
                 regs[rt] <= regs[rs] & instr_imm;
               end
               OPCODE_BEQ: begin
-                assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %b", instr, pc);
+                assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %h", instr, pc);
                 if(regs[rs] == regs[rt]) begin
-                  pc_jmp <= pc_increment + instr_imm << 2;
+                  pc_jmp <= pc_increment + (instr_imm << 2);
                   delay <= 1;
                 end
               end
               //SD instructions
               OPCODE_LUI: begin
-                assert(rs==5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %b", instr, pc );
+                assert(rs==5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc );
                 regs[rt] <= {instr_imm, 16'h0000};
               end
               OPCODE_REGIMM: begin
-                assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %b", instr, pc);
+                assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %h", instr, pc);
                 case(rt)
                   BGEZ: begin
                     if(regs[rs] >= 0) begin
-                      pc_jmp <= pc_increment + instr_imm << 2;
+                      pc_jmp <= pc_increment + (instr_imm << 2);
                       delay <= 1;
                     end
                   end
                   BGEZAL: begin
+                    assert(rs!=31) else $fatal(3, "CPU : ERROR : Cannot use $ra as rs, instr %b at pc %h", instr, pc );
+                    regs[31] <= (pc_increment + 32'd4);
                     if(regs[rs] >= 0) begin
-                      pc_jmp <= pc_increment + instr_imm << 2;
+                      pc_jmp <= pc_increment + (instr_imm << 2);
                       delay <= 1;
-                      regs[31] <= pc_increment + 4;
                     end
                   end
                   BLTZ: begin
                     if(regs[rs] < 0) begin
-                      pc_jmp <= pc_increment + instr_imm << 2;
+                      pc_jmp <= pc_increment + (instr_imm << 2);
                       delay <= 1;
                     end
                   end
                   BLTZAL: begin
+                    assert(rs!=31) else $fatal(3, "CPU : ERROR : Cannot use $ra as rs, instr %b at pc %h", instr, pc );
+                    regs[31] <= (pc_increment + 4);
                     if(regs[rs] < 0) begin
-                      pc_jmp <= pc_increment + instr_imm << 2;
+                      pc_jmp <= pc_increment + (instr_imm << 2);
                       delay <= 1;
-                      regs[31] <= pc_increment + 4;
                     end
                   end
                 endcase
               end
               OPCODE_BGTZ: begin
                 if(regs[rs] > 0) begin
-                  pc_jmp <= pc_increment + instr_imm << 2;
+                  pc_jmp <= pc_increment + (instr_imm << 2);
                   delay <= 1;
                 end
               end
               OPCODE_BLEZ: begin
                 if(regs[rs] <= 0) begin
-                  pc_jmp <= pc_increment + instr_imm << 2;
+                  pc_jmp <= pc_increment + (instr_imm << 2);
                   delay <= 1;
                 end
               end
               OPCODE_BNE: begin
                 if(regs[rs] != regs[rt]) begin
-                  pc_jmp <= pc_increment + instr_imm << 2;
+                  pc_jmp <= pc_increment + (instr_imm << 2);
                   delay <= 1;
                 end
               end
               OPCODE_J: begin
-            		assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %b", instr, pc);
-            		pc_jmp <= instr_imm;
+            		assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %h", instr, pc);
+                  pc_jmp <={{pc_increment[31:28]}, instr_imm, {2'b00}};
             		delay <= 1;
       	      end
       	      OPCODE_JAL: begin
-            		assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %b", instr, pc);
+            		assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %h", instr, pc);
             		regs[31] <= pc + 8;
-            		pc_jmp <= instr_imm;
+            		pc_jmp <= {{pc_increment[31:28]}, instr_imm, {2'b00}};
             		delay <= 1;
             	end
               OPCODE_ORI: begin
@@ -420,13 +457,13 @@ module mips_cpu_bus(
                   regs[rt] <= {{24{readdata[7]}},readdata[7:0]};
                 end
                 else if (alignment==2'b01) begin
-                  regs[rt] <= {{16{readdata[15]}},readdata[15:8],8'h00};
+                  regs[rt] <= {{24{readdata[15]}},readdata[15:8]};
                 end
                 else if (alignment==2'b10) begin
-                  regs[rt] <= {{8{readdata[23]}},readdata[23:16],16'h0000};
+                  regs[rt] <= {{24{readdata[23]}},readdata[23:16]};
                 end
                 else if (alignment==2'b11) begin
-                  regs[rt] <= {readdata[31:24],24'h000000};
+                  regs[rt] <= {{24{readdata[31]}},readdata[31:24]};
                 end
               end
               OPCODE_LBU: begin
@@ -434,21 +471,21 @@ module mips_cpu_bus(
                   regs[rt] <= {24'h000000,readdata[7:0]};
                 end
                 else if (alignment==2'b01) begin
-                  regs[rt] <= {16'h0000,readdata[15:8],8'h00};
+                  regs[rt] <= {24'h000000,readdata[15:8]};
                 end
                 else if (alignment==2'b10) begin
-                  regs[rt] <= {8'h00,readdata[23:16],16'h0000};
+                  regs[rt] <= {24'h000000,readdata[23:16]};
                 end
                   else if (alignment==2'b11) begin //error was here, compiles now, still ensure of the implementation of byte enable
-                  regs[rt] <= {readdata[31:24],24'h000000};
+                  regs[rt] <= {24'h000000,readdata[31:24]};
                 end
               end
 
               OPCODE_LH: begin
-                if(alignment==2'b00) begin
+                if(alignment[1]==1'b0) begin
                   regs[rt] <= {{16{readdata[15]}},readdata[15:0]};
                 end
-                else if(alignment==2'b10) begin
+                else if(alignment[1]==2'b1) begin
                   regs[rt] <= {{16{readdata[31]}},readdata[31:16]};
                 end
                 else begin
@@ -456,17 +493,31 @@ module mips_cpu_bus(
                 end
               end
               OPCODE_LHU:begin
-                if(alignment==2'b00) begin
+                if(alignment[1]==2'b0) begin
                   regs[rt] <= {16'h0000,readdata[15:0]};
                 end
-                else if(alignment==2'b10) begin
+                else if(alignment[1]==2'b1) begin
                   regs[rt] <= {16'h0000,readdata[31:16]};
                 end
               end
 
               OPCODE_LW: regs[rt] <= readdata;
-              OPCODE_LWL:regs[rt] <= {readdata[31:16],regs[rt][15:0]};
-              OPCODE_LWR:regs[rt] <= {regs[rt][31:16], readdata[15:0]};
+              OPCODE_LWL: begin
+                case(alignment)
+                  2'b00: regs[rt] <= {readdata[7:0],regs[rt][23:0]};
+                  2'b01: regs[rt] <= {readdata[15:0],regs[rt][15:0]};
+                  2'b10: regs[rt] <= {readdata[23:0], regs[rt][7:0]};
+                  2'b11: regs[rt] <= readdata;
+                endcase
+              end
+              OPCODE_LWR:begin
+                case(alignment)
+                  2'b00: regs[rt] <= readdata;
+                  2'b01: regs[rt] <= {regs[rt][31:24],readdata[31:8]};
+                  2'b10: regs[rt] <= {regs[rt][31:16], readdata[31:16]};
+                  2'b11: regs[rt] <= {regs[rt][31:8], readdata[31:24]};
+                endcase
+              end
             endcase
         end
         else if(state == HALTED) begin
