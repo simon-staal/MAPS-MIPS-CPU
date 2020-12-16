@@ -4,7 +4,7 @@
 
 set -eou pipefail
 
-TESTCASE="$1"
+TESTCASE="test_mips_cpu_bus_$1.hex.txt"
 TEST_DIRECTORY="../test"
 
 TESTNAME=$(basename ${TESTCASE} .hex.txt)
