@@ -439,7 +439,7 @@ module mips_cpu_bus(
                 regs[rt] <= (regs[rs] - { 16'h0000,instr_imm})>>32;
               end
       			  OPCODE_XORI: begin
-      					regs[rs] <= regs[rt] ^ instr_imm;
+      					regs[rt] <= regs[rs] ^ instr_imm;
       			  end
       			  OPCODE_SW: begin
       			    mem_access <= 1;
