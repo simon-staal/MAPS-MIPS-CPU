@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Usage: bash new_tb.sh old_id new_id
+# Creates files for new_id, copying the old_id assembly code / ram hex file
+
 set -euo pipefail
 
 OLD="$1"
