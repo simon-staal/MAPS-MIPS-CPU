@@ -350,26 +350,26 @@ module mips_cpu_bus(
                 case(rt)
                   BGEZ: begin
                     if(regs[rs] >= 0) begin
-                      pc_jmp <= pc_increment + instr_imm << 2;
+                      pc_jmp <= pc_increment + (instr_imm << 2);
                       delay <= 1;
                     end
                   end
                   BGEZAL: begin
                     if(regs[rs] >= 0) begin
-                      pc_jmp <= pc_increment + instr_imm << 2;
+                      pc_jmp <= pc_increment + (instr_imm << 2);
                       delay <= 1;
                       regs[31] <= pc_increment + 4;
                     end
                   end
                   BLTZ: begin
                     if(regs[rs] < 0) begin
-                      pc_jmp <= pc_increment + instr_imm << 2;
+                      pc_jmp <= pc_increment + (instr_imm << 2);
                       delay <= 1;
                     end
                   end
                   BLTZAL: begin
                     if(regs[rs] < 0) begin
-                      pc_jmp <= pc_increment + instr_imm << 2;
+                      pc_jmp <= pc_increment + (instr_imm << 2);
                       delay <= 1;
                       regs[31] <= pc_increment + 4;
                     end
@@ -378,19 +378,19 @@ module mips_cpu_bus(
               end
               OPCODE_BGTZ: begin
                 if(regs[rs] > 0) begin
-                  pc_jmp <= pc_increment + instr_imm << 2;
+                  pc_jmp <= pc_increment + (instr_imm << 2);
                   delay <= 1;
                 end
               end
               OPCODE_BLEZ: begin
                 if(regs[rs] <= 0) begin
-                  pc_jmp <= pc_increment + instr_imm << 2;
+                  pc_jmp <= pc_increment + (instr_imm << 2);
                   delay <= 1;
                 end
               end
               OPCODE_BNE: begin
                 if(regs[rs] != regs[rt]) begin
-                  pc_jmp <= pc_increment + instr_imm << 2;
+                  pc_jmp <= pc_increment + (instr_imm << 2);
                   delay <= 1;
                 end
               end

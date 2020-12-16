@@ -1,4 +1,4 @@
-bgez v0 0x14
+bgez v0 0x13
 lui v1 0xbfc0
 jr zero
 lw v0 0x28(v1)

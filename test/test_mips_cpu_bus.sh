@@ -36,7 +36,7 @@ for TESTCASE in ${TESTCASES}; do
   RESULT=$?
   set -e
 
-  if [["${RESULT}" -ne 0]] ; then
+  if [[ "${RESULT}" -ne 0 ]] ; then
     echo "${CODE} ${INSTR} Fail"
     exit
   fi

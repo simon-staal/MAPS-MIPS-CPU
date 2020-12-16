@@ -1,5 +1,5 @@
 lui v1 0xbfc0
-bgez v1 0x13
+bgez v1 0x12
 nop (sll zero zero 0x0)
 jr zero
 lw v0 0x28(v1)

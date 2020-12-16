@@ -21,4 +21,27 @@ iverilog -g 2012 \
    -P mips_cpu_bus_tb.INSTRUCTION=\"${INSTR}\" \
    -o ${TEST_DIRECTORY}/2-simulator/${TESTNAME}
 
-${TEST_DIRECTORY}/2-simulator/${TESTNAME}
+ set +e
+ ${TEST_DIRECTORY}/2-simulator/${TESTNAME} > ${TEST_DIRECTORY}/3-output/${TESTNAME}.stdout
+ RESULT=$?
+ set -e
+
+ if [[ "${RESULT}" -ne 0 ]] ; then
+   echo "${CODE} ${INSTR} Fail"
+   exit
+ fi
+
+ PATTERN="FINAL OUT: "
+ NOTHING=""
+
+ set +e
+ grep "${PATTERN}" ${TEST_DIRECTORY}/3-output/${TESTNAME}.stdout > ${TEST_DIRECTORY}/3-output/${TESTNAME}.out-v0
+ set -e
+
+ sed -e "s/${PATTERN}/${NOTHING}/g" ${TEST_DIRECTORY}/3-output/${TESTNAME}.out-v0 > ${TEST_DIRECTORY}/3-output/${TESTNAME}.out
+
+echo "Testbench output"
+cat ${TEST_DIRECTORY}/3-output/${TESTNAME}.out
+
+echo "Reference output"
+cat ${TEST_DIRECTORY}/4-reference/${TESTNAME}.txt
