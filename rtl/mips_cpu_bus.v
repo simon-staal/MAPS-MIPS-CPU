@@ -349,7 +349,6 @@ module mips_cpu_bus(
                 assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %h", instr, pc);
                 case(rt)
                   BGEZ: begin
-                    $display("rs = %h = %d", regs[rs], regs[rs]);
                     if(regs[rs] >= 0) begin
                       pc_jmp <= pc_increment + (instr_imm << 2);
                       delay <= 1;
