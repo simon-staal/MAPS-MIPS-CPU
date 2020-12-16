@@ -4,7 +4,7 @@ set -eou pipefail
 SOURCE="$1" #Source directory containing RTL implementation
 INSTRUCTION="$2" #lower-case name of instruction being tested
 TEST_DIRECTORY="../test"
-TESTCASES= "${TEST_DIRECTORY}/1-hex/test_mips_cpu_bus_${2:-*}_*.hex.txt" #list of testcases being tested either starting with instruction being tested or all if no instruction is specified
+TESTCASES="${TEST_DIRECTORY}/1-hex/test_mips_cpu_bus_${2:-*}_*.hex.txt" #list of testcases being tested either starting with instruction being tested or all if no instruction is specified
 
 for TESTCASE in ${TESTCASES}; do
 
