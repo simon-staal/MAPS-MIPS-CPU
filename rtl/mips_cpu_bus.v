@@ -210,7 +210,7 @@ module mips_cpu_bus(
             active <= 1;
             pc <= 32'hBFC00000;
             for(i = 0; i < 32; i++) begin
-              regs[i] = 0;
+              regs[i] <= 0;
             end
         end
         else if(address == 32'h00000000) begin

@@ -9,14 +9,14 @@ set -eou pipefail
 # $1, $2, $2, ... represent the arguments passed to the script
 SOURCE="$1" #Source directory containing RTL implementation
 INSTRUCTION="$2" #lower-case name of instruction being tested
-TESTCASES= "test/test_mips_cpu_bus_${2:-*}_*.v" #list of testcases being tested either starting with instruction being tested or all if no instruction is specified
-TEST_DIRECTORY="test"
+TEST_DIRECTORY="../test"
+TESTCASES= "${TEST_DIRECTORY}/1-hex/test_mips_cpu_bus_${2:-*}_*.hex.txt" #list of testcases being tested either starting with instruction being tested or all if no instruction is specified
 
 # Redirect output to stder (&2) so that it seperate from genuine outputs
 # Using ${VARIANT} substitutes in the value of the variable VARIANT
 for TESTCASE in ${TESTCASES}; do
 
-  TESTNAME=$(basename ${TESTCASE} .v)
+  TESTNAME=$(basename ${TESTCASE} .hex.txt)
   INSTR=$(echo $TESTNAME | cut -d'_' -f 5)
   NUM=$(echo $TESTNAME | cut -d'_' -f 6)
   CODE="${INSTR}_${NUM}"
@@ -27,9 +27,11 @@ for TESTCASE in ${TESTCASES}; do
   # The -P command is used to modify the RAM_INIT_FILE parameter on the test-bench at compile-time
   # Note currently must be compiled inside source folder for include to work
   iverilog -g 2012 \
-     ${SOURCE}/mips_cpu_*.v ${SOURCE}/mips_cpu_definitions.vh ${TESTCASE}  \
+     ${SOURCE}/mips_cpu_*.v ${SOURCE}/mips_cpu_definitions.vh test_mips_cpu_bus_generic.v  \
      -s  mips_cpu_bus_tb \
-     -P mips_cpu_bus_tb.RAM_INIT_FILE=\"${TEST_DIRECTORY}/1-hex/${TESTNAME}.hex.txt\" \
+     -P mips_cpu_bus_tb.RAM_INIT_FILE=\"${TEST_DIRECTORY}/1-hex/${TESTCASE}\" \
+        mips_cpu_bus_tb.TESTCASE_ID=\"${CODE}\" \
+        mips_cpu_bus_tb.INSTRUCTION=\"${INSRT}\" \
      -o ${TEST_DIRECTORY}/2-simulator/${TESTNAME}
 
 
@@ -47,6 +49,28 @@ for TESTCASE in ${TESTCASES}; do
     exit
   fi
 
-  echo "${CODE} ${INSTR} Pass"
+  >&2 echo "  3 - Extracting final output of v0"
+  PATTERN="FINAL OUT: "
+  NOTHING=""
+
+  set +e
+  grep "${PATTERN}" ${TEST_DIRECTORY}/3-output/${TESTNAME}.stdout > ${TEST_DIRECTORY}/3-output/${TESTNAME}.out-v0
+  set -e
+
+  sed -e "s/${PATTERN}/${NOTHING}/g" ${TEST_DIRECTORY}/3-output/${TESTNAME}.out-v0 > ${TEST_DIRECTORY}/3-output/${TESTNAME}.out
+
+
+  >&2 echo "  4 - Comparing reference output"
+
+  set +e
+  diff -w ${TEST_DIRECTORY}/4-reference/${TESTNAME}.txt ${TEST_DIRECTORY}/3-output/${TESTNAME}.out
+  RESULT=$?
+  set -e
+
+  if [[ "${RESULT}" -ne 0 ]] ; then
+    echo "${CODE} ${INSTR} Fail"
+  else
+    echo "${CODE} ${INSTR} Pass"
+  fi
 
 done
