@@ -47,3 +47,14 @@ cat ${TEST_DIRECTORY}/3-output/${TESTNAME}.out
 
 echo "Reference output"
 cat ${TEST_DIRECTORY}/4-reference/${TESTNAME}.txt
+
+set +e
+diff -w ${TEST_DIRECTORY}/4-reference/${TESTNAME}.txt ${TEST_DIRECTORY}/3-output/${TESTNAME}.out
+RESULT=$?
+set -e
+
+if [[ "${RESULT}" -ne 0 ]] ; then
+  echo "${CODE} ${INSTR} Fail"
+else
+  echo "${CODE} ${INSTR} Pass"
+fi
