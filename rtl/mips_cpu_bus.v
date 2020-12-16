@@ -102,7 +102,7 @@ module mips_cpu_bus(
       				write = 1;
       				read = 0;
       				byteenable = 4'b1111;
-              //assert(alignment == 2'b00) else $fatal(5, "CPU : ERROR : Unlagined memory access");
+              //assert(alignment == 2'b00) else $fatal(5, "CPU : ERROR : Unaligned memory access");
       				address = regs[rs] + instr_imm;
       				writedata = regs[rt];
       			end
