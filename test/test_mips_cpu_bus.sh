@@ -2,13 +2,20 @@
 set -eou pipefail
 
 SOURCE="$1" #Source directory containing RTL implementation
-INSTRUCTION="$2" #lower-case name of instruction being tested
 TEST_DIRECTORY="../test"
-TESTCASES="${TEST_DIRECTORY}/1-hex/test_mips_cpu_bus_${2:-*}_*.hex.txt" #list of testcases being tested either starting with instruction being tested or all if no instruction is specified
+INSTRUCTION="${2:-null}"
+if [[ "${INSTRUCTION}" = "null" ]] ; then
+  TESTCASES="${TEST_DIRECTORY}/1-hex/test_mips_cpu_bus_*.hex.txt" #list of testcases being tested either starting with instruction being tested or all if no instruction is specified
+else
+  TESTCASES="${TEST_DIRECTORY}/1-hex/test_mips_cpu_bus_${INSTRUCTION}_*.hex.txt"
+fi
 
 for TESTCASE in ${TESTCASES}; do
 
-  TESTNAME=$(basename ${TESTCASE} .hex.txt)
+  TESTNAME_FULL_DIR=$(basename ${TESTCASE} .hex.txt)
+  TESTNAME_PARTIAL_DIR=${TESTNAME_FULL_DIR#$TEST_DIRECTORY}
+  TESTNAME=${TESTNAME_PARTIAL_DIR#/1-hex/}
+
   INSTR=$(echo $TESTNAME | cut -d'_' -f 5)
   NUM=$(echo $TESTNAME | cut -d'_' -f 6)
   CODE="${INSTR}_${NUM}"
@@ -21,7 +28,7 @@ for TESTCASE in ${TESTCASES}; do
   iverilog -g 2012 \
      ${SOURCE}/mips_cpu_*.v ${SOURCE}/mips_cpu_definitions.vh ${TEST_DIRECTORY}/test_mips_cpu_bus_generic.v  \
      -s  mips_cpu_bus_tb \
-     -P mips_cpu_bus_tb.RAM_INIT_FILE=\"${TEST_DIRECTORY}/1-hex/${TESTCASE}\" \
+     -P mips_cpu_bus_tb.RAM_INIT_FILE=\"${TESTCASE}\" \
      -P mips_cpu_bus_tb.TESTCASE_ID=\"${CODE}\" \
      -P mips_cpu_bus_tb.INSTRUCTION=\"${INSTR}\" \
      -o ${TEST_DIRECTORY}/2-simulator/${TESTNAME}
