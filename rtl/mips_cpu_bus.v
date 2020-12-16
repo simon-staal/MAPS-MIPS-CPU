@@ -229,11 +229,11 @@ module mips_cpu_bus(
               OPCODE_R: begin
                 case(instr_function)
                   FUNCTION_ADDU: begin
-                    assert(shift == 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %b", instr, pc);
+                    assert(shift == 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
                     regs[rd] <= regs[rs] + regs[rt];
                   end
                   FUNCTION_AND: begin
-                    assert(shift == 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %b", instr, pc);
+                    assert(shift == 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
                     regs[rd] <= regs[rs] & regs[rt];
                   end
                   FUNCTION_DIV: begin
@@ -248,52 +248,52 @@ module mips_cpu_bus(
             		    regs[HI] <= regs[rs]%regs[rt];
             		  end
                   FUNCTION_JALR: begin
-            		    assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %b", instr, pc);
+            		    assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %h", instr, pc);
             		    regs[rd] <= pc + 8;
             		    pc_jmp <= regs[rs];
             		    delay <= 1;
             		  end
             		  FUNCTION_JR: begin
-            		    assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %b", instr, pc);
+            		    assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %h", instr, pc);
             		    pc_jmp <= regs[rs];
             		    delay <= 1;
             		  end
                   FUNCTION_MTHI:begin
-                    assert(({rd,rt,shift}==15'h0000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %b", instr, pc);
+                    assert(({rd,rt,shift}==15'h0000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %h", instr, pc);
                     HI <= regs[rs];
                   end
                   FUNCTION_MTLO:begin
-                    assert(({rd,rt,shift}==15'h0000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %b", instr, pc);
+                    assert(({rd,rt,shift}==15'h0000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %h", instr, pc);
                     LO <= regs[rs];
                   end
                   FUNCTION_MULT:begin
-                    assert(({rd,shift}==10'h000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %b", instr, pc);
+                    assert(({rd,shift}==10'h000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %h", instr, pc);
                     LO <= regs[rs][15:0]*regs[rt][15:0];
                     HI <= regs[rs][31:16]*regs[rt][31:16];
                   end
                   FUNCTION_MULTU:begin
-                    assert(({rd,shift}==10'h000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %b", instr, pc);
+                    assert(({rd,shift}==10'h000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %h", instr, pc);
                     LO <= regs[rs][15:0]*regs[rt][15:0];
                     HI <= regs[rs][31:16]*regs[rt][31:16];
                   end
                   FUNCTION_MFHI:begin
-                    assert(({rs,rt,shift}==15'h0000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %b", instr, pc);
+                    assert(({rs,rt,shift}==15'h0000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %h", instr, pc);
                     regs[rd] <= HI;
                   end
                   FUNCTION_MFLO:begin
-                    assert(({rs,rt,shift}==15'h0000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %b", instr, pc);
+                    assert(({rs,rt,shift}==15'h0000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %h", instr, pc);
                     regs[rd] <= LO;
                   end
                   FUNCTION_OR: begin
-                    assert(shift == 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %b", instr, pc);
+                    assert(shift == 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
                     regs[rd] <= regs[rs] || regs[rt];
                   end
                   FUNCTION_SLT: begin
-                    assert(shift == 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %b", instr, pc);
+                    assert(shift == 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
                     regs[rd] <= (regs[rs] - regs[rt])>>32;
                   end
                   FUNCTION_SLL: begin
-                    //assert(shift != 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %b", instr, pc);
+                    //assert(shift != 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
                     regs[rd] <= regs[rs] << shift;
                   end
                   FUNCTION_SLLV: begin
@@ -334,7 +334,7 @@ module mips_cpu_bus(
                 regs[rt] <= regs[rs] & instr_imm;
               end
               OPCODE_BEQ: begin
-                assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %b", instr, pc);
+                assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %h", instr, pc);
                 if(regs[rs] == regs[rt]) begin
                   pc_jmp <= pc_increment + (instr_imm << 2);
                   delay <= 1;
@@ -342,11 +342,11 @@ module mips_cpu_bus(
               end
               //SD instructions
               OPCODE_LUI: begin
-                assert(rs==5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %b", instr, pc );
+                assert(rs==5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc );
                 regs[rt] <= {instr_imm, 16'h0000};
               end
               OPCODE_REGIMM: begin
-                assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %b", instr, pc);
+                assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %h", instr, pc);
                 case(rt)
                   BGEZ: begin
                     if(regs[rs] >= 0) begin
@@ -355,10 +355,11 @@ module mips_cpu_bus(
                     end
                   end
                   BGEZAL: begin
+                    assert(rs!=31) else $fatal(3, "CPU : ERROR : Cannot use $ra as rs, instr %b at pc %h", instr, pc );
+                    regs[31] <= (pc_increment + 32'd4);
                     if(regs[rs] >= 0) begin
                       pc_jmp <= pc_increment + (instr_imm << 2);
                       delay <= 1;
-                      regs[31] <= pc_increment + 4;
                     end
                   end
                   BLTZ: begin
@@ -395,12 +396,12 @@ module mips_cpu_bus(
                 end
               end
               OPCODE_J: begin
-            		assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %b", instr, pc);
+            		assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %h", instr, pc);
                   pc_jmp <={{pc_increment[31:28]}, instr_imm, {2'b00}};
             		delay <= 1;
       	      end
       	      OPCODE_JAL: begin
-            		assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %b", instr, pc);
+            		assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %h", instr, pc);
             		regs[31] <= pc + 8;
             		pc_jmp <= {{pc_increment[31:28]}, instr_imm, {2'b00}};
             		delay <= 1;
