@@ -10,7 +10,7 @@ module mips_cpu_bus_tb;
     /*
     Assembly:
     jr zero
-    addiu v0 zero 0xF43D5
+    addiu v0 zero 0x43D5
     */
 
     logic clk;
@@ -57,7 +57,7 @@ module mips_cpu_bus_tb;
           @(posedge clk);
         end
 
-        assert(register_v0==32'h000F43D5) else $fatal(1, "%s %s Fail Incorrect value %d stored in v0.", TESTCASE_ID, INSTRUCTION, register_v0);
+        assert(register_v0==32'h000043D5) else $fatal(1, "%s %s Fail Incorrect value %d stored in v0.", TESTCASE_ID, INSTRUCTION, register_v0);
 
         $display("%s %s Pass #Add 0", TESTCASE_ID, INSTRUCTION);
         $finish;
