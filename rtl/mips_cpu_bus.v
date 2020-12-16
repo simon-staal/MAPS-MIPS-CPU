@@ -126,21 +126,31 @@ module mips_cpu_bus(
             else if(instr_opcode==OPCODE_LB) begin
               read = 1;
               write = 0;
-              byteenable = 4'b0000;
+              case(alignment)
+                2'b00: byteenable = 4'b0001;
+                2'b01: byteenable = 4'b0010;
+                2'b10: byteenable = 4'b0100;
+                2'b11: byteenable = 4'b1000;
+              endcase
               //TO-DO: add signal exception for address error (address[0]==0)
               address = regs[rs]+instr_imm;
             end
             else if(instr_opcode==OPCODE_LBU) begin
               read = 1;
               write = 0;
-              byteenable = 4'b0000;
+              case(alignment)
+                2'b00: byteenable = 4'b0001;
+                2'b01: byteenable = 4'b0010;
+                2'b10: byteenable = 4'b0100;
+                2'b11: byteenable = 4'b1000;
+              endcase
               //TO-DO: add signal exception for address error (address[0]==0)
               address = regs[rs]+instr_imm;
             end
             else if(instr_opcode==OPCODE_LH) begin
               read = 1;
               write = 0;
-              //alignment==00 or 01 --> LSHalfword, 10 or 11 MSHalfword
+              //alignment==00 or 01 --> LSHalfword, 10 or 11 --> MSHalfword
               if(alignment==2'b0X) begin
                 byteenable = 4'b0011;
               end
@@ -444,13 +454,13 @@ module mips_cpu_bus(
                   regs[rt] <= {{24{readdata[7]}},readdata[7:0]};
                 end
                 else if (alignment==2'b01) begin
-                  regs[rt] <= {{16{readdata[15]}},readdata[15:8],8'h00};
+                  regs[rt] <= {{24{readdata[15]}},readdata[15:8]};
                 end
                 else if (alignment==2'b10) begin
-                  regs[rt] <= {{8{readdata[23]}},readdata[23:16],16'h0000};
+                  regs[rt] <= {{24{readdata[23]}},readdata[23:16]};
                 end
                 else if (alignment==2'b11) begin
-                  regs[rt] <= {readdata[31:24],24'h000000};
+                  regs[rt] <= {{24{readdata[31]}},readdata[31:24]};
                 end
               end
               OPCODE_LBU: begin
@@ -458,13 +468,13 @@ module mips_cpu_bus(
                   regs[rt] <= {24'h000000,readdata[7:0]};
                 end
                 else if (alignment==2'b01) begin
-                  regs[rt] <= {16'h0000,readdata[15:8],8'h00};
+                  regs[rt] <= {24'h000000,readdata[15:8]};
                 end
                 else if (alignment==2'b10) begin
-                  regs[rt] <= {8'h00,readdata[23:16],16'h0000};
+                  regs[rt] <= {24'h000000,readdata[23:16]};
                 end
                   else if (alignment==2'b11) begin //error was here, compiles now, still ensure of the implementation of byte enable
-                  regs[rt] <= {readdata[31:24],24'h000000};
+                  regs[rt] <= {24'h000000,readdata[31:24]};
                 end
               end
 
