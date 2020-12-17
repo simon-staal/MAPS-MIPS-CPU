@@ -252,14 +252,14 @@ module mips_cpu_bus(
                   end
                   FUNCTION_DIV: begin
             		    //not sure whether an assert is required here
-            		    regs[LO] <= (regs[rs]/regs[rt]);
-            		    regs[HI] <= (regs[rs]%regs[rt]);
+                    LO <= (regs[rs]/regs[rt]);
+            		    HI <= (regs[rs]%regs[rt]);
             		    //does verilog automatically sign extend?
             		  end
             		  FUNCTION_DIVU: begin
             		    //not sure whether an assert is required here
-            		    regs[LO] <= ($unsigned(regs[rs])/$unsigned(regs[rt]);
-            		    regs[HI] <= ($unsigned(regs[rs])%$unsigned(regs[rt]);
+            		    LO <= ($unsigned(regs[rs])/$unsigned(regs[rt]));
+            		    HI <= ($unsigned(regs[rs])%$unsigned(regs[rt]));
             		  end
                   FUNCTION_JALR: begin
             		    assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %h", instr, pc);
@@ -297,6 +297,7 @@ module mips_cpu_bus(
                   FUNCTION_MFLO:begin
                     assert(({rs,rt,shift}==15'h0000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %h", instr, pc);
                     regs[rd] <= LO;
+                    $display("Storing LO %h in rd %d", LO, rd);
                   end
                   FUNCTION_OR: begin
                     assert(shift == 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);

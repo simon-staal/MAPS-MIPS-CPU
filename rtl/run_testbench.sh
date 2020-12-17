@@ -33,8 +33,6 @@ cat ${TEST_DIRECTORY}/3-output/${TESTNAME}.stdout
    exit
  fi
 
-cat ${TEST_DIRECTORY}/3-output/${TESTNAME}.stdout
-
  PATTERN="FINAL OUT: "
  NOTHING=""
 
