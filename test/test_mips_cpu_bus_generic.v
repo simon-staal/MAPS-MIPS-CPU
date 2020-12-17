@@ -30,7 +30,7 @@ module mips_cpu_bus_tb;
 
     mips_cpu_bus cpuInst(clk, reset, active, register_v0, address, write, read, waitrequest, writedata, byteenable, readdata);
 
-    RAM_32x4096 #(RAM_INIT_FILE) ramInst(clk, address, write, read, waitrequest, writedata, byteenable, readdata);
+    RAM_32x65536 #(RAM_INIT_FILE) ramInst(clk, address, write, read, waitrequest, writedata, byteenable, readdata);
 
     initial begin
     $dumpfile("mips_cpu_bus_tb.vcd");
