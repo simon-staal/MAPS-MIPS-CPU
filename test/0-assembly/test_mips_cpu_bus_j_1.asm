@@ -1,0 +1,6 @@
+J 0x3F00002
+ADDIU $v0 $v0 0x0003
+ADDIU $v0 $v0 0x0006
+JR $zero
+
+assert v0 = 00000009

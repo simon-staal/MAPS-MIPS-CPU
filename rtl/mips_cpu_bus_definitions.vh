@@ -1,5 +1,5 @@
-`ifndef mips_cpu_definitions_vh
-`define mips_cpu_definitions_vh
+`ifndef mips_cpu_bus_definitions_vh
+`define mips_cpu_bus_definitions_vh
 
 /* Instruction formats:
 R-type: opcode (6) rs (5) rt (5) rd (5) shift (5) function (5)
