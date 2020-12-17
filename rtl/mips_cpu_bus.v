@@ -244,7 +244,7 @@ module mips_cpu_bus(
                 case(instr_function)
                   FUNCTION_ADDU: begin
                     assert(shift == 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
-                    regs[rd] <= regs[rs] + regs[rt];
+                    regs[rd] <= $unsigned(regs[rs]) + $unsigned(regs[rt]);
                   end
                   FUNCTION_AND: begin
                     assert(shift == 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
@@ -343,7 +343,7 @@ module mips_cpu_bus(
                 endcase
               end
               OPCODE_ADDIU: begin
-                regs[rt] <= regs[rs] + $signed(instr_imm);
+                regs[rt] <= $unsigned(regs[rs]) + $signed(instr_imm);
               end
               OPCODE_ANDI: begin
                 regs[rt] <= regs[rs] & instr_imm;
