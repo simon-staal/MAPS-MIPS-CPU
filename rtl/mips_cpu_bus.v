@@ -298,18 +298,18 @@ module mips_cpu_bus(
                   end
                   FUNCTION_OR: begin
                     assert(shift == 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
-                    regs[rd] <= regs[rs] || regs[rt];
+                    regs[rd] <= regs[rs] | regs[rt];
                   end
                   FUNCTION_SLT: begin
                     assert(shift == 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
-                    regs[rd] <= (regs[rs] - regs[rt])>>32;
+                    regs[rd] <= (regs[rs] - regs[rt])>>31;
                   end
                   FUNCTION_SLL: begin
                     //assert(shift != 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
-                    regs[rd] <= regs[rs] << shift;
+                    regs[rd] <= regs[rt] << shift;
                   end
                   FUNCTION_SLLV: begin
-                    regs[rd] <= regs[rs] << regs[rt];
+                    regs[rd] <= regs[rt] << regs[rs];
                   end
         				  FUNCTION_XOR: begin
         						regs[rd] <= regs[rs] ^ regs[rt];
@@ -420,7 +420,7 @@ module mips_cpu_bus(
             		delay <= 1;
             	end
               OPCODE_ORI: begin
-                regs[rt] <= regs[rs] || instr_imm;
+                regs[rt] <= regs[rs] | instr_imm;
               end
               OPCODE_SB: begin
                 mem_access <= 1;
@@ -430,14 +430,14 @@ module mips_cpu_bus(
               end
               OPCODE_SLTI: begin
                 if (instr_imm[15]==1)begin
-                  regs[rt] <= (regs[rs] - {16'h0001,instr_imm})>>32;
+                  regs[rt] <= (regs[rs] - {16'h0001,instr_imm})>>31;
                 end
                 else if (instr_imm[15]==0)begin
-                  regs[rt] <= (regs[rs] - { 16'h0000,instr_imm})>>32;
+                  regs[rt] <= (regs[rs] - { 16'h0000,instr_imm})>>31;
                 end
               end
               OPCODE_SLTIU: begin
-                regs[rt] <= (regs[rs] - { 16'h0000,instr_imm})>>32;
+                regs[rt] <= (regs[rs] - { 16'h0000,instr_imm})>>31;
               end
       			  OPCODE_XORI: begin
       					regs[rs] <= regs[rt] ^ instr_imm;

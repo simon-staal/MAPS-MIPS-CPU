@@ -1,7 +1,0 @@
-lw v1 0x5 $zero
-jr zero (jumps to address==0) // 
-slti v0 v1 0x3333
-32h'8C030005
-32'h08000000
-32'h28623333
-v0 would be 0 BECAUSE EQUAL

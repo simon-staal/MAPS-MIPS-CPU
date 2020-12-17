@@ -3,4 +3,4 @@ lui v1 0xbfc0
     lw t2 0x2c(v1)
     jr zero (jumps to address==0)
     slt v0 t1 t2
-    assert(register_v0==32'h00000001)
+    assert(register_v0==32'h00000000)
