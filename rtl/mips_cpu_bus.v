@@ -343,7 +343,7 @@ module mips_cpu_bus(
                 endcase
               end
               OPCODE_ADDIU: begin
-                regs[rt] <= regs[rs] + instr_imm;
+                regs[rt] <= regs[rs] + $signed(instr_imm);
               end
               OPCODE_ANDI: begin
                 regs[rt] <= regs[rs] & instr_imm;
