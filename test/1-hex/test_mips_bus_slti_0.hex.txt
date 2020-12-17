@@ -1,0 +1,7 @@
+
+jr zero (jumps to address==0) // 
+slti v0 $zero 0x1
+
+32'h08000000
+32'h28020001
+v0 should be 1
