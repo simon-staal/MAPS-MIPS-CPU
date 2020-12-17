@@ -26,12 +26,12 @@ iverilog -g 2012 \
  RESULT=$?
  set -e
 
+cat ${TEST_DIRECTORY}/3-output/${TESTNAME}.stdout
+
  if [[ "${RESULT}" -ne 0 ]] ; then
    echo "${CODE} ${INSTR} Fail"
    exit
  fi
-
-cat ${TEST_DIRECTORY}/3-output/${TESTNAME}.stdout
 
  PATTERN="FINAL OUT: "
  NOTHING=""
