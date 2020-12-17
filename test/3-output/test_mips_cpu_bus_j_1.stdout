@@ -1,0 +1,4 @@
+WARNING: mips_cpu_ram.v:24: $readmemh: Standard inconsistency, following 1364-2005.
+VCD info: dumpfile mips_cpu_bus_tb.vcd opened for output.
+FATAL: mips_cpu_bus.v:526: CPU : ERROR : Processor in unexpected state 0x0
+       Time: 17000 Scope: mips_cpu_bus_tb.cpuInst
