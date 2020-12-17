@@ -45,7 +45,7 @@ for TESTCASE in ${TESTCASES}; do
 
   if [[ "${RESULT}" -ne 0 ]] ; then
     echo "${CODE} ${INSTR} Fail"
-    exit
+    exit 1
   fi
 
   >&2 echo "  3 - Extracting final output of v0"
@@ -68,6 +68,7 @@ for TESTCASE in ${TESTCASES}; do
 
   if [[ "${RESULT}" -ne 0 ]] ; then
     echo "${CODE} ${INSTR} Fail"
+    exit 1
   else
     echo "${CODE} ${INSTR} Pass"
   fi
