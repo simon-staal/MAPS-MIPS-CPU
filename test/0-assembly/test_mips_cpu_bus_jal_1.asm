@@ -1,7 +1,10 @@
-JAL 0x0000000C
+JAL 0x3F00014
+nop
 JR $zero
-JR $zero
-ADDIU $ra $ra 0x0001
-JR $zero
+ADDIU $v0 $ra 0x0002
 
-assert v0 = 00000009
+0x50: jr $zero
+      addiu $v0 $ra 0x1
+
+
+assert v0 = bfc00009
