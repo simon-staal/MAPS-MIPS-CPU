@@ -137,7 +137,7 @@ module mips_cpu_bus(
                 2'b11: byteenable = 4'b1000;
               endcase
               //TO-DO: add signal exception for address error (address[0]==0)
-              address = regs[rs]+instr_imm;
+              address = address_calc & 32'hFFFFFFFC;
             end
             else if(instr_opcode==OPCODE_LBU) begin
               read = 1;
@@ -149,7 +149,7 @@ module mips_cpu_bus(
                 2'b11: byteenable = 4'b1000;
               endcase
               //TO-DO: add signal exception for address error (address[0]==0)
-              address = regs[rs]+instr_imm;
+              address = address_calc & 32'hFFFFFFFC;
             end
             else if(instr_opcode==OPCODE_LH) begin
               read = 1;
