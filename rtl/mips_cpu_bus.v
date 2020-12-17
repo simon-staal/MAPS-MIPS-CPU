@@ -26,9 +26,10 @@ module mips_cpu_bus(
     //Create non GPR HI and LO registers
     logic[31:0] HI;
     logic[31:0] LO;
-    logic[63:0] mult_temp;
+    logic[63:0] mult_temp, multu_temp;
     //(instr_opcode==OPCODE_R)&&?
-    assign mult_temp = ((state==EXEC)&&((instr_opcode==OPCODE_R)&&((instr_function==FUNCTION_MULT)||(instr_function==FUNCTION_MULTU)))) ? (regs[rs]*regs[rt]) : 0;
+    assign mult_temp = ((state==EXEC)&&((instr_opcode==OPCODE_R)&&(instr_function==FUNCTION_MULT))) ? (regs[rs]*regs[rt]) : 0;
+    assign multu_temp = ((state==EXEC)&&((instr_opcode==OPCODE_R)&&(instr_function==FUNCTION_MULTU))) ? ($unsigned(regs[rs])*$unsigned(regs[rt])) : 0;
 
     //Divide intruction into seperate signals
     logic[31:0] instr;
@@ -287,8 +288,8 @@ module mips_cpu_bus(
                   end
                   FUNCTION_MULTU:begin
                     assert(({rd,shift}==10'h000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %h", instr, pc);
-                    LO <= regs[rs][15:0]*regs[rt][15:0];
-                    HI <= regs[rs][31:16]*regs[rt][31:16];
+                    LO <= multu_temp[31:0];
+                    HI <= multu_temp[63:32];
                   end
                   FUNCTION_MFHI:begin
                     assert(({rs,rt,shift}==15'h0000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %h", instr, pc);
