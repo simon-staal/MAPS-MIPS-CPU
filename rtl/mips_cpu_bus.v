@@ -1,4 +1,4 @@
-`include "mips_cpu_definitions.vh"
+`include "mips_cpu_bus_definitions.vh"
 
 module mips_cpu_bus(
     /* Standard signals */
