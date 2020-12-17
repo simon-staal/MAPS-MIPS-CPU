@@ -1,4 +1,0 @@
-WARNING: mips_cpu_ram.v:24: $readmemh: Standard inconsistency, following 1364-2005.
-VCD info: dumpfile mips_cpu_bus_tb.vcd opened for output.
-Calculated value bfc00008
-FINAL OUT: 00000009
