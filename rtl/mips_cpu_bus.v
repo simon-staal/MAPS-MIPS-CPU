@@ -28,7 +28,7 @@ module mips_cpu_bus(
     logic[31:0] LO;
     logic[63:0] mult_temp;
     //(instr_opcode==OPCODE_R)&&?
-    assign mult_temp = ((state==EXEC)&&((instr_opcode==OPCODE_R)&&((instr_function==FUNCTION_MULT)||(instr_function==FUNCTION_MULTU)))) ? {regs[rs]*regs[rt]} : mult_temp;
+    assign mult_temp = ((state==EXEC)&&((instr_opcode==OPCODE_R)&&((instr_function==FUNCTION_MULT)||(instr_function==FUNCTION_MULTU)))) ? (regs[rs]*regs[rt]) : 0;
 
     //Divide intruction into seperate signals
     logic[31:0] instr;
