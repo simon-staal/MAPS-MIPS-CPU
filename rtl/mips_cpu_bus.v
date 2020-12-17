@@ -155,10 +155,10 @@ module mips_cpu_bus(
               read = 1;
               write = 0;
               //alignment==00 or 01 --> LSHalfword, 10 or 11 --> MSHalfword
-              if(alignment==2'b0X) begin
+              if((alignment==2'b00)||(alignment==2'b01)) begin
                 byteenable = 4'b0011;
               end
-              else if(alignment==2'b1X) begin
+              else if((alignment==2'b10)||(alignment==2'b11)) begin
                 byteenable = 4'b1100;
               end
               //TO-DO: add signal exception for address error (address[0]==0)
@@ -168,10 +168,10 @@ module mips_cpu_bus(
               read = 1;
               write = 0;
               //alignment==00 or 01 --> LSHalfword, 10 or 11 MSHalfword
-              if(alignment==2'b0X) begin
+              if((alignment==2'b00)||(alignment==2'b01)) begin
                 byteenable = 4'b0011;
               end
-              else if(alignment==2'b1X)begin
+              else if((alignment==2'b10)||(alignment==2'b11)) begin
                 byteenable = 4'b1100;
               end
               //TO-DO: add signal exception for address error (address[0]==0)
