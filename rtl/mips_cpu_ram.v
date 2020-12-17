@@ -1,4 +1,4 @@
-module RAM_32x4096(
+module RAM_32x65536(
     input logic clk,
     input logic[31:0] address,
     input logic write,
