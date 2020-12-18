@@ -5,4 +5,4 @@ sw t2 0x30(v1)
 lw v0 0x30(v1)
 jr zero
 
-# v0 = 0xb5000a
+# v0 = 0x000000bf
