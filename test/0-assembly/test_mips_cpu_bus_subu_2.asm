@@ -4,4 +4,4 @@ lw t2 0x2c(v1)
 jr zero
 SUBU $v0 $t1 $t2
 
-# v0 = 187
+# v0 = 5 - 192 = 187
