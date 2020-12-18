@@ -19,7 +19,7 @@ iverilog -g 2012 \
    -P mips_cpu_bus_tb.RAM_INIT_FILE=\"${TEST_DIRECTORY}/1-hex/${TESTCASE}\" \
    -P mips_cpu_bus_tb.TESTCASE_ID=\"${CODE}\" \
    -P mips_cpu_bus_tb.INSTRUCTION=\"${INSTR}\" \
-   -o ${TEST_DIRECTORY}/2-simulator/${TESTNAME}
+   -o ${TEST_DIRECTORY}/2-simulator/${TESTNAME} \
 
  set +e
  ${TEST_DIRECTORY}/2-simulator/${TESTNAME} > ${TEST_DIRECTORY}/3-output/${TESTNAME}.stdout
