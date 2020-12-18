@@ -308,7 +308,7 @@ module mips_cpu_bus(
                   end
                   FUNCTION_SLT: begin
                     assert(shift == 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
-                    regs[rd] <= (regs[rs] - regs[rt])>>31;
+                    regs[rd] <= (regs[rs] < regs[rt]);
                   end
                   FUNCTION_SLL: begin
                     //assert(shift != 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
