@@ -2,7 +2,7 @@
 set -eou pipefail
 
 SOURCE="$1" #Source directory containing RTL implementation
-TEST_DIRECTORY="../test"
+TEST_DIRECTORY="test"
 INSTRUCTION="${2:-null}"
 if [[ "${INSTRUCTION}" = "null" ]] ; then
   TESTCASES="${TEST_DIRECTORY}/1-hex/test_mips_cpu_bus_*.hex.txt" #list of testcases being tested either starting with instruction being tested or all if no instruction is specified
@@ -12,9 +12,9 @@ fi
 
 for TESTCASE in ${TESTCASES}; do
 
-  TESTNAME_FULL_DIR=$(basename ${TESTCASE} .hex.txt)
-  TESTNAME_PARTIAL_DIR=${TESTNAME_FULL_DIR#$TEST_DIRECTORY}
-  TESTNAME=${TESTNAME_PARTIAL_DIR#/1-hex/}
+  TESTNAME=$(basename ${TESTCASE} .hex.txt)
+  # TESTNAME_PARTIAL_DIR=${TESTNAME_FULL_DIR#$TEST_DIRECTORY}
+  # TESTNAME=${TESTNAME_PARTIAL_DIR#/1-hex/}
 
   INSTR=$(echo $TESTNAME | cut -d'_' -f 5)
   NUM=$(echo $TESTNAME | cut -d'_' -f 6)
@@ -31,9 +31,8 @@ for TESTCASE in ${TESTCASES}; do
      -P mips_cpu_bus_tb.RAM_INIT_FILE=\"${TESTCASE}\" \
      -P mips_cpu_bus_tb.TESTCASE_ID=\"${CODE}\" \
      -P mips_cpu_bus_tb.INSTRUCTION=\"${INSTR}\" \
-     -o ${TEST_DIRECTORY}/2-simulator/${TESTNAME}
-
-
+     -o ${TEST_DIRECTORY}/2-simulator/${TESTNAME} \
+     -I ${SOURCE}
 
   >&2 echo "  2 - Running test-bench"
   # Run the simulator, simulator should output appropriate message
