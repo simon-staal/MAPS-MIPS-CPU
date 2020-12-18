@@ -338,7 +338,7 @@ module mips_cpu_bus(
         					  regs[rd] <= regs[rt] >> regs[rs];
         				  end
         					  FUNCTION_SRAV: begin
-        					  regs[rd] <= regs[rt] >>> regs[rs];
+                    regs[rd] <= regs[rt] >>> (regs[rs] & 32'h0000001f);
         				  end
         					  FUNCTION_SLTU: begin
         						regs[rd] <= ($unsigned(regs[rs]) < $unsigned(regs[rt]));
