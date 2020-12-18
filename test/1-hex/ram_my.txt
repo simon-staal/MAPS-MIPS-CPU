@@ -1,0 +1,6 @@
+0000AAAA
+ffffffff
+000Efff1
+00000001
+00003333
+//notes for my values

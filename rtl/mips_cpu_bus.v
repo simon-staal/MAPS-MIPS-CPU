@@ -110,23 +110,25 @@ module mips_cpu_bus(
       				address = regs[rs] + instr_imm;
       				writedata = regs[rt];
       			end
-            //TODO: FIX
+            //TODO: check?
+
             /*
             if(instr_opcode==OPCODE_SB) begin
-              byteenable = 4'b0001;
+              byteenable = 4'b1110;
               write = 1;
               read = 0;
               address = regs[rs] + instr_imm;
-              writedata = (regs[rt])[7:0];
+              writedata = regs[rt];
             end
             else if(instr_opcode==OPCODE_SH) begin
-              byteenable = 4'b0011;
+              byteenable = 4'b1100;
               write = 1;
               read = 0;
               address = regs[rs] + instr_imm;
-              writedata = (regs[rt])[15:0];
+              writedata =regs[rt];
             end
             */
+
             else if(instr_opcode==OPCODE_LB) begin
               read = 1;
               write = 0;
@@ -302,18 +304,18 @@ module mips_cpu_bus(
                   end
                   FUNCTION_OR: begin
                     assert(shift == 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
-                    regs[rd] <= regs[rs] || regs[rt];
+                    regs[rd] <= regs[rs] | regs[rt];
                   end
                   FUNCTION_SLT: begin
                     assert(shift == 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
-                    regs[rd] <= (regs[rs] - regs[rt])>>32;
+                    regs[rd] <= (regs[rs] - regs[rt])>>31;
                   end
                   FUNCTION_SLL: begin
                     //assert(shift != 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
-                    regs[rd] <= regs[rs] << shift;
+                    regs[rd] <= regs[rt] << shift;
                   end
                   FUNCTION_SLLV: begin
-                    regs[rd] <= regs[rs] << regs[rt];
+                    regs[rd] <= regs[rt] << regs[rs];
                   end
         				  FUNCTION_XOR: begin
                     regs[rd] <= (regs[rs] ^ regs[rt]);
@@ -424,7 +426,7 @@ module mips_cpu_bus(
             		delay <= 1;
             	end
               OPCODE_ORI: begin
-                regs[rt] <= regs[rs] || instr_imm;
+                regs[rt] <= regs[rs] | instr_imm;
               end
               OPCODE_SB: begin
                 mem_access <= 1;
@@ -434,14 +436,14 @@ module mips_cpu_bus(
               end
               OPCODE_SLTI: begin
                 if (instr_imm[15]==1)begin
-                  regs[rt] <= (regs[rs] - {16'h0001,instr_imm})>>32;
+                  regs[rt] <= (regs[rs] - {16'h0001,instr_imm})>>31;
                 end
                 else if (instr_imm[15]==0)begin
-                  regs[rt] <= (regs[rs] - { 16'h0000,instr_imm})>>32;
+                  regs[rt] <= (regs[rs] - { 16'h0000,instr_imm})>>31;
                 end
               end
               OPCODE_SLTIU: begin
-                regs[rt] <= (regs[rs] - { 16'h0000,instr_imm})>>32;
+                regs[rt] <= (regs[rs] - { 16'h0000,instr_imm})>>31;
               end
       			  OPCODE_XORI: begin
       					regs[rt] <= regs[rs] ^ instr_imm;
