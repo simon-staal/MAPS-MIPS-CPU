@@ -2,7 +2,7 @@
 module mips_cpu_bus_tb;
     timeunit 1ns / 10ps;
 
-    parameter TIMEOUT_CYCLES = 10000;
+    parameter TIMEOUT_CYCLES = 100000;
     parameter TESTCASE_ID = "XXX_X";
     parameter INSTRUCTION = "XXX";
     parameter RAM_INIT_FILE = "../test/1-hex/test_mips_cpu_bus_addiu_1.hex.txt";
@@ -38,9 +38,9 @@ module mips_cpu_bus_tb;
         clk=0;
 
         repeat (TIMEOUT_CYCLES) begin
-            #10;
+            #1;
             clk = !clk;
-            #10;
+            #1;
             clk = !clk;
         end
 
