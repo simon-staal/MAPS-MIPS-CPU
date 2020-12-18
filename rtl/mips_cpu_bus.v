@@ -247,6 +247,7 @@ module mips_cpu_bus(
         else if(state == EXEC) begin
             ir <= readdata;
             //Add condition if instruction requires mem access / if instruction requires writing back to a register
+            assert(regs[0]==32'h00000000) else $fatal(2, "$zero is no longer 0");
             state <= (waitrequest && mem_access) ? EXEC : ((instr_opcode==OPCODE_LB)||(instr_opcode==OPCODE_LBU)||(instr_opcode==OPCODE_LHU)||(instr_opcode==OPCODE_LH)||(instr_opcode==OPCODE_LW)||(instr_opcode==OPCODE_LWL)||(instr_opcode==OPCODE_LWR)) ? MEM_ACCESS : FETCH;
             pc <= (waitrequest) ? pc : (delay) ? pc_jmp : pc_increment;
             delay <= (delay) ? 0 : delay; //Resets the value of delay
@@ -357,7 +358,7 @@ module mips_cpu_bus(
               OPCODE_BEQ: begin
                 assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %h", instr, pc);
                 if(regs[rs] == regs[rt]) begin
-                  pc_jmp <= pc_increment + (instr_imm << 2);
+                  pc_jmp <= pc_increment + ({{16{instr_imm[15]}}, (instr_imm << 2)});
                   delay <= 1;
                 end
               end
@@ -371,7 +372,7 @@ module mips_cpu_bus(
                 case(rt)
                   BGEZ: begin
                     if(regs[rs] >= 0) begin
-                      pc_jmp <= pc_increment + $signed(instr_imm << 2);
+                      pc_jmp <= pc_increment + ({{16{instr_imm[15]}}, (instr_imm << 2)});
                       delay <= 1;
                     end
                   end
@@ -379,13 +380,13 @@ module mips_cpu_bus(
                     assert(rs!=31) else $fatal(3, "CPU : ERROR : Cannot use $ra as rs, instr %b at pc %h", instr, pc );
                     regs[31] <= (pc_increment + 32'd4);
                     if(regs[rs] >= 0) begin
-                      pc_jmp <= pc_increment + $signed(instr_imm << 2);
+                      pc_jmp <= pc_increment + ({{16{instr_imm[15]}}, (instr_imm << 2)});
                       delay <= 1;
                     end
                   end
                   BLTZ: begin
                     if(regs[rs] < 0) begin
-                      pc_jmp <= pc_increment + $signed(instr_imm << 2);
+                      pc_jmp <= pc_increment + ({{16{instr_imm[15]}}, (instr_imm << 2)});
                       delay <= 1;
                     end
                   end
@@ -393,7 +394,7 @@ module mips_cpu_bus(
                     assert(rs!=31) else $fatal(3, "CPU : ERROR : Cannot use $ra as rs, instr %b at pc %h", instr, pc );
                     regs[31] <= (pc_increment + 4);
                     if(regs[rs] < 0) begin
-                      pc_jmp <= pc_increment + $signed(instr_imm << 2);
+                      pc_jmp <= pc_increment + ({{16{instr_imm[15]}}, (instr_imm << 2)});
                       delay <= 1;
                     end
                   end
@@ -401,19 +402,19 @@ module mips_cpu_bus(
               end
               OPCODE_BGTZ: begin
                 if(regs[rs] > 0) begin
-                  pc_jmp <= pc_increment + $signed(instr_imm << 2);
+                  pc_jmp <= pc_increment + ({{16{instr_imm[15]}}, (instr_imm << 2)});
                   delay <= 1;
                 end
               end
               OPCODE_BLEZ: begin
                 if(regs[rs] <= 0) begin
-                  pc_jmp <= pc_increment + $signed(instr_imm << 2);
+                  pc_jmp <= pc_increment + ({{16{instr_imm[15]}}, (instr_imm << 2)});
                   delay <= 1;
                 end
               end
               OPCODE_BNE: begin
                 if(regs[rs] != regs[rt]) begin
-                  pc_jmp <= pc_increment + $signed(instr_imm << 2);
+                  pc_jmp <= pc_increment + ({{16{instr_imm[15]}}, (instr_imm << 2)});
                   delay <= 1;
                 end
               end
