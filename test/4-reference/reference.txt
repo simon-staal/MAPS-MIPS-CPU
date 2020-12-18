@@ -1,1 +1,3 @@
-// Values we compare test outputs to 
+// Values we compare test outputs to
+These files should contain a single 8-digit hex value
+containing the expected contents of v0 at the end of the simulation.
