@@ -28,6 +28,7 @@ for TESTCASE in ${TESTCASES}; do
   NUM=$(echo $TESTNAME | cut -d'_' -f 6)
   CODE="${INSTR}_${NUM}"
 
+  >&2 echo "Running test ${CODE}"
   >&2 echo "  1 - Compiling test-bench"
   # Compile a specific simulator for this testbench.
   # -s specifies exactly which testbench should be top-level
@@ -81,3 +82,8 @@ for TESTCASE in ${TESTCASES}; do
   fi
 
 done
+
+>&2 echo "Deleting temporary files"
+bash test/cleanup.sh
+
+>&2 echo "All tests passed successfully!"
