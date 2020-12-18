@@ -76,7 +76,7 @@ module mips_cpu_bus(
 
     //Intermediary logic for aligning addresses
     logic [31:0] address_calc;
-    assign address_calc = regs[rs] + instr_imm;
+    assign address_calc = $unsigned(regs[rs]) + $signed(instr_imm);
     logic [1:0] alignment;
     assign alignment = address_calc[1:0];
     //address = {adress_calc[31:2], 2'b00};
@@ -107,7 +107,7 @@ module mips_cpu_bus(
       				read = 0;
       				byteenable = 4'b1111;
               //assert(alignment == 2'b00) else $fatal(5, "CPU : ERROR : Unaligned memory access");
-      				address = regs[rs] + instr_imm;
+      				address = $unsigned(regs[rs]) + $signed(instr_imm);
       				writedata = regs[rt];
       			end
             //TODO: check?
@@ -157,33 +157,43 @@ module mips_cpu_bus(
               read = 1;
               write = 0;
               //alignment==00 or 01 --> LSHalfword, 10 or 11 --> MSHalfword
-              if((alignment==2'b00)||(alignment==2'b01)) begin
+              if(alignment==2'b00) begin
                 byteenable = 4'b0011;
               end
-              else if((alignment==2'b10)||(alignment==2'b11)) begin
+              else if(alignment==2'b10) begin
                 byteenable = 4'b1100;
               end
-              //TO-DO: add signal exception for address error (address[0]==0)
+              //Accessing unaligned memory, do nothing
+              else begin
+                byteenable = 4'b0000;
+              end
               address = address_calc & 32'hFFFFFFFC;
             end
             else if(instr_opcode==OPCODE_LHU) begin
               read = 1;
               write = 0;
               //alignment==00 or 01 --> LSHalfword, 10 or 11 MSHalfword
-              if((alignment==2'b00)||(alignment==2'b01)) begin
+              if(alignment==2'b00) begin
                 byteenable = 4'b0011;
               end
-              else if((alignment==2'b10)||(alignment==2'b11)) begin
+              else if(alignment==2'b10) begin
                 byteenable = 4'b1100;
               end
-              //TO-DO: add signal exception for address error (address[0]==0)
+              //Accessing unaligned memory, do nothing
+              else begin
+                byteenable = 4'b0000;
+              end
               address = address_calc & 32'hFFFFFFFC;
             end
             else if(instr_opcode==OPCODE_LW) begin
               read = 1;
               write = 0;
-              byteenable = 4'b1111;
-              //TO-DO: add signal exception for address error (address[0]==0)
+              if(alignment==2'b00) begin
+                byteenable = 4'b1111;
+              end
+              else begin
+                byteenable = 4'b0000;
+              end
               address = address_calc & 32'hFFFFFFFC;
             end
             else if(instr_opcode==OPCODE_LWL) begin
@@ -195,7 +205,6 @@ module mips_cpu_bus(
                 2'b10: byteenable = 4'b0111;
                 2'b11: byteenable = 4'b1111;
               endcase
-              //TO-DO: add signal exception for address error (address[0]==0)
               address = address_calc & 32'hFFFFFFFC;
             end
             else if(instr_opcode==OPCODE_LWR) begin
@@ -207,7 +216,6 @@ module mips_cpu_bus(
                 2'b10: byteenable = 4'b1100;
                 2'b11: byteenable = 4'b1000;
               endcase
-              //TO-DO: add signal exception for address error (address[0]==0)
               address = address_calc & 32'hFFFFFFFC;
             end
             else begin
@@ -308,7 +316,7 @@ module mips_cpu_bus(
                   end
                   FUNCTION_SLT: begin
                     assert(shift == 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
-                    regs[rd] <= (regs[rs] - regs[rt])>>31;
+                    regs[rd] <= (regs[rs] < regs[rt]);
                   end
                   FUNCTION_SLL: begin
                     //assert(shift != 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
@@ -336,7 +344,7 @@ module mips_cpu_bus(
         						regs[rd] <= ($unsigned(regs[rs]) < $unsigned(regs[rt]));
         				  end
         					  FUNCTION_SUBU: begin
-        					  regs[rd] <= regs[rs] - regs[rt];
+        					  regs[rd] <= $unsigned(regs[rs]) - $unsigned(regs[rt]);
         				  end
                 endcase
               end
@@ -363,7 +371,7 @@ module mips_cpu_bus(
                 case(rt)
                   BGEZ: begin
                     if(regs[rs] >= 0) begin
-                      pc_jmp <= pc_increment + (instr_imm << 2);
+                      pc_jmp <= pc_increment + $signed(instr_imm << 2);
                       delay <= 1;
                     end
                   end
@@ -371,13 +379,13 @@ module mips_cpu_bus(
                     assert(rs!=31) else $fatal(3, "CPU : ERROR : Cannot use $ra as rs, instr %b at pc %h", instr, pc );
                     regs[31] <= (pc_increment + 32'd4);
                     if(regs[rs] >= 0) begin
-                      pc_jmp <= pc_increment + (instr_imm << 2);
+                      pc_jmp <= pc_increment + $signed(instr_imm << 2);
                       delay <= 1;
                     end
                   end
                   BLTZ: begin
                     if(regs[rs] < 0) begin
-                      pc_jmp <= pc_increment + (instr_imm << 2);
+                      pc_jmp <= pc_increment + $signed(instr_imm << 2);
                       delay <= 1;
                     end
                   end
@@ -385,7 +393,7 @@ module mips_cpu_bus(
                     assert(rs!=31) else $fatal(3, "CPU : ERROR : Cannot use $ra as rs, instr %b at pc %h", instr, pc );
                     regs[31] <= (pc_increment + 4);
                     if(regs[rs] < 0) begin
-                      pc_jmp <= pc_increment + (instr_imm << 2);
+                      pc_jmp <= pc_increment + $signed(instr_imm << 2);
                       delay <= 1;
                     end
                   end
@@ -393,19 +401,19 @@ module mips_cpu_bus(
               end
               OPCODE_BGTZ: begin
                 if(regs[rs] > 0) begin
-                  pc_jmp <= pc_increment + (instr_imm << 2);
+                  pc_jmp <= pc_increment + $signed(instr_imm << 2);
                   delay <= 1;
                 end
               end
               OPCODE_BLEZ: begin
                 if(regs[rs] <= 0) begin
-                  pc_jmp <= pc_increment + (instr_imm << 2);
+                  pc_jmp <= pc_increment + $signed(instr_imm << 2);
                   delay <= 1;
                 end
               end
               OPCODE_BNE: begin
                 if(regs[rs] != regs[rt]) begin
-                  pc_jmp <= pc_increment + (instr_imm << 2);
+                  pc_jmp <= pc_increment + $signed(instr_imm << 2);
                   delay <= 1;
                 end
               end
@@ -481,11 +489,8 @@ module mips_cpu_bus(
                 if(alignment[1]==1'b0) begin
                   regs[rt] <= {{16{readdata[15]}},readdata[15:0]};
                 end
-                else if(alignment[1]==2'b1) begin
+                else if(alignment[1]==1'b1) begin
                   regs[rt] <= {{16{readdata[31]}},readdata[31:16]};
-                end
-                else begin
-                  //TO-DO: accessing invalid memory? assert nonetheless?
                 end
               end
               OPCODE_LHU:begin

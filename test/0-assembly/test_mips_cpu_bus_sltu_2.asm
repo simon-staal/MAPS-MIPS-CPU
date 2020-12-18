@@ -2,6 +2,6 @@ lui v1 0xbfc0
 lw t1 0x28(v1)
 lw t2 0x2c(v1)
 jr zero
-SUBU $v0 $t1 $t2
+SLTU $v0 $t2 $t1
 
-# v0 = 192 - 5 = 187
+# v0 = 05 SLTU 192 = 1
