@@ -39,14 +39,17 @@ with mips_cpu_bus in compilation*). When run successfully any temporary files cr
 by the script will be automatically removed.
 
 **run_testbench_code**
+
 Usage: `bash test/run_testbench_code.sh $SOURCE_DIRECTORY $TESTBENCH_CODE`
 This script will run a single testcase specified by the `$TESTBENCH CODE` parameter.
 
 **run_testbench_instr**
+
 Usage: `bash test/run_testbench_code.sh $SOURCE_DIRECTORY $INSTRUCTION_OPCODE`
 This script will run all testcases associated with a particular instruction.
 (*Note: test_mips_cpu_bus.sh can also be used to run tests on particular instructions*)
 
 **cleanup.sh**
+
 Usage: `bash test/cleanup.sh`
 This script will remove any files created by any of the previous testing scripts.
