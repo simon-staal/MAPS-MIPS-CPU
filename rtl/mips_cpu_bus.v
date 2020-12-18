@@ -82,6 +82,11 @@ module mips_cpu_bus(
     //address = {adress_calc[31:2], 2'b00};
     //byteenable[alignment] = 1
 
+    //Intermediary logic for SB and SH
+    logic [31:0] regs_byte, regs_hw;
+    assign regs_byte = (state==EXEC)&&(instr_opcode==OPCODE_SB)? {4{regs[rt][7:0]}} : 0;
+    assign regs_hw = (state==EXEC)&&(instr_opcode==OPCODE_SH)?  {2{regs[rt][15:0]}} : 0;
+
     integer i;
     initial begin
         state = HALTED;
@@ -119,10 +124,10 @@ module mips_cpu_bus(
             if(instr_opcode==OPCODE_SB) begin
               byteenable = 4'b1111;
               case(alignment)
-                2'b00: writedata = {24'h000000, regs[rt][7:0]};
-                2'b01: writedata = {16'h0000, regs[rt][7:0],8'h00 };
-                2'b10: writedata = {8'h00, regs[rt][7:0], 16'h0000 };
-                2'b11: writedata = {regs[rt][7:0], 24'h000000 };
+                2'b00: writedata = 32'h000000FF&regs_byte;
+                2'b01: writedata = 32'h0000FF00&regs_byte;
+                2'b10: writedata = 32'h00FF0000&regs_byte;
+                2'b11: writedata = 32'hFF000000&regs_byte;
               endcase
               write = 1;
               read = 0;
@@ -131,11 +136,11 @@ module mips_cpu_bus(
             else if(instr_opcode==OPCODE_SH) begin
               if(alignment==2'b00) begin
                 byteenable = 4'b1111;
-                writedata = {16'h0000, regs[rt][15:0]};
+                writedata = 32'h0000FFFF&regs_hw;
               end
               else if(alignment==2'b10) begin
                 byteenable = 4'b1111;
-                writedata = {regs[rt][15:0], 16'h0000 };
+                writedata = 32'hFFFF0000&regs_hw;
               end
               //Writing to unaligned memory, do nothing
               else begin
