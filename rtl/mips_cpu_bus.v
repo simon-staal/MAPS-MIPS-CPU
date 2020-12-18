@@ -76,7 +76,7 @@ module mips_cpu_bus(
 
     //Intermediary logic for aligning addresses
     logic [31:0] address_calc;
-    assign address_calc = $unsigned(regs[rs]) + $signed(instr_imm);
+    assign address_calc = $unsigned(regs[rs]) + {{16{instr_imm[15]}}, (instr_imm)};
     logic [1:0] alignment;
     assign alignment = address_calc[1:0];
     //address = {adress_calc[31:2], 2'b00};
@@ -105,10 +105,14 @@ module mips_cpu_bus(
       			if(instr_opcode == OPCODE_SW) begin
       				write = 1;
       				read = 0;
-      				byteenable = 4'b1111;
-              //assert(alignment == 2'b00) else $fatal(5, "CPU : ERROR : Unaligned memory access");
-      				address = $unsigned(regs[rs]) + $signed(instr_imm);
-      				writedata = regs[rt];
+              if(alignment==2'b00) begin
+        				byteenable = 4'b1111;
+              end
+              else begin
+                byteenable = 4'b0000;
+              end
+              address = address_calc & 32'hFFFFFFFC;
+              writedata = regs[rt];
       			end
             //TODO: check?
 
