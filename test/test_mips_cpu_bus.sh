@@ -28,7 +28,7 @@ for TESTCASE in ${TESTCASES}; do
   NUM=$(echo $TESTNAME | cut -d'_' -f 6)
   CODE="${INSTR}_${NUM}"
 
-  >&2 echo " 1 - Compiling test-bench"
+  >&2 echo "  1 - Compiling test-bench"
   # Compile a specific simulator for this testbench.
   # -s specifies exactly which testbench should be top-level
   # The -P command is used to modify the RAM_INIT_FILE parameter on the test-bench at compile-time
