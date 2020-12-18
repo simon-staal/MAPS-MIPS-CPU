@@ -32,6 +32,7 @@ There are 4 scripts located in the base directory:
 *Note: All scripts are intended to be called from the base directory of the repository*
 
 **test_mips_cpu_bus.sh**
+
 Usage: `bash test/test_mips_cpu_bus.sh $SOURCE_DIRECTORY $INSTRUCTION_OPCODE(optional)`
 
 This script (when called without the second parameter) performs an overall functional
