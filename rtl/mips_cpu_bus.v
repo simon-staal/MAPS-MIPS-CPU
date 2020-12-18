@@ -1,4 +1,4 @@
-`include "mips_cpu_definitions.vh"
+`include "mips_cpu_bus_definitions.vh"
 
 module mips_cpu_bus(
     /* Standard signals */
@@ -26,6 +26,10 @@ module mips_cpu_bus(
     //Create non GPR HI and LO registers
     logic[31:0] HI;
     logic[31:0] LO;
+    logic[63:0] mult_temp, multu_temp;
+    //(instr_opcode==OPCODE_R)&&?
+    assign mult_temp = ((state==EXEC)&&((instr_opcode==OPCODE_R)&&(instr_function==FUNCTION_MULT))) ? (regs[rs]*regs[rt]) : 0;
+    assign multu_temp = ((state==EXEC)&&((instr_opcode==OPCODE_R)&&(instr_function==FUNCTION_MULTU))) ? ($unsigned(regs[rs])*$unsigned(regs[rt])) : 0;
 
     //Divide intruction into seperate signals
     logic[31:0] instr;
@@ -102,7 +106,7 @@ module mips_cpu_bus(
       				write = 1;
       				read = 0;
       				byteenable = 4'b1111;
-              //assert(alignment == 2'b00) else $fatal(5, "CPU : ERROR : Unlagined memory access");
+              //assert(alignment == 2'b00) else $fatal(5, "CPU : ERROR : Unaligned memory access");
       				address = regs[rs] + instr_imm;
       				writedata = regs[rt];
       			end
@@ -135,7 +139,7 @@ module mips_cpu_bus(
                 2'b11: byteenable = 4'b1000;
               endcase
               //TO-DO: add signal exception for address error (address[0]==0)
-              address = regs[rs]+instr_imm;
+              address = address_calc & 32'hFFFFFFFC;
             end
             else if(instr_opcode==OPCODE_LBU) begin
               read = 1;
@@ -147,16 +151,16 @@ module mips_cpu_bus(
                 2'b11: byteenable = 4'b1000;
               endcase
               //TO-DO: add signal exception for address error (address[0]==0)
-              address = regs[rs]+instr_imm;
+              address = address_calc & 32'hFFFFFFFC;
             end
             else if(instr_opcode==OPCODE_LH) begin
               read = 1;
               write = 0;
               //alignment==00 or 01 --> LSHalfword, 10 or 11 --> MSHalfword
-              if(alignment==2'b0X) begin
+              if((alignment==2'b00)||(alignment==2'b01)) begin
                 byteenable = 4'b0011;
               end
-              else if(alignment==2'b1X) begin
+              else if((alignment==2'b10)||(alignment==2'b11)) begin
                 byteenable = 4'b1100;
               end
               //TO-DO: add signal exception for address error (address[0]==0)
@@ -166,10 +170,10 @@ module mips_cpu_bus(
               read = 1;
               write = 0;
               //alignment==00 or 01 --> LSHalfword, 10 or 11 MSHalfword
-              if(alignment==2'b0X) begin
+              if((alignment==2'b00)||(alignment==2'b01)) begin
                 byteenable = 4'b0011;
               end
-              else if(alignment==2'b1X)begin
+              else if((alignment==2'b10)||(alignment==2'b11)) begin
                 byteenable = 4'b1100;
               end
               //TO-DO: add signal exception for address error (address[0]==0)
@@ -234,7 +238,8 @@ module mips_cpu_bus(
         end
         else if(state == EXEC) begin
             ir <= readdata;
-            state <= (waitrequest && mem_access) ? EXEC : (instr_opcode==OPCODE_LW) ? MEM_ACCESS : FETCH; //Add condition if instruction requires mem access / if instruction requires writing back to a register
+            //Add condition if instruction requires mem access / if instruction requires writing back to a register
+            state <= (waitrequest && mem_access) ? EXEC : ((instr_opcode==OPCODE_LB)||(instr_opcode==OPCODE_LBU)||(instr_opcode==OPCODE_LHU)||(instr_opcode==OPCODE_LH)||(instr_opcode==OPCODE_LW)||(instr_opcode==OPCODE_LWL)||(instr_opcode==OPCODE_LWR)) ? MEM_ACCESS : FETCH;
             pc <= (waitrequest) ? pc : (delay) ? pc_jmp : pc_increment;
             delay <= (delay) ? 0 : delay; //Resets the value of delay
             case(instr_opcode)
@@ -242,7 +247,7 @@ module mips_cpu_bus(
                 case(instr_function)
                   FUNCTION_ADDU: begin
                     assert(shift == 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
-                    regs[rd] <= regs[rs] + regs[rt];
+                    regs[rd] <= $unsigned(regs[rs]) + $unsigned(regs[rt]);
                   end
                   FUNCTION_AND: begin
                     assert(shift == 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
@@ -250,14 +255,14 @@ module mips_cpu_bus(
                   end
                   FUNCTION_DIV: begin
             		    //not sure whether an assert is required here
-            		    regs[LO] <= regs[rs]/regs[rt];
-            		    regs[HI] <= regs[rs]%regs[rt];
+                    LO <= (regs[rs]/regs[rt]);
+            		    HI <= (regs[rs]%regs[rt]);
             		    //does verilog automatically sign extend?
             		  end
             		  FUNCTION_DIVU: begin
             		    //not sure whether an assert is required here
-            		    regs[LO] <= regs[rs]/regs[rt];
-            		    regs[HI] <= regs[rs]%regs[rt];
+            		    LO <= ($unsigned(regs[rs])/$unsigned(regs[rt]));
+            		    HI <= ($unsigned(regs[rs])%$unsigned(regs[rt]));
             		  end
                   FUNCTION_JALR: begin
             		    assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %h", instr, pc);
@@ -280,13 +285,13 @@ module mips_cpu_bus(
                   end
                   FUNCTION_MULT:begin
                     assert(({rd,shift}==10'h000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %h", instr, pc);
-                    LO <= regs[rs][15:0]*regs[rt][15:0];
-                    HI <= regs[rs][31:16]*regs[rt][31:16];
+                    LO <= mult_temp[31:0];
+                    HI <= mult_temp[63:32];
                   end
                   FUNCTION_MULTU:begin
                     assert(({rd,shift}==10'h000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %h", instr, pc);
-                    LO <= regs[rs][15:0]*regs[rt][15:0];
-                    HI <= regs[rs][31:16]*regs[rt][31:16];
+                    LO <= multu_temp[31:0];
+                    HI <= multu_temp[63:32];
                   end
                   FUNCTION_MFHI:begin
                     assert(({rs,rt,shift}==15'h0000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %h", instr, pc);
@@ -295,6 +300,7 @@ module mips_cpu_bus(
                   FUNCTION_MFLO:begin
                     assert(({rs,rt,shift}==15'h0000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %h", instr, pc);
                     regs[rd] <= LO;
+                    $display("Storing LO %h in rd %d", LO, rd);
                   end
                   FUNCTION_OR: begin
                     assert(shift == 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
@@ -312,7 +318,7 @@ module mips_cpu_bus(
                     regs[rd] <= regs[rs] << regs[rt];
                   end
         				  FUNCTION_XOR: begin
-        						regs[rd] <= regs[rs] ^ regs[rt];
+                    regs[rd] <= (regs[rs] ^ regs[rt]);
         				  end
         					  FUNCTION_SRL: begin
         						regs[rd] <= regs[rt] >> shift;
@@ -340,7 +346,7 @@ module mips_cpu_bus(
                 endcase
               end
               OPCODE_ADDIU: begin
-                regs[rt] <= regs[rs] + instr_imm;
+                regs[rt] <= $unsigned(regs[rs]) + $signed(instr_imm);
               end
               OPCODE_ANDI: begin
                 regs[rt] <= regs[rs] & instr_imm;
@@ -410,13 +416,13 @@ module mips_cpu_bus(
               end
               OPCODE_J: begin
             		assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %h", instr, pc);
-                  pc_jmp <={{pc_increment[31:28]}, instr_imm, {2'b00}};
+                pc_jmp <= {{pc_increment[31:28]}, instr_index, {2'b00}};
             		delay <= 1;
       	      end
       	      OPCODE_JAL: begin
             		assert(delay == 0) else $fatal(4, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %h", instr, pc);
             		regs[31] <= pc + 8;
-            		pc_jmp <= {{pc_increment[31:28]}, instr_imm, {2'b00}};
+            		pc_jmp <= {{pc_increment[31:28]}, instr_index, {2'b00}};
             		delay <= 1;
             	end
               OPCODE_ORI: begin
@@ -440,7 +446,7 @@ module mips_cpu_bus(
                 regs[rt] <= (regs[rs] - { 16'h0000,instr_imm})>>32;
               end
       			  OPCODE_XORI: begin
-      					regs[rs] <= regs[rt] ^ instr_imm;
+      					regs[rt] <= regs[rs] ^ instr_imm;
       			  end
       			  OPCODE_SW: begin
       			    mem_access <= 1;
