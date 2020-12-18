@@ -3,20 +3,9 @@ set -eou pipefail
 
 SOURCE="$1" #Source directory containing RTL implementation
 TEST_DIRECTORY="test"
-INSTRUCTION="${2:-null}"
-if [[ "${INSTRUCTION}" = "null" ]] ; then
-  TESTCASES="${TEST_DIRECTORY}/1-hex/test_mips_cpu_bus_*.hex.txt" #list of testcases being tested either starting with instruction being tested or all if no instruction is specified
-  >&2 echo "Running full testbench"
-  >&2 echo "Checking dependencies"
-  # Tests are reliant on these instructions,
-  bash ${TEST_DIRECTORY}/run_testbench_code.sh ${SOURCE} jr_0
-  bash ${TEST_DIRECTORY}/run_testbench_instr.sh ${SOURCE} lui
-  bash ${TEST_DIRECTORY}/run_testbench_instr.sh ${SOURCE} lw
-  bash ${TEST_DIRECTORY}/run_testbench_instr.sh ${SOURCE} addiu
-  >&2 echo "Dependencies passed, checking all instructions"
-else
-  TESTCASES="${TEST_DIRECTORY}/1-hex/test_mips_cpu_bus_${INSTRUCTION}_*.hex.txt"
-fi
+INSTR="${2}"
+
+TESTCASES="${TEST_DIRECTORY}/1-hex/test_mips_cpu_bus_${INSTR}_*.hex.txt"
 
 for TESTCASE in ${TESTCASES}; do
 
@@ -24,7 +13,6 @@ for TESTCASE in ${TESTCASES}; do
   # TESTNAME_PARTIAL_DIR=${TESTNAME_FULL_DIR#$TEST_DIRECTORY}
   # TESTNAME=${TESTNAME_PARTIAL_DIR#/1-hex/}
 
-  INSTR=$(echo $TESTNAME | cut -d'_' -f 5)
   NUM=$(echo $TESTNAME | cut -d'_' -f 6)
   CODE="${INSTR}_${NUM}"
 

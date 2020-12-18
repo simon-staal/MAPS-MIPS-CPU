@@ -333,12 +333,7 @@ module mips_cpu_bus(
         					  regs[rd] <= regs[rt] >>> regs[rs];
         				  end
         					  FUNCTION_SLTU: begin
-        						if (regs[rs] < regs[rt]) begin
-        							regs[rd] <= 1;
-        						end
-        						else begin
-        							regs[rd] <= 0;
-        						end
+        						regs[rd] <= ($unsigned(regs[rs]) < $unsigned(regs[rt]));
         				  end
         					  FUNCTION_SUBU: begin
         					  regs[rd] <= regs[rs] - regs[rt];
@@ -435,15 +430,10 @@ module mips_cpu_bus(
                 mem_access <= 1;
               end
               OPCODE_SLTI: begin
-                if (instr_imm[15]==1)begin
-                  regs[rt] <= (regs[rs] - {16'h0001,instr_imm})>>31;
-                end
-                else if (instr_imm[15]==0)begin
-                  regs[rt] <= (regs[rs] - { 16'h0000,instr_imm})>>31;
-                end
+                regs[rt] <= (regs[rs] < $signed(instr_imm));
               end
               OPCODE_SLTIU: begin
-                regs[rt] <= (regs[rs] - { 16'h0000,instr_imm})>>31;
+                regs[rt] <= (regs[rs] < $unsigned(instr_imm));
               end
       			  OPCODE_XORI: begin
       					regs[rt] <= regs[rs] ^ instr_imm;
