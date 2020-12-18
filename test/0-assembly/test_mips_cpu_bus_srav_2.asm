@@ -4,4 +4,4 @@ lw t2 0x2c(v1)
 jr zero
 SRAV $v0 $t1 $t2
 
-# v0 = 5 >> 192 = 6
+# v0 = a >> b5 = 0
