@@ -331,7 +331,6 @@ module mips_cpu_bus(
                   FUNCTION_MFLO:begin
                     assert(({rs,rt,shift}==15'h0000)) else $fatal(3, "CPU : ERROR: Invalid instruction %b at pc %h", instr, pc);
                     regs[rd] <= LO;
-                    $display("Storing LO %h in rd %d", LO, rd);
                   end
                   FUNCTION_OR: begin
                     assert(shift == 5'b00000) else $fatal(3, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
