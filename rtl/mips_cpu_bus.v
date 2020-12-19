@@ -38,7 +38,9 @@ module mips_cpu_bus(
     logic[31:0] pc, pc_increment;
     assign pc_increment = pc + 4;
     logic[31:0] ir;
-    logic ir_write;
+
+    //Indicates whether the CPU is experiencing a stall cycle due to memory
+    logic stall;
 
     //Create non GPR HI and LO registers
     logic[31:0] HI;
@@ -57,7 +59,7 @@ module mips_cpu_bus(
     logic[15:0] instr_imm;
     logic[25:0] instr_index;
 
-    assign instr = (state==EXEC) ? readdata : ir;
+    assign instr = (state==EXEC && stall==0) ? readdata : ir;
     assign instr_opcode = instr[31:26];
     assign rs = instr[25:21];
     assign rt = instr[20:16];
@@ -71,7 +73,7 @@ module mips_cpu_bus(
     logic[31:0] pc_jmp;
     logic delay; //Indicates delay slot instruction
 
-    //Used for 2 cycle memory access instructions (stores) for waitrequest logic in controlling pc
+    //Used to indicate memory access in EXEC to control waitrequest
     logic mem_access;
     assign mem_access = ((instr_opcode==OPCODE_SW)||(instr_opcode==OPCODE_SB)||(instr_opcode==OPCODE_SH)||(instr_opcode==OPCODE_LB)||(instr_opcode==OPCODE_LBU)||(instr_opcode==OPCODE_LHU)||(instr_opcode==OPCODE_LH)||(instr_opcode==OPCODE_LW)||(instr_opcode==OPCODE_LWL)||(instr_opcode==OPCODE_LWR));
 
@@ -91,6 +93,7 @@ module mips_cpu_bus(
         state = HALTED;
         active = 0;
         delay = 0;
+        stall = 0;
         for(i = 0; i < 32; i++) begin
           regs[i] = 0;
         end
@@ -259,11 +262,12 @@ module mips_cpu_bus(
             state <= (waitrequest) ? FETCH : EXEC;
         end
         else if(state == EXEC) begin
-            ir <= readdata;
+            ir <= (stall) ? ir : readdata;
             assert(regs[0]==32'h00000000) else $fatal(2, "$zero is no longer 0");
             state <= (waitrequest && mem_access) ? EXEC : ((instr_opcode==OPCODE_LB)||(instr_opcode==OPCODE_LBU)||(instr_opcode==OPCODE_LHU)||(instr_opcode==OPCODE_LH)||(instr_opcode==OPCODE_LW)||(instr_opcode==OPCODE_LWL)||(instr_opcode==OPCODE_LWR)) ? MEM_ACCESS : FETCH;
             pc <= (waitrequest && mem_access) ? pc : (delay) ? pc_jmp : pc_increment;
             delay <= (waitrequest && mem_access) ? delay : (delay) ? 0 : delay; //Resets the value of delay
+            stall <= (waitrequest && mem_access);
             case(instr_opcode)
               OPCODE_R: begin
                 case(instr_function)
