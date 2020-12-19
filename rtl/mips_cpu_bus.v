@@ -273,11 +273,11 @@ module mips_cpu_bus(
                 case(instr_function)
                   FUNCTION_ADDU: begin
                     assert(shift == 5'b00000) else $fatal(2, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
-                    regs[rd] <= $unsigned(regs[rs]) + $unsigned(regs[rt]);
+                    regs[rd] <= (rd == 0) ? 0 : $unsigned(regs[rs]) + $unsigned(regs[rt]);
                   end
                   FUNCTION_AND: begin
                     assert(shift == 5'b00000) else $fatal(2, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
-                    regs[rd] <= regs[rs] & regs[rt];
+                    regs[rd] <= (rd == 0) ? 0 : regs[rs] & regs[rt];
                   end
                   FUNCTION_DIV: begin
             		    assert({rd,shift} == 10'b00000) else $fatal(2, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
@@ -292,7 +292,7 @@ module mips_cpu_bus(
                   FUNCTION_JALR: begin
                     assert({rt,shift} == 10'b00000) else $fatal(2, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
             		    assert(delay == 0) else $fatal(2, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %h", instr, pc);
-            		    regs[rd] <= pc + 8;
+            		    regs[rd] <= (rd == 0) ? 0 : pc + 8;
             		    pc_jmp <= regs[rs];
             		    delay <= 1;
             		  end
@@ -322,63 +322,63 @@ module mips_cpu_bus(
                   end
                   FUNCTION_MFHI:begin
                     assert(({rs,rt,shift}==15'h0000)) else $fatal(2, "CPU : ERROR: Invalid instruction %b at pc %h", instr, pc);
-                    regs[rd] <= HI;
+                    regs[rd] <= (rd == 0) ? 0 : HI;
                   end
                   FUNCTION_MFLO:begin
                     assert(({rs,rt,shift}==15'h0000)) else $fatal(2, "CPU : ERROR: Invalid instruction %b at pc %h", instr, pc);
-                    regs[rd] <= LO;
+                    regs[rd] <= (rd == 0) ? 0 : LO;
                   end
                   FUNCTION_OR: begin
                     assert(shift == 5'b00000) else $fatal(2, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
-                    regs[rd] <= regs[rs] | regs[rt];
+                    regs[rd] <= (rd == 0) ? 0 : regs[rs] | regs[rt];
                   end
                   FUNCTION_SLT: begin
                     assert(shift == 5'b00000) else $fatal(2, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
-                    regs[rd] <= (regs[rs] < regs[rt]);
+                    regs[rd] <= (rd == 0) ? 0 : (regs[rs] < regs[rt]);
                   end
                   FUNCTION_SLL: begin
                     assert(rs == 5'b00000) else $fatal(2, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
-                    regs[rd] <= regs[rt] << shift;
+                    regs[rd] <= (rd == 0) ? 0 : regs[rt] << shift;
                   end
                   FUNCTION_SLLV: begin
                     assert(shift == 5'b00000) else $fatal(2, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
-                    regs[rd] <= regs[rt] << regs[rs];
+                    regs[rd] <= (rd == 0) ? 0 : regs[rt] << regs[rs];
                   end
                   FUNCTION_SLTU: begin
                     assert(shift == 5'b00000) else $fatal(2, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
-                    regs[rd] <= ($unsigned(regs[rs]) < $unsigned(regs[rt]));
+                    regs[rd] <= (rd == 0) ? 0 : ($unsigned(regs[rs]) < $unsigned(regs[rt]));
                   end
                   FUNCTION_SRA: begin
                     assert(rs == 5'b00000) else $fatal(2, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
-        						regs[rd] <= regs[rt] >>> shift;
+        						regs[rd] <= (rd == 0) ? 0 : regs[rt] >>> shift;
         				  end
                   FUNCTION_SRAV: begin
                     assert(shift == 5'b00000) else $fatal(2, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
-                    regs[rd] <= regs[rt] >>> (regs[rs] & 32'h0000001f);
+                    regs[rd] <= (rd == 0) ? 0 : regs[rt] >>> (regs[rs] & 32'h0000001f);
         				  end
         					FUNCTION_SRL: begin
                     assert(rs == 5'b00000) else $fatal(2, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
-        						regs[rd] <= regs[rt] >> shift;
+        						regs[rd] <= (rd == 0) ? 0 : regs[rt] >> shift;
         				  end
         					FUNCTION_SRLV: begin
                     assert(shift == 5'b00000) else $fatal(2, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
-        					  regs[rd] <= regs[rt] >> regs[rs];
+        					  regs[rd] <= (rd == 0) ? 0 : regs[rt] >> regs[rs];
         				  end
         					FUNCTION_SUBU: begin
                     assert(shift == 5'b00000) else $fatal(2, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
-        					  regs[rd] <= $unsigned(regs[rs]) - $unsigned(regs[rt]);
+        					  regs[rd] <= (rd == 0) ? 0 : $unsigned(regs[rs]) - $unsigned(regs[rt]);
         				  end
                   FUNCTION_XOR: begin
                     assert(shift == 5'b00000) else $fatal(2, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
-                    regs[rd] <= (regs[rs] ^ regs[rt]);
+                    regs[rd] <= (rd == 0) ? 0 : (regs[rs] ^ regs[rt]);
         				  end
                 endcase
               end
               OPCODE_ADDIU: begin
-                regs[rt] <= $unsigned(regs[rs]) + ({{16{instr_imm[15]}}, instr_imm});
+                regs[rt] <= (rt == 0) ? 0 : $unsigned(regs[rs]) + ({{16{instr_imm[15]}}, instr_imm});
               end
               OPCODE_ANDI: begin
-                regs[rt] <= regs[rs] & instr_imm;
+                regs[rt] <= (rt == 0) ? 0 : regs[rs] & instr_imm;
               end
               OPCODE_BEQ: begin
                 assert(delay == 0) else $fatal(2, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %h", instr, pc);
@@ -390,7 +390,7 @@ module mips_cpu_bus(
               //SD instructions
               OPCODE_LUI: begin
                 assert(rs==5'b00000) else $fatal(2, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc );
-                regs[rt] <= {instr_imm, 16'h0000};
+                regs[rt] <= (rt == 0) ? 0 : {instr_imm, 16'h0000};
               end
               OPCODE_REGIMM: begin
                 assert(delay == 0) else $fatal(2, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %h", instr, pc);
@@ -455,16 +455,16 @@ module mips_cpu_bus(
             		delay <= 1;
             	end
               OPCODE_ORI: begin
-                regs[rt] <= regs[rs] | instr_imm;
+                regs[rt] <= (rt == 0) ? 0 : regs[rs] | instr_imm;
               end
               OPCODE_SLTI: begin
-                regs[rt] <= (regs[rs] < $signed(instr_imm));
+                regs[rt] <= (rt == 0) ? 0 : (regs[rs] < $signed(instr_imm));
               end
               OPCODE_SLTIU: begin
-                regs[rt] <= (regs[rs] < $unsigned(instr_imm));
+                regs[rt] <= (rt == 0) ? 0 : (regs[rs] < $unsigned(instr_imm));
               end
       			  OPCODE_XORI: begin
-      					regs[rt] <= regs[rs] ^ instr_imm;
+      					regs[rt] <= (rt == 0) ? 0 : regs[rs] ^ instr_imm;
       			  end
           endcase
         end
@@ -473,63 +473,63 @@ module mips_cpu_bus(
             case(instr_opcode)
               OPCODE_LB: begin
                 if (alignment==2'b00) begin
-                  regs[rt] <= {{24{readdata[7]}},readdata[7:0]};
+                  regs[rt] <= (rt == 0) ? 0 : {{24{readdata[7]}},readdata[7:0]};
                 end
                 else if (alignment==2'b01) begin
-                  regs[rt] <= {{24{readdata[15]}},readdata[15:8]};
+                  regs[rt] <= (rt == 0) ? 0 : {{24{readdata[15]}},readdata[15:8]};
                 end
                 else if (alignment==2'b10) begin
-                  regs[rt] <= {{24{readdata[23]}},readdata[23:16]};
+                  regs[rt] <= (rt == 0) ? 0 : {{24{readdata[23]}},readdata[23:16]};
                 end
                 else if (alignment==2'b11) begin
-                  regs[rt] <= {{24{readdata[31]}},readdata[31:24]};
+                  regs[rt] <= (rt == 0) ? 0 : {{24{readdata[31]}},readdata[31:24]};
                 end
               end
               OPCODE_LBU: begin
                 if (alignment==2'b00) begin
-                  regs[rt] <= {24'h000000,readdata[7:0]};
+                  regs[rt] <= (rt == 0) ? 0 : {24'h000000,readdata[7:0]};
                 end
                 else if (alignment==2'b01) begin
-                  regs[rt] <= {24'h000000,readdata[15:8]};
+                  regs[rt] <= (rt == 0) ? 0 : {24'h000000,readdata[15:8]};
                 end
                 else if (alignment==2'b10) begin
-                  regs[rt] <= {24'h000000,readdata[23:16]};
+                  regs[rt] <= (rt == 0) ? 0 : {24'h000000,readdata[23:16]};
                 end
                   else if (alignment==2'b11) begin //error was here, compiles now, still ensure of the implementation of byte enable
-                  regs[rt] <= {24'h000000,readdata[31:24]};
+                  regs[rt] <= (rt == 0) ? 0 : {24'h000000,readdata[31:24]};
                 end
               end
               OPCODE_LH: begin
                 if(alignment[1]==1'b0) begin
-                  regs[rt] <= {{16{readdata[15]}},readdata[15:0]};
+                  regs[rt] <= (rt == 0) ? 0 : {{16{readdata[15]}},readdata[15:0]};
                 end
                 else if(alignment[1]==1'b1) begin
-                  regs[rt] <= {{16{readdata[31]}},readdata[31:16]};
+                  regs[rt] <= (rt == 0) ? 0 : {{16{readdata[31]}},readdata[31:16]};
                 end
               end
               OPCODE_LHU:begin
                 if(alignment[1]==2'b0) begin
-                  regs[rt] <= {16'h0000,readdata[15:0]};
+                  regs[rt] <= (rt == 0) ? 0 : {16'h0000,readdata[15:0]};
                 end
                 else if(alignment[1]==2'b1) begin
-                  regs[rt] <= {16'h0000,readdata[31:16]};
+                  regs[rt] <= (rt == 0) ? 0 : {16'h0000,readdata[31:16]};
                 end
               end
               OPCODE_LW: regs[rt] <= readdata;
               OPCODE_LWL: begin
                 case(alignment)
-                  2'b00: regs[rt] <= {readdata[7:0],regs[rt][23:0]};
-                  2'b01: regs[rt] <= {readdata[15:0],regs[rt][15:0]};
-                  2'b10: regs[rt] <= {readdata[23:0], regs[rt][7:0]};
-                  2'b11: regs[rt] <= readdata;
+                  2'b00: regs[rt] <= (rt == 0) ? 0 : {readdata[7:0],regs[rt][23:0]};
+                  2'b01: regs[rt] <= (rt == 0) ? 0 : {readdata[15:0],regs[rt][15:0]};
+                  2'b10: regs[rt] <= (rt == 0) ? 0 : {readdata[23:0], regs[rt][7:0]};
+                  2'b11: regs[rt] <= (rt == 0) ? 0 : readdata;
                 endcase
               end
               OPCODE_LWR:begin
                 case(alignment)
-                  2'b00: regs[rt] <= readdata;
-                  2'b01: regs[rt] <= {regs[rt][31:24],readdata[31:8]};
-                  2'b10: regs[rt] <= {regs[rt][31:16], readdata[31:16]};
-                  2'b11: regs[rt] <= {regs[rt][31:8], readdata[31:24]};
+                  2'b00: regs[rt] <= (rt == 0) ? 0 : readdata;
+                  2'b01: regs[rt] <= (rt == 0) ? 0 : {regs[rt][31:24],readdata[31:8]};
+                  2'b10: regs[rt] <= (rt == 0) ? 0 : {regs[rt][31:16], readdata[31:16]};
+                  2'b11: regs[rt] <= (rt == 0) ? 0 : {regs[rt][31:8], readdata[31:24]};
                 endcase
               end
             endcase
