@@ -73,7 +73,7 @@ module mips_cpu_bus(
 
     //Used for 2 cycle memory access instructions (stores) for waitrequest logic in controlling pc
     logic mem_access;
-    assign mem_access = (instr_opcode==OPCODE_SW)||(instr_opcode==OPCODE_SB)||(instr_opcode==OPCODE_SH);
+    assign mem_access = ((instr_opcode==OPCODE_SW)||(instr_opcode==OPCODE_SB)||(instr_opcode==OPCODE_SH)||(instr_opcode==OPCODE_LB)||(instr_opcode==OPCODE_LBU)||(instr_opcode==OPCODE_LHU)||(instr_opcode==OPCODE_LH)||(instr_opcode==OPCODE_LW)||(instr_opcode==OPCODE_LWL)||(instr_opcode==OPCODE_LWR));
 
     //Intermediary logic for aligning addresses
     logic [31:0] address_calc;
@@ -262,8 +262,8 @@ module mips_cpu_bus(
             ir <= readdata;
             assert(regs[0]==32'h00000000) else $fatal(2, "$zero is no longer 0");
             state <= (waitrequest && mem_access) ? EXEC : ((instr_opcode==OPCODE_LB)||(instr_opcode==OPCODE_LBU)||(instr_opcode==OPCODE_LHU)||(instr_opcode==OPCODE_LH)||(instr_opcode==OPCODE_LW)||(instr_opcode==OPCODE_LWL)||(instr_opcode==OPCODE_LWR)) ? MEM_ACCESS : FETCH;
-            pc <= (waitrequest) ? pc : (delay) ? pc_jmp : pc_increment;
-            delay <= (delay) ? 0 : delay; //Resets the value of delay
+            pc <= (waitrequest && mem_access) ? pc : (delay) ? pc_jmp : pc_increment;
+            delay <= (waitrequest && mem_access) ? delay : (delay) ? 0 : delay; //Resets the value of delay
             case(instr_opcode)
               OPCODE_R: begin
                 case(instr_function)
@@ -465,7 +465,7 @@ module mips_cpu_bus(
           endcase
         end
         else if(state == MEM_ACCESS) begin
-            state <= (waitrequest) ? MEM_ACCESS : FETCH;
+            state <= FETCH;
             case(instr_opcode)
               OPCODE_LB: begin
                 if (alignment==2'b00) begin
