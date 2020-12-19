@@ -10,7 +10,6 @@ Write additional testcases testing -ve idexes for the following:
 - lwr
 - sb
 - sh
-(To be done once Salman adds .asm files for current testcases)
 
 Test waitrequest functionality (DONE! - hopefully)
 
