@@ -73,6 +73,7 @@ module mips_cpu_bus(
 
     //Used for 2 cycle memory access instructions (stores) for waitrequest logic in controlling pc
     logic mem_access;
+    assign mem_access = (instr_opcode==OPCODE_SW)||(instr_opcode==OPCODE_SB)||(instr_opcode==OPCODE_SH);
 
     //Intermediary logic for aligning addresses
     logic [31:0] address_calc;
@@ -105,7 +106,7 @@ module mips_cpu_bus(
             write = 0;
             address = pc;
         end
-        if(state == EXEC) begin
+        if(state == EXEC || state == MEM_ACCESS) begin
             //ADD LOGIC FOR LOAD / STORE INSTRUCTIONS
       			if(instr_opcode == OPCODE_SW) begin
       				write = 1;
@@ -453,12 +454,6 @@ module mips_cpu_bus(
               OPCODE_ORI: begin
                 regs[rt] <= regs[rs] | instr_imm;
               end
-              OPCODE_SB: begin
-                mem_access <= 1;
-              end
-              OPCODE_SH: begin
-                mem_access <= 1;
-              end
               OPCODE_SLTI: begin
                 regs[rt] <= (regs[rs] < $signed(instr_imm));
               end
@@ -467,9 +462,6 @@ module mips_cpu_bus(
               end
       			  OPCODE_XORI: begin
       					regs[rt] <= regs[rs] ^ instr_imm;
-      			  end
-      			  OPCODE_SW: begin
-      			    mem_access <= 1;
       			  end
           endcase
         end
