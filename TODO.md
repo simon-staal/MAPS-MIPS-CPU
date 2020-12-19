@@ -12,7 +12,7 @@ Write additional testcases testing -ve idexes for the following:
 - sh
 (To be done once Salman adds .asm files for current testcases)
 
-Test waitrequest functionality
+Test waitrequest functionality (DONE! - hopefully)
 
 Write more complex comprehensive testcases (optional)
 
