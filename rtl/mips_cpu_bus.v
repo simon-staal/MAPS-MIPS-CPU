@@ -107,22 +107,19 @@ module mips_cpu_bus(
             address = pc;
         end
         if(state == EXEC || state == MEM_ACCESS) begin
-            //ADD LOGIC FOR LOAD / STORE INSTRUCTIONS
-      			if(instr_opcode == OPCODE_SW) begin
+      			if(instr_opcode==OPCODE_SW) begin
       				write = 1;
       				read = 0;
+              address = address_calc & 32'hFFFFFFFC;
+              writedata = regs[rt];
               if(alignment==2'b00) begin
         				byteenable = 4'b1111;
               end
               else begin
                 byteenable = 4'b0000;
               end
-              address = address_calc & 32'hFFFFFFFC;
-              writedata = regs[rt];
       			end
-            //TODO: check?
-
-            if(instr_opcode==OPCODE_SB) begin
+            else if(instr_opcode==OPCODE_SB) begin
               byteenable = 4'b1111;
               case(alignment)
                 2'b00: writedata = 32'h000000FF&regs_byte;
@@ -245,7 +242,7 @@ module mips_cpu_bus(
               read = 0;
               write = 0;
               byteenable = 0;
-              address = pc;
+              address = 32'hXXXXXXXX;
             end
         end
     end
@@ -463,6 +460,17 @@ module mips_cpu_bus(
       			  OPCODE_XORI: begin
       					regs[rt] <= regs[rs] ^ instr_imm;
       			  end
+              /* Debugging
+              OPCODE_SW: begin
+                $display("Storing %h at address %h (address_calc = %h)", writedata, address, (address_calc & 32'hFFFFFFFC));
+              end
+              OPCODE_LW: begin
+                $display("Loading from address %h", address);
+              end
+              OPCODE_SB: begin
+                $display("Storing %h at address %h", writedata, address);
+              end
+              */
           endcase
         end
         else if(state == MEM_ACCESS) begin

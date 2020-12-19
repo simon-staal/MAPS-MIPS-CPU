@@ -6,4 +6,4 @@ nop
 
 0xa0: sw $v1 0xF628($v1) (should go back to line 11)
       jr $zero
-      lw $v0 0xF620($v1)
+      lw $v0 0xF628($v1)
