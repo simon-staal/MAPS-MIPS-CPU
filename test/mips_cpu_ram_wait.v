@@ -23,7 +23,7 @@ module RAM_32x65536(
             //$display("RAM : INIT : Loading RAM contents from %s", RAM_INIT_FILE);
             $readmemh(RAM_INIT_FILE, memory);
         end
-        waitrequest = 0;
+        waitrequest = 1;
     end
 
     //Maps input address from cpu to word address of RAM
@@ -53,7 +53,7 @@ module RAM_32x65536(
           //do nothing, halt position
         end
         else if (waitrequest) begin
-            readdata <= 32'hXXXXXXXX;  
+            readdata <= 32'hXXXXXXXX;
         end
         else if (write) begin
             memory[address_relative] <= {w_data3, w_data2, w_data1, w_data0};
