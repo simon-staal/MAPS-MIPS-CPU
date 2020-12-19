@@ -5,4 +5,4 @@ addu zero t1 t2
 jr zero
 addu v0 zero zero
 
-assert(register_v0==32'h00AA200D)
+assert(register_v0==32'h00000000)
