@@ -12,7 +12,7 @@ if [[ "${INSTRUCTION}" = "null" ]] ; then
   bash ${TEST_DIRECTORY}/run_testbench_code.sh ${SOURCE} jr_0
   bash ${TEST_DIRECTORY}/run_testbench_instr.sh ${SOURCE} lui
   bash ${TEST_DIRECTORY}/run_testbench_instr.sh ${SOURCE} lw
-  bash ${TEST_DIRECTORY}/run_testbench_instr.sh ${SOURCE} addiu
+  # bash ${TEST_DIRECTORY}/run_testbench_instr.sh ${SOURCE} addiu
   >&2 echo "Dependencies passed, checking all instructions"
 else
   TESTCASES="${TEST_DIRECTORY}/1-hex/test_mips_cpu_bus_${INSTRUCTION}_*.hex.txt"
