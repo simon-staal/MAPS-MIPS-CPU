@@ -515,7 +515,7 @@ module mips_cpu_bus(
                   regs[rt] <= (rt == 0) ? 0 : {16'h0000,readdata[31:16]};
                 end
               end
-              OPCODE_LW: regs[rt] <= readdata;
+              OPCODE_LW: regs[rt] <= (rt == 0) ? 0 : readdata;
               OPCODE_LWL: begin
                 case(alignment)
                   2'b00: regs[rt] <= (rt == 0) ? 0 : {readdata[7:0],regs[rt][23:0]};

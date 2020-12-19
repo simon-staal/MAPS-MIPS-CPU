@@ -1,0 +1,7 @@
+lui $v1 0xbfc0
+lw $zero 0x28($v1)
+jr $zero
+addiu v1 zero 0x0
+0x01234567
+
+#assert v0 == 0x01234567
