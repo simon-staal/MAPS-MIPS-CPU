@@ -1,76 +1,57 @@
-# Example usage:
-# If you have testbench/my_test.c, you can execute the following to create a MIPS binary
-# make testbench/my_test.mips.bin
+MIPS_COMPILER = mipsel-linux-gnu-gcc
+MIPS_OBJ_COPY = mipsel-linux-gnu-objcopy
+MIPS_OBJ_DUMP = mipsel-linux-gnu-objdump
+MIPS_CPP_FLAGS = -W -Wall -O3 -ffunction-sections -fno-builtin -fno-stack-protector -march=mips1 -mfp32 -EL
+MIPS_LD_FLAGS = -nostdlib -Wl,-melf32btsmip -march=mips1 -nostartfiles -mno-check-zero-division -Wl,--gpsize=0 -static -Wl,-Bstatic -Wl,--build-id=none
 
-# For simulator
-CC = g++
-CPPFLAGS = -W -Wall
-
-# For MIPS binaries. Turn on all warnings, enable all optimisations and link everything statically
-MIPS_CC = mipsel-linux-gnu-gcc
-MIPS_OBJCOPY = mipsel-linux-gnu-objcopy
-MIPS_OBJDUMP = mipsel-linux-gnu-objdump
-MIPS_CPPFLAGS = -W -Wall -O3 -ffunction-sections -fno-builtin -fno-stack-protector -march=mips1 -mfp32 -EL
-MIPS_LDFLAGS = -nostdlib -Wl,-melf32btsmip -march=mips1 -nostartfiles -mno-check-zero-division -Wl,--gpsize=0 -static -Wl,-Bstatic -Wl,--build-id=none
-
-# Compile C file (.c) into MIPS object file (.o)
+# Turns C file into MIPS object file
 %.mips.o: %.c
-	$(MIPS_CC) $(MIPS_CPPFLAGS) -c $< -o $@
+	$(MIPS_COMPILER) $(MIPS_CPP_FLAGS) -c $< -o $@
 
-%.c:
-	@echo "Invalid output"
-
-# Assemble MIPS assembly file (.s) into MIPS object file (.o)
+# Turns MIPS assembly file into MIPS object file
 %.mips.o: %.s
-	$(MIPS_CC) $(MIPS_CPPFLAGS) -c $< -o $@
+	$(MIPS_COMPILER) $(MIPS_CPP_FLAGS) -c $< -o $@
 
+# Turns C file into MIPS assembly
 %.s: %.c
-	$(MIPS_CC) $(MIPS_CPPFLAGS) -S $< -o $@
+	$(MIPS_COMPILER) $(MIPS_CPP_FLAGS) -S $< -o $@
 
-%.asm.txt: %.mips.s
-	mv $< $@
-# Link MIPS object file (.o), producing .elf, using memory locations specified in spec
+# Link MIPS object file storing instructions at 0xBFC00000 and storing data at 0xBFC20000
 %.mips.elf: %.mips.o
-	$(MIPS_CC) $(MIPS_CPPFLAGS) $(MIPS_LDFLAGS) -T linker.ld $< -o $@
+	$(MIPS_COMPILER) $(MIPS_CPP_FLAGS) $(MIPS_LD_FLAGS) -T linker.ld $< -o $@
 
-# Extract binary instructions only from linked object file (.elf)
+# Disassemble to make assembly code
+%.mips.s : %.mips.elf
+	$(MIPS_OBJ_DUMP) -j .text -D $< > $@
+
+# Renames MIPS assembly to match naming in testbench
+%.asm: %.mips.s
+	mv $< 0-assembly/$@
+
+# Extracts binary from linked object file
 %.mips.bin: %.mips.elf
-	$(MIPS_OBJCOPY) -O binary --only-section=.text $< $@
+	$(MIPS_OBJ_COPY) -O binary --only-section=.text $< $@
 
 %.mips.data.bin: %.mips.elf
-	$(MIPS_OBJCOPY) -O binary --only-section=.data $< $@
+	$(MIPS_OBJ_COPY) -O binary --only-section=.data $< $@
 
-# Disassemble linked object file (.elf), pulling out instructions as MIPS assembly file (.s)
-%.mips.s : %.mips.elf
-	$(MIPS_OBJDUMP) -j .text -D $< > $@
-
+# Converts binary into hex, place values into RAM_INIT_FILE
 %.hex.txt : %.mips.bin
 	od -An -w4 -v -t x4 $< > $@; sed -i '1 s/^/@BFC00000\n/' $@
 
-# This corresponds to line 32769
+# This corresponds to line 32769 in RAM_INIT_FILE
 %.hex.data.txt : %.mips.data.bin
 	od -An -w4 -v -t x4 $< > $@; sed -i '1 s/^/@BFC20000\n/' $@; \
 	if [ ! -s $@ ]; then\
   		printf "@BFC20000\n" > $@; \
 	fi
 
+# Use qemu-mipsel to generate reference output (value is in decimal)
 %.bin: %.c
-	$(MIPS_CC) $(MIPS_CPPFLAGS) $< -o $@
+	$(MIPS_COMPILER) $(MIPS_CPP_FLAGS) $< -o $@
 
 %.ref.txt : %.bin
 	qemu-mipsel -L /usr/mipsel-linux-gnu $<; echo $$? > $@
 
 clean :
 	rm *.txt
-
-## Build simulator
-#bin/mips_simulator: src/simulator.cpp
-#	mkdir -p bin
-#	$(CC) $(CPPFLAGS) src/simulator.cpp -o bin/mips_simulator
-#
-## Dummy for build simulator to conform to spec
-#simulator: bin/mips_simulator
-#
-## Dummy for build testbench to conform to spec. Could do nothing
-#testbench:
-#	@echo "Nothing to do"

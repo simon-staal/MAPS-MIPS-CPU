@@ -5,13 +5,10 @@
 set -eou pipefail
 
 SOURCE=$1
-TESTCASE="test_mips_cpu_bus_$2.hex.txt"
+TESTCASE="$2.hex.txt"
 TEST_DIRECTORY="test"
 
 TESTNAME=$(basename ${TESTCASE} .hex.txt)
-INSTR=$(echo $TESTNAME | cut -d'_' -f 5)
-NUM=$(echo $TESTNAME | cut -d'_' -f 6)
-CODE="${INSTR}_${NUM}"
 # Redirect output to stder (&2) so that it seperate from genuine outputs
 # Using ${VARIANT} substitutes in the value of the variable VARIANT
 
@@ -32,7 +29,7 @@ iverilog -g 2012 \
 # cat ${TEST_DIRECTORY}/3-output/${TESTNAME}.stdout
 
  if [[ "${RESULT}" -ne 0 ]] ; then
-   echo "${CODE} ${INSTR} Fail"
+   echo "${TESTCASE} Fail"
    exit
  fi
 
@@ -57,10 +54,10 @@ RESULT=$?
 set -e
 
 if [[ "${RESULT}" -ne 0 ]] ; then
-  echo "${CODE} ${INSTR} Fail"
-  exit
+  echo "${TESTCASE} Fail"
+  exit 1
 else
-  echo "${CODE} ${INSTR} Pass"
+  echo "${TESTCASE} Pass"
 fi
 
 bash test/C/cleanup.sh

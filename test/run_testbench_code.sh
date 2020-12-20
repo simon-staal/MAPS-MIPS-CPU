@@ -58,7 +58,7 @@ set -e
 
 if [[ "${RESULT}" -ne 0 ]] ; then
   echo "${CODE} ${INSTR} Fail"
-  exit
+  exit 1
 else
   echo "${CODE} ${INSTR} Pass"
 fi
