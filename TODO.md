@@ -4,8 +4,6 @@ TODO
 Testing
 -------
 Write additional testcases testing -ve idexes for the following:
-- lh
-- lhu
 - sb
 - sh
 
