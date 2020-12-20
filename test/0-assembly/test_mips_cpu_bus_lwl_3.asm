@@ -6,4 +6,6 @@ nop
 
 0xa0: lw $v0 0xF628($v1) (should go back to line 11)
       jr $zero
-      nop
+      lwl v0  0xF62c($v1) (line 12, 1 byte)
+
+assert v0 = 734d6ee9
