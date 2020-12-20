@@ -48,7 +48,7 @@ module RAM_32x65536(
     /* Synchronous write path */
     always_ff @(posedge clk) begin
         //$display("RAM : INFO : read=%h, addr = %h, mem=%h", read, address, memory[address]);
-        waitrequest <= !waitrequest;
+        waitrequest <= $urandom_range(0, 1);
         if(address == 0) begin
           //do nothing, halt position
         end
