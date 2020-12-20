@@ -473,7 +473,7 @@ module mips_cpu_bus(
                 regs[rt] <= (rt == 0) ? 0 : (regs[rs] < $signed(instr_imm));
               end
               OPCODE_SLTIU: begin
-                regs[rt] <= (rt == 0) ? 0 : (regs[rs] < $unsigned(instr_imm));
+                regs[rt] <= (rt == 0) ? 0 : (regs[rs] < $unsigned({{16{instr_imm[15]}}, instr_imm}));
               end
       			  OPCODE_XORI: begin
       					regs[rt] <= (rt == 0) ? 0 : regs[rs] ^ instr_imm;
