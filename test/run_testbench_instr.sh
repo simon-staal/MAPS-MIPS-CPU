@@ -69,3 +69,5 @@ for TESTCASE in ${TESTCASES}; do
   fi
 
 done
+
+bash test/cleanup.sh

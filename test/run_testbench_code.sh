@@ -62,3 +62,5 @@ if [[ "${RESULT}" -ne 0 ]] ; then
 else
   echo "${CODE} ${INSTR} Pass"
 fi
+
+bash test/cleanup.sh
