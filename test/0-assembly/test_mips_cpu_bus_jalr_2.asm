@@ -10,4 +10,4 @@ addiu $v0 $v0 0x1
 
 mem location from line 2: BFC00050
 
-assert v0 = bfc00012
+assert v0 = 00000000
