@@ -292,7 +292,8 @@ module mips_cpu_bus(
                   FUNCTION_JALR: begin
                     assert({rt,shift} == 10'b00000) else $fatal(2, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
             		    assert(delay == 0) else $fatal(2, "CPU : ERROR : Branch / Jump instruction %b in delay slot at pc %h", instr, pc);
-            		    regs[rd] <= (rd == 0) ? 0 : pc + 8;
+                    assert(rs != rd) else $fatal(2, "CPU : ERROR : Invalid instruction %b at pc %h, rs cannot equal rd for JALR", instr, pc);
+                    regs[rd] <= (rd == 0) ? 0 : pc + 8;
             		    pc_jmp <= regs[rs];
             		    delay <= 1;
             		  end
