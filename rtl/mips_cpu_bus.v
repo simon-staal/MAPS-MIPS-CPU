@@ -219,7 +219,7 @@ module mips_cpu_bus(
               case(alignment)
                 2'b00: byteenable = 4'b0001;
                 2'b01: byteenable = 4'b0011;
-                2'b10: byteenable = 4'b0111;
+                2'b10: byteenable = 4'b1111;
                 2'b11: byteenable = 4'b1111;
               endcase
               address = address_calc & 32'hFFFFFFFC;
@@ -229,7 +229,7 @@ module mips_cpu_bus(
               write = 0;
               case(alignment)
                 2'b00: byteenable = 4'b1111;
-                2'b01: byteenable = 4'b1110;
+                2'b01: byteenable = 4'b1111;
                 2'b10: byteenable = 4'b1100;
                 2'b11: byteenable = 4'b1000;
               endcase
