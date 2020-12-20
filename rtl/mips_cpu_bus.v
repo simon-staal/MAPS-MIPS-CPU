@@ -121,12 +121,23 @@ module mips_cpu_bus(
               writedata = regs[rt];
       			end
             else if(instr_opcode==OPCODE_SB) begin
-              byteenable = 4'b1111;
               case(alignment)
-                2'b00: writedata = 32'h000000FF&regs_byte;
-                2'b01: writedata = 32'h0000FF00&regs_byte;
-                2'b10: writedata = 32'h00FF0000&regs_byte;
-                2'b11: writedata = 32'hFF000000&regs_byte;
+                2'b00: begin
+                  writedata = 32'h000000FF&regs_byte;
+                  byteenable = 4'b0001;
+                end
+                2'b01: begin
+                  writedata = 32'h0000FF00&regs_byte;
+                  byteenable = 4'b0010;
+                end
+                2'b10: begin
+                  writedata = 32'h00FF0000&regs_byte;
+                  byteenable = 4'b0100;
+                end
+                2'b11: begin
+                  writedata = 32'hFF000000&regs_byte;
+                  byteenable = 4'b1000;
+                end
               endcase
               write = 1;
               read = 0;
@@ -134,11 +145,11 @@ module mips_cpu_bus(
             end
             else if(instr_opcode==OPCODE_SH) begin
               if(alignment==2'b00) begin
-                byteenable = 4'b1111;
+                byteenable = 4'b0011;
                 writedata = 32'h0000FFFF&regs_hw;
               end
               else if(alignment==2'b10) begin
-                byteenable = 4'b1111;
+                byteenable = 4'b1100;
                 writedata = 32'hFFFF0000&regs_hw;
               end
               else begin //Writing to unaligned memory, do nothing
