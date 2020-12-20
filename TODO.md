@@ -6,12 +6,8 @@ Testing
 Write additional testcases testing -ve idexes for the following:
 - lh
 - lhu
-- lwl
-- lwr
 - sb
 - sh
-
-Test waitrequest functionality (DONE! - hopefully)
 
 Write more complex comprehensive testcases (optional)
 
