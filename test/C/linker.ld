@@ -9,7 +9,7 @@ SECTIONS
 .text : { *(.rodata) }
 .text : { *(.rodata.*) }
 
- . = 0xBFC0FF00;
+ . = 0xBFC20000;
 .data : { *(.data) }
 .bss : { *(.bss) }
 }

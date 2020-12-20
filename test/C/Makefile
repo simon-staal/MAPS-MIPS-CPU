@@ -47,20 +47,21 @@ MIPS_LDFLAGS = -nostdlib -Wl,-melf32btsmip -march=mips1 -nostartfiles -mno-check
 %.hex.txt : %.mips.bin
 	od -An -w4 -v -t x4 $< > $@; sed -i '1 s/^/@BFC00000\n/' $@
 
+# This corresponds to line 32769
 %.hex.data.txt : %.mips.data.bin
-	od -An -w4 -v -t x4 $< > $@; sed -i '1 s/^/@BFC0FF00\n/' $@; \
+	od -An -w4 -v -t x4 $< > $@; sed -i '1 s/^/@BFC20000\n/' $@; \
 	if [ ! -s $@ ]; then\
-  		printf "@BFC0FF00\n" > $@; \
+  		printf "@BFC20000\n" > $@; \
 	fi
 
 %.bin: %.c
 	$(MIPS_CC) $(MIPS_CPPFLAGS) $< -o $@
 
 %.ref.txt : %.bin
-	qemu-mipsel -L /usr/mipsel-linux-gnu $<; echo $$? > ../reference/$@
+	qemu-mipsel -L /usr/mipsel-linux-gnu $<; echo $$? > $@
 
 clean :
-	rm -rf ../data/* ../binary/* ../assembly/* ../reference/*
+	rm *.txt
 
 ## Build simulator
 #bin/mips_simulator: src/simulator.cpp
