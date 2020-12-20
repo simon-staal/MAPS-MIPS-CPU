@@ -16,7 +16,7 @@ CODE="${INSTR}_${NUM}"
 # Using ${VARIANT} substitutes in the value of the variable VARIANT
 
    iverilog -g 2012 \
-      ${SOURCE}/mips_cpu_*.v ${SOURCE}/mips_cpu_*.vh ${TEST_DIRECTORY}/test_mips_cpu_bus_generic.v ${TEST_DIRECTORY}/mips_cpu_ram_wait.v \
+      ${SOURCE}/mips_cpu_*.v ${SOURCE}/mips_cpu_*.vh ${TEST_DIRECTORY}/src/test_mips_cpu_bus_generic.v ${TEST_DIRECTORY}/src/mips_cpu_ram_wait.v \
       -s  mips_cpu_bus_tb \
       -P mips_cpu_bus_tb.RAM_INIT_FILE=\"${TEST_DIRECTORY}/1-hex/${TESTCASE}\" \
       -P mips_cpu_bus_tb.TESTCASE_ID=\"${CODE}\" \

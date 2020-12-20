@@ -43,7 +43,7 @@ for TESTCASE in ${TESTCASES}; do
      -P mips_cpu_bus_tb.INSTRUCTION=\"${INSTR}\" \
      -o ${TEST_DIRECTORY}/2-simulator/${TESTNAME} \
      -I ${SOURCE} \
-     ${SOURCE}/mips_cpu_*.v ${SOURCE}/mips_cpu_*.vh ${TEST_DIRECTORY}/test_mips_cpu_bus_generic.v ${TEST_DIRECTORY}/mips_cpu_ram_wait.v
+     ${SOURCE}/mips_cpu_*.v ${SOURCE}/mips_cpu_*.vh ${TEST_DIRECTORY}/src/test_mips_cpu_bus_generic.v ${TEST_DIRECTORY}/src/mips_cpu_ram_wait.v
 
   >&2 echo "  2 - Running test-bench"
   # Run the simulator, simulator should output appropriate message
