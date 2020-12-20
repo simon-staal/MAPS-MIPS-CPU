@@ -354,7 +354,7 @@ module mips_cpu_bus(
                   end
                   FUNCTION_SLLV: begin
                     assert(shift == 5'b00000) else $fatal(2, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
-                    regs[rd] <= (rd == 0) ? 0 : regs[rt] << regs[rs];
+                    regs[rd] <= (rd == 0) ? 0 : regs[rt] << (regs[rs] & 32'h0000001f);
                   end
                   FUNCTION_SLTU: begin
                     assert(shift == 5'b00000) else $fatal(2, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
@@ -374,7 +374,7 @@ module mips_cpu_bus(
         				  end
         					FUNCTION_SRLV: begin
                     assert(shift == 5'b00000) else $fatal(2, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
-        					  regs[rd] <= (rd == 0) ? 0 : regs[rt] >> regs[rs];
+        					  regs[rd] <= (rd == 0) ? 0 : regs[rt] >> (regs[rs] & 32'h0000001f);
         				  end
         					FUNCTION_SUBU: begin
                     assert(shift == 5'b00000) else $fatal(2, "CPU : ERROR : Invalid instruction %b at pc %h", instr, pc);
