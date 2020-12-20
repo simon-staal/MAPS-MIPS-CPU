@@ -1,0 +1,31 @@
+
+test.mips.elf:     file format elf32-tradlittlemips
+
+
+Disassembly of section .text:
+
+bfc00000 <main>:
+bfc00000:	3c02bfc1 	lui	v0,0xbfc1
+bfc00004:	8c43ff00 	lw	v1,-256(v0)
+bfc00008:	00000000 	nop
+bfc0000c:	24630004 	addiu	v1,v1,4
+bfc00010:	ac43ff00 	sw	v1,-256(v0)
+bfc00014:	8c43ff00 	lw	v1,-256(v0)
+bfc00018:	00000000 	nop
+bfc0001c:	24630004 	addiu	v1,v1,4
+bfc00020:	ac43ff00 	sw	v1,-256(v0)
+bfc00024:	8c43ff00 	lw	v1,-256(v0)
+bfc00028:	00000000 	nop
+bfc0002c:	24630004 	addiu	v1,v1,4
+bfc00030:	ac43ff00 	sw	v1,-256(v0)
+bfc00034:	8c43ff00 	lw	v1,-256(v0)
+bfc00038:	00000000 	nop
+bfc0003c:	24630004 	addiu	v1,v1,4
+bfc00040:	ac43ff00 	sw	v1,-256(v0)
+bfc00044:	8c43ff00 	lw	v1,-256(v0)
+bfc00048:	00000000 	nop
+bfc0004c:	24630004 	addiu	v1,v1,4
+bfc00050:	ac43ff00 	sw	v1,-256(v0)
+bfc00054:	8c42ff00 	lw	v0,-256(v0)
+bfc00058:	03e00008 	jr	ra
+bfc0005c:	00000000 	nop
