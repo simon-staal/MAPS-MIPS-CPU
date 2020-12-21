@@ -28,7 +28,17 @@ module mips_cpu_bus_tb;
     logic[3:0] byteenable;
     logic[31:0] readdata;
 
-    mips_cpu_bus cpuInst(clk, reset, active, register_v0, address, write, read, waitrequest, writedata, byteenable, readdata);
+    mips_cpu_bus cpuInst( .clk (clk),
+                          .reset (reset),
+                          .active (active),
+                          .register_v0 (register_v0),
+                          .address (address),
+                          .write (write),
+                          .read (read),
+                          .waitrequest (waitrequest),
+                          .writedata (writedata),
+                          .byteenable (byteenable),
+                          .readdata (readdata));
 
     RAM_32x65536 #(RAM_INIT_FILE) ramInst(clk, address, write, read, waitrequest, writedata, byteenable, readdata);
 
