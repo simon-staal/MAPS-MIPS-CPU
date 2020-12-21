@@ -54,7 +54,7 @@ module RAM_32x65536(
     always_ff @(posedge clk) begin
         //$display("RAM : INFO : read=%h, addr = %h, mem=%h", read, address, memory[address]);
         if (write) begin
-            zero <= (address == 0) ? {w_data3, w_data2, w_data1, w_data0} : 0;
+            zero <= (address == 0) ? {w_data3, w_data2, w_data1, w_data0} : zero;
             memory[address_relative] <= {w_data3, w_data2, w_data1, w_data0};
         end
         else if (read) begin
