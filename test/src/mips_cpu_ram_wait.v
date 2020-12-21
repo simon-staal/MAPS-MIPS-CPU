@@ -14,7 +14,6 @@ module RAM_32x65536(
     logic [31:0]zero;
 
     initial begin
-        zero = 32'h00000000;
         integer i;
         /* Initialise to zero by default */
         for (i=0; i<65535; i++) begin
@@ -26,6 +25,7 @@ module RAM_32x65536(
             $readmemh(RAM_INIT_FILE, memory);
         end
         waitrequest = 1;
+        zero = 32'h00000000;
     end
 
     //Maps input address from cpu to word address of RAM
