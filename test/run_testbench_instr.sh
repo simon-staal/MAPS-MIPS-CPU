@@ -22,13 +22,13 @@ for TESTCASE in ${TESTCASES}; do
   # The -P command is used to modify the RAM_INIT_FILE parameter on the test-bench at compile-time
   # Note currently must be compiled inside source folder for include to work
   iverilog -g 2012 \
-     ${SOURCE}/mips_cpu_*.v ${SOURCE}/mips_cpu_*.vh ${TEST_DIRECTORY}/test_mips_cpu_bus_generic.v ${TEST_DIRECTORY}/mips_cpu_ram_wait.v \
      -s  mips_cpu_bus_tb \
      -P mips_cpu_bus_tb.RAM_INIT_FILE=\"${TESTCASE}\" \
      -P mips_cpu_bus_tb.TESTCASE_ID=\"${CODE}\" \
      -P mips_cpu_bus_tb.INSTRUCTION=\"${INSTR}\" \
      -o ${TEST_DIRECTORY}/2-simulator/${TESTNAME} \
-     -I ${SOURCE}
+     -I ${SOURCE} \
+     ${SOURCE}/mips_cpu_*.v ${SOURCE}/mips_cpu_*.vh ${SOURCE}/mips_cpu/*.v ${TEST_DIRECTORY}/src/test_mips_cpu_bus_generic.v ${TEST_DIRECTORY}/src/mips_cpu_ram_wait.v
 
   >&2 echo "  2 - Running test-bench"
   # Run the simulator, simulator should output appropriate message
@@ -69,3 +69,5 @@ for TESTCASE in ${TESTCASES}; do
   fi
 
 done
+
+bash test/cleanup.sh

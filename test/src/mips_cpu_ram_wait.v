@@ -29,6 +29,8 @@ module RAM_32x65536(
     //Maps input address from cpu to word address of RAM
     logic[31:0] address_relative;
     assign address_relative = (address - 32'hBFC00000)/4;
+    logic invalid;
+    assign invalid = (byteenable[0]&&byteenable[3]&&(!byteenable[1]||!byteenable[2]))||(byteenable[1]&&byteenable[3]&&!byteenable[2])||(byteenable[0]&&byteenable[2]&&!byteenable[1]);
 
     //Uses byteenable to select words from input
     logic[31:0] r_data;
@@ -54,6 +56,15 @@ module RAM_32x65536(
         end
         else if (waitrequest) begin
             readdata <= 32'hXXXXXXXX;
+        end
+        else if (invalid) begin
+            //Invalid byteenable input
+            if (write) begin
+              memory[address_relative] <= 32'hXXXXXXXX;
+            end
+            if (read) begin
+              readdata <= 32'hXXXXXXXX;
+            end
         end
         else if (write) begin
             memory[address_relative] <= {w_data3, w_data2, w_data1, w_data0};

@@ -4,6 +4,8 @@ set -eou pipefail
 SOURCE="$1" #Source directory containing RTL implementation
 TEST_DIRECTORY="test"
 INSTRUCTION="${2:-null}"
+
+# NOTE: If CPU doesn't handle waitrequest switch to compiling mips_cpu_ram_nowait.v
 if [[ "${INSTRUCTION}" = "null" ]] ; then
   TESTCASES="${TEST_DIRECTORY}/1-hex/test_mips_cpu_bus_*.hex.txt" #list of testcases being tested either starting with instruction being tested or all if no instruction is specified
   >&2 echo "Running full testbench"
@@ -41,7 +43,7 @@ for TESTCASE in ${TESTCASES}; do
      -P mips_cpu_bus_tb.INSTRUCTION=\"${INSTR}\" \
      -o ${TEST_DIRECTORY}/2-simulator/${TESTNAME} \
      -I ${SOURCE} \
-     ${SOURCE}/mips_cpu_*.v ${SOURCE}/mips_cpu_*.vh ${TEST_DIRECTORY}/test_mips_cpu_bus_generic.v ${TEST_DIRECTORY}/mips_cpu_ram_wait.v
+     ${SOURCE}/mips_cpu_*.v ${SOURCE}/mips_cpu_*.vh ${SOURCE}/mips_cpu/*.v ${TEST_DIRECTORY}/src/test_mips_cpu_bus_generic.v ${TEST_DIRECTORY}/src/mips_cpu_ram_wait.v
 
   >&2 echo "  2 - Running test-bench"
   # Run the simulator, simulator should output appropriate message
