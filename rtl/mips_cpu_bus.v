@@ -107,7 +107,7 @@ module mips_cpu_bus(
             write = 0;
             address = pc;
         end
-        if(state == EXEC || state == MEM_ACCESS) begin
+        if(state == EXEC || state == WRITE_BACK) begin
       			if(instr_opcode==OPCODE_SW) begin
               if(alignment==2'b00) begin
         				byteenable = 4'b1111;
@@ -275,7 +275,7 @@ module mips_cpu_bus(
         else if(state == EXEC) begin
             ir <= (stall) ? ir : readdata;
             assert(regs[0]==32'h00000000) else $fatal(2, "$zero is no longer 0");
-            state <= (waitrequest && mem_access) ? EXEC : ((instr_opcode==OPCODE_LB)||(instr_opcode==OPCODE_LBU)||(instr_opcode==OPCODE_LHU)||(instr_opcode==OPCODE_LH)||(instr_opcode==OPCODE_LW)||(instr_opcode==OPCODE_LWL)||(instr_opcode==OPCODE_LWR)) ? MEM_ACCESS : FETCH;
+            state <= (waitrequest && mem_access) ? EXEC : ((instr_opcode==OPCODE_LB)||(instr_opcode==OPCODE_LBU)||(instr_opcode==OPCODE_LHU)||(instr_opcode==OPCODE_LH)||(instr_opcode==OPCODE_LW)||(instr_opcode==OPCODE_LWL)||(instr_opcode==OPCODE_LWR)) ? WRITE_BACK : FETCH;
             pc <= (waitrequest && mem_access) ? pc : (delay) ? pc_jmp : pc_increment;
             delay <= (waitrequest && mem_access) ? delay : (delay) ? 0 : delay; //Resets the value of delay
             stall <= (waitrequest && mem_access);
@@ -480,7 +480,7 @@ module mips_cpu_bus(
       			  end
           endcase
         end
-        else if(state == MEM_ACCESS) begin
+        else if(state == WRITE_BACK) begin
             state <= FETCH;
             case(instr_opcode)
               OPCODE_LB: begin
