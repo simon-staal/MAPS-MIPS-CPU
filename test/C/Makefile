@@ -2,7 +2,7 @@ MIPS_COMPILER = mipsel-linux-gnu-gcc
 MIPS_OBJ_COPY = mipsel-linux-gnu-objcopy
 MIPS_OBJ_DUMP = mipsel-linux-gnu-objdump
 MIPS_CPP_FLAGS = -W -Wall -O3 -ffunction-sections -fno-builtin -fno-stack-protector -mfp32 -march=mips1 -EL
-MIPS_LD_FLAGS = -nostdlib -Wl,-melf32btsmip -march=mips1 -nostartfiles -mno-check-zero-division -Wl,--gpsize=0 -static -Wl,-Bstatic -Wl,--build-id=none
+MIPS_LD_FLAGS = -nostdlib -Wl,-melf32btsmip -nostartfiles -mno-check-zero-division -Wl,--gpsize=0 -static -Wl,-Bstatic -Wl,--build-id=none
 
 # Turns C file into MIPS object file
 %.mips.o: %.c
