@@ -1,4 +1,3 @@
-
 lui $v1 0xbfc0
 lw $t1 0x0028($v1)
 sb $t1 0x002E($v1)
