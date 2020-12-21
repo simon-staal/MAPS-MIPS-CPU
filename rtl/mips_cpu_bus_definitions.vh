@@ -76,13 +76,12 @@ typedef enum logic[4:0] {
     BLTZAL = 5'b10000 //$ra <= pc + 8, if(rs < 0) then pc <= pc + imm>>2
 } REGIMM_t;
 
-//TODO: discuss logic for FSM and implement
-typedef enum logic[2:0] {
-    FETCH = 3'b000,
-    EXEC = 3'b001,
-    MEM_ACCESS = 3'b010,
-    WRITE_BACK = 3'b011,
-    HALTED = 3'b111
+//Internal states in CPU state machine
+typedef enum logic[1:0] {
+    FETCH = 2'b00,
+    EXEC = 2'b01,
+    WRITE_BACK = 2'b10,
+    HALTED = 2'b11
 } state_t;
 
 `endif
