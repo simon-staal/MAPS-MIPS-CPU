@@ -22,7 +22,7 @@ iverilog -g 2012 \
   -P mips_cpu_bus_tb.INSTRUCTION=\"${INSTR}\" \
   -o ${TEST_DIRECTORY}/2-simulator/${TESTNAME} \
   -I ${SOURCE} \
-  ${SOURCE}/mips_cpu_*.v ${SOURCE}/mips_cpu_*.vh ${SOURCE}/mips_cpu/*.v ${TEST_DIRECTORY}/src/test_mips_cpu_bus_generic.v ${TEST_DIRECTORY}/src/mips_cpu_ram_wait.v
+  ${SOURCE}/mips_cpu_*.v ${SOURCE}/mips_cpu/*.v ${TEST_DIRECTORY}/src/test_mips_cpu_bus_generic.v ${TEST_DIRECTORY}/src/mips_cpu_ram_wait.v
 
  set +e
  ${TEST_DIRECTORY}/2-simulator/${TESTNAME} > ${TEST_DIRECTORY}/3-output/${TESTNAME}.stdout
