@@ -45,11 +45,13 @@ iverilog -g 2012 \
 
  sed -e "s/${PATTERN}/${NOTHING}/g" ${TEST_DIRECTORY}/3-output/${TESTNAME}.out-v0 > ${TEST_DIRECTORY}/3-output/${TESTNAME}.out
 
-echo "Testbench output"
-cat ${TEST_DIRECTORY}/3-output/${TESTNAME}.out
 
-echo "Reference output"
-cat ${TEST_DIRECTORY}/4-reference/${TESTNAME}.txt
+# Additional debugging
+# echo "Testbench output"
+# cat ${TEST_DIRECTORY}/3-output/${TESTNAME}.out
+
+# echo "Reference output"
+# cat ${TEST_DIRECTORY}/4-reference/${TESTNAME}.txt
 
 set +e
 diff -w ${TEST_DIRECTORY}/4-reference/${TESTNAME}.txt ${TEST_DIRECTORY}/3-output/${TESTNAME}.out
@@ -58,7 +60,7 @@ set -e
 
 if [[ "${RESULT}" -ne 0 ]] ; then
   echo "${CODE} ${INSTR} Fail"
-  exit
+  exit 1
 else
   echo "${CODE} ${INSTR} Pass"
 fi

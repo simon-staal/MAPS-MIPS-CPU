@@ -11,8 +11,10 @@ module RAM_32x65536(
     parameter RAM_INIT_FILE = "";
 
     reg [31:0] memory [65535:0];
+    logic [31:0]zero;
 
     initial begin
+        zero = 32'h00000000;
         integer i;
         /* Initialise to zero by default */
         for (i=0; i<65535; i++) begin
@@ -35,7 +37,7 @@ module RAM_32x65536(
 
     //Uses byteenable to select words from input
     logic[31:0] r_data;
-    assign r_data = (address == 0) ? 32'd0 : memory[address_relative];
+    assign r_data = (address == 0) ? zero : memory[address_relative];
     logic[7:0] r_data3, r_data2, r_data1, r_data0;
     assign r_data3 = r_data[31:24] & {8{byteenable[3]}};
     assign r_data2 = r_data[23:16] & {8{byteenable[2]}};
@@ -51,10 +53,8 @@ module RAM_32x65536(
     /* Synchronous write path */
     always_ff @(posedge clk) begin
         //$display("RAM : INFO : read=%h, addr = %h, mem=%h", read, address, memory[address]);
-        if(address == 0) begin
-          //do nothing, halt position
-        end
-        else if (write) begin
+        if (write) begin
+            zero <= (address == 0) ? {w_data3, w_data2, w_data1, w_data0} : zero;
             memory[address_relative] <= {w_data3, w_data2, w_data1, w_data0};
         end
         else if (read) begin
