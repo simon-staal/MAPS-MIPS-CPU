@@ -265,7 +265,7 @@ module mips_cpu_bus(
               regs[i] <= 0;
             end
         end
-        else if(address == 32'h00000000) begin
+        else if(address == 32'h00000000 && state == FETCH) begin
             state <= HALTED;
             active <= 0;
         end

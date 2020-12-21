@@ -11,7 +11,7 @@ if [[ "${INSTRUCTION}" = "null" ]] ; then
   >&2 echo "Running full testbench"
   >&2 echo "Checking dependencies"
   # Tests are reliant on these instructions,
-  bash ${TEST_DIRECTORY}/run_testbench_code.sh ${SOURCE} jr_0
+  bash ${TEST_DIRECTORY}/run_testbench_code.sh ${SOURCE} jr_1
   bash ${TEST_DIRECTORY}/run_testbench_instr.sh ${SOURCE} lui
   bash ${TEST_DIRECTORY}/run_testbench_instr.sh ${SOURCE} lw
   # bash ${TEST_DIRECTORY}/run_testbench_instr.sh ${SOURCE} addiu
