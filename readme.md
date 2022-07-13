@@ -1,5 +1,6 @@
 MIPS CPU DESIGN PROJECT
 =======================
+![logo](docs/logo.png)
 This repository contains the MIPS CPU designed as part of the instruction set
 architecture (ISA) module for 2nd year EIE at Imperial College London. All verilog
 files adhere to the subset of SystemVerilog 2012 supported by Icarus verilog 11.0.
